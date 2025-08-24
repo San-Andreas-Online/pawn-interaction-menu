@@ -1,0 +1,7 @@
+{
+	"user": "San-Andreas-Online",
+	"repo": "pawn-interaction-menu",
+	"dependencies": [
+		"sampctl/samp-stdlib"
+	]
+}

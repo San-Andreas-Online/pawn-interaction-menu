@@ -5,7 +5,7 @@
 // | | |  | || |___| |\  | |_| |
 // |_\_|  |_/\____/\_| \_/\___/ 
 //
-// Version 1.0.0 by
+// Version 1.0.1 by
 //    _____ ___   ____     _______________    __  ___
 //   / ___//   | / __ \   /_  __/ ____/   |  /  |/  /
 //   \__ \/ /| |/ / / /    / / / __/ / /| | / /|_/ / 
@@ -487,30 +487,22 @@ static DestroyIMenu(playerid)
 {
 	for (new i = 0; i < sizeof(tdInteractionMenu[]); i++)
 	{
-		if (IsValidPlayerTextDraw(playerid, tdInteractionMenu[playerid][e_MENU_TD:i]))
-		{
-			PlayerTextDrawDestroy(playerid, tdInteractionMenu[playerid][e_MENU_TD:i]);
-			tdInteractionMenu[playerid][e_MENU_TD:i] = INVALID_PLAYER_TEXT_DRAW;
-		}
+		PlayerTextDrawDestroy(playerid, tdInteractionMenu[playerid][e_MENU_TD:i]);
+		tdInteractionMenu[playerid][e_MENU_TD:i] = INVALID_PLAYER_TEXT_DRAW;
 	}
 
 	for (new i = 0; i < sizeof(tdMenuItemBox[]); i++)
 	{
-		if (IsValidPlayerTextDraw(playerid, tdMenuItemBox[playerid][e_MENU_ITEM:i]))
-		{
-			PlayerTextDrawDestroy(playerid, tdMenuItemBox[playerid][e_MENU_ITEM:i]);
-			tdMenuItemBox[playerid][e_MENU_ITEM:i] = INVALID_PLAYER_TEXT_DRAW;
-		}
-		if (IsValidPlayerTextDraw(playerid, tdMenuItemText[playerid][e_MENU_ITEM:i]))
-		{
-			PlayerTextDrawDestroy(playerid, tdMenuItemText[playerid][e_MENU_ITEM:i]);
-			tdMenuItemText[playerid][e_MENU_ITEM:i] = INVALID_PLAYER_TEXT_DRAW;
-		}
-		if (IsValidPlayerTextDraw(playerid, tdMenuItemScroll[playerid][e_MENU_ITEM:i]))
-		{
-			PlayerTextDrawDestroy(playerid, tdMenuItemScroll[playerid][e_MENU_ITEM:i]);
-			tdMenuItemScroll[playerid][e_MENU_ITEM:i] = INVALID_PLAYER_TEXT_DRAW;
-		}
+		PlayerTextDrawDestroy(playerid, tdMenuItemBox[playerid][e_MENU_ITEM:i]);
+		tdMenuItemBox[playerid][e_MENU_ITEM:i] = INVALID_PLAYER_TEXT_DRAW;
+	
+	
+		PlayerTextDrawDestroy(playerid, tdMenuItemText[playerid][e_MENU_ITEM:i]);
+		tdMenuItemText[playerid][e_MENU_ITEM:i] = INVALID_PLAYER_TEXT_DRAW;
+	
+	
+		PlayerTextDrawDestroy(playerid, tdMenuItemScroll[playerid][e_MENU_ITEM:i]);
+		tdMenuItemScroll[playerid][e_MENU_ITEM:i] = INVALID_PLAYER_TEXT_DRAW;
 	}
 }
 

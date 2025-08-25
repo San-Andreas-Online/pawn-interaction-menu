@@ -5,7 +5,7 @@
 // | | |  | || |___| |\  | |_| |
 // |_\_|  |_/\____/\_| \_/\___/ 
 //
-// Version 1.0.1 by
+// Version 1.0.2 by
 //    _____ ___   ____     _______________    __  ___
 //   / ___//   | / __ \   /_  __/ ____/   |  /  |/  /
 //   \__ \/ /| |/ / / /    / / / __/ / /| | / /|_/ / 
@@ -1333,7 +1333,7 @@ public OnPlayerConnect(playerid)
 {
 	CreateIMenu(playerid);
 
-	return 1;
+	return CallLocalFunction("IM_OnPlayerConnect", "i", playerid);
 }
 forward IM_OnPlayerConnect(playerid);
 #if defined _ALS_OnPlayerConnect

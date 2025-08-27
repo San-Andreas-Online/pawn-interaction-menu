@@ -5,7 +5,7 @@
 // | | |  | || |___| |\  | |_| |
 // |_\_|  |_/\____/\_| \_/\___/ 
 //
-// Version 1.0.2 by
+// Version 1.0.4 by
 //    _____ ___   ____     _______________    __  ___
 //   / ___//   | / __ \   /_  __/ ____/   |  /  |/  /
 //   \__ \/ /| |/ / / /    / / / __/ / /| | / /|_/ / 
@@ -902,11 +902,16 @@ HandleMenuNavigation(playerid, updown, index)
 	if (updown == KEY_UP)
 	{
 		if (iSelectedMenuItemId[playerid] > 0) 
+		{
 			iSelectedMenuItemId[playerid]--;
+			PlayerPlaySound(playerid, 1084);
+		}
 		else if (iMenuScrollOffset[playerid] > 0) 
+		{
 			iMenuScrollOffset[playerid]--;
+			PlayerPlaySound(playerid, 1084);
+		}
 
-		PlayerPlaySound(playerid, 1084);
 		UpdateMenuHighlight(playerid, interactionMenuItemCount[playerid]);
 		actionCount[playerid]++;
 	}
@@ -914,11 +919,16 @@ HandleMenuNavigation(playerid, updown, index)
 	{
 		if (iSelectedMenuItemId[playerid] < sizeof(tdMenuItemText[]) - 1 
 		&& index < interactionMenuItemCount[playerid] - 1)
+		{
 			iSelectedMenuItemId[playerid]++;
+			PlayerPlaySound(playerid, 1084);
+		}
 		else if (iMenuScrollOffset[playerid] + sizeof(tdMenuItemText[]) < interactionMenuItemCount[playerid])
+		{
 			iMenuScrollOffset[playerid]++;
+			PlayerPlaySound(playerid, 1084);
+		}
 
-		PlayerPlaySound(playerid, 1084);
 		UpdateMenuHighlight(playerid, interactionMenuItemCount[playerid]);
 		actionCount[playerid]++;
 	}

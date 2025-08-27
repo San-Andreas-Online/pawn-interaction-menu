@@ -5,7 +5,7 @@
 // | | |  | || |___| |\  | |_| |
 // |_\_|  |_/\____/\_| \_/\___/ 
 //
-// Version 1.0.2 by
+// Version 1.0.0 by
 //    _____ ___   ____     _______________    __  ___
 //   / ___//   | / __ \   /_  __/ ____/   |  /  |/  /
 //   \__ \/ /| |/ / / /    / / / __/ / /| | / /|_/ / 
@@ -1333,7 +1333,7 @@ public OnPlayerConnect(playerid)
 {
 	CreateIMenu(playerid);
 
-	return CallLocalFunction("IM_OnPlayerConnect", "i", playerid);
+	return 1;
 }
 forward IM_OnPlayerConnect(playerid);
 #if defined _ALS_OnPlayerConnect
@@ -1422,3 +1422,19 @@ forward IM_OnPlayerUpdate(playerid);
 	#define _ALS_OnPlayerUpdate
 #endif
 #define OnPlayerUpdate IM_OnPlayerUpdate
+
+/*
+ * Hides the interaction menu when a player dies.
+ */
+public OnPlayerDeath(playerid, killerid, WEAPON:reason)
+{
+	HideInteractionMenu(playerid);
+}
+
+forward IM_OnPlayerDeath(playerid, killerid, WEAPON:reason);
+#if defined _ALS_OnPlayerDeath
+	#undef OnPlayerDeath
+#else
+	#define _ALS_OnPlayerDeath
+#endif
+#define OnPlayerDeath IM_OnPlayerDeath

@@ -5,7 +5,7 @@
 // | | |  | || |___| |\  | |_| |
 // |_\_|  |_/\____/\_| \_/\___/ 
 //
-// Version 1.0.4 by
+// Version 1.0.5 by
 //    _____ ___   ____     _______________    __  ___
 //   / ___//   | / __ \   /_  __/ ____/   |  /  |/  /
 //   \__ \/ /| |/ / / /    / / / __/ / /| | / /|_/ / 
@@ -1343,7 +1343,7 @@ public OnPlayerConnect(playerid)
 {
 	CreateIMenu(playerid);
 
-	return 1;
+	return CallLocalFunction("IM_OnPlayerConnect", "i", playerid);
 }
 forward IM_OnPlayerConnect(playerid);
 #if defined _ALS_OnPlayerConnect
@@ -1439,6 +1439,8 @@ forward IM_OnPlayerUpdate(playerid);
 public OnPlayerDeath(playerid, killerid, WEAPON:reason)
 {
 	HideInteractionMenu(playerid);
+
+	return CallLocalFunction("IM_OnPlayerDeath", "iii", playerid, killerid, _:reason);
 }
 
 forward IM_OnPlayerDeath(playerid, killerid, WEAPON:reason);

@@ -5,7 +5,7 @@
 // | | |  | || |___| |\  | |_| |
 // |_\_|  |_/\____/\_| \_/\___/ 
 //
-// Version 1.0.2 by
+// Version 1.0.6 by
 //    _____ ___   ____     _______________    __  ___
 //   / ___//   | / __ \   /_  __/ ____/   |  /  |/  /
 //   \__ \/ /| |/ / / /    / / / __/ / /| | / /|_/ / 
@@ -902,11 +902,16 @@ HandleMenuNavigation(playerid, updown, index)
 	if (updown == KEY_UP)
 	{
 		if (iSelectedMenuItemId[playerid] > 0) 
+		{
 			iSelectedMenuItemId[playerid]--;
+			PlayerPlaySound(playerid, 1084);
+		}
 		else if (iMenuScrollOffset[playerid] > 0) 
+		{
 			iMenuScrollOffset[playerid]--;
+			PlayerPlaySound(playerid, 1084);
+		}
 
-		PlayerPlaySound(playerid, 1084);
 		UpdateMenuHighlight(playerid, interactionMenuItemCount[playerid]);
 		actionCount[playerid]++;
 	}
@@ -914,11 +919,16 @@ HandleMenuNavigation(playerid, updown, index)
 	{
 		if (iSelectedMenuItemId[playerid] < sizeof(tdMenuItemText[]) - 1 
 		&& index < interactionMenuItemCount[playerid] - 1)
+		{
 			iSelectedMenuItemId[playerid]++;
+			PlayerPlaySound(playerid, 1084);
+		}
 		else if (iMenuScrollOffset[playerid] + sizeof(tdMenuItemText[]) < interactionMenuItemCount[playerid])
+		{
 			iMenuScrollOffset[playerid]++;
+			PlayerPlaySound(playerid, 1084);
+		}
 
-		PlayerPlaySound(playerid, 1084);
 		UpdateMenuHighlight(playerid, interactionMenuItemCount[playerid]);
 		actionCount[playerid]++;
 	}
@@ -1363,7 +1373,7 @@ public OnPlayerDisconnect(playerid, reason)
 
 	unfreezeTimer[playerid] = INVALID_TIMER;
 
-	return CallLocalFunction("IM_OnPlayerDisconnect", "is", playerid, reason);
+	return CallLocalFunction("IM_OnPlayerDisconnect", "ii", playerid, reason);
 }
 forward IM_OnPlayerDisconnect(playerid, reason);
 #if defined _ALS_OnPlayerDisconnect
@@ -1422,3 +1432,21 @@ forward IM_OnPlayerUpdate(playerid);
 	#define _ALS_OnPlayerUpdate
 #endif
 #define OnPlayerUpdate IM_OnPlayerUpdate
+
+/*
+ * Hides the interaction menu when a player dies.
+ */
+public OnPlayerDeath(playerid, killerid, WEAPON:reason)
+{
+	HideInteractionMenu(playerid);
+
+	return CallLocalFunction("IM_OnPlayerDeath", "iii", playerid, killerid, _:reason);
+}
+
+forward IM_OnPlayerDeath(playerid, killerid, WEAPON:reason);
+#if defined _ALS_OnPlayerDeath
+	#undef OnPlayerDeath
+#else
+	#define _ALS_OnPlayerDeath
+#endif
+#define OnPlayerDeath IM_OnPlayerDeath

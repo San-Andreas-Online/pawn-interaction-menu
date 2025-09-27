@@ -31,6 +31,16 @@ This library provides a flexible way to create in-game menus with support for:
    ```pawn
    #include <interaction_menu>
    ```
+> [!WARNING]
+>
+> In some cases, by default or when redefining constants to higher values (such as MAX_MENU_ITEMS), the include requires a higher amount of memory, and will require you to increase the heap/stack size accordingly, after including all your libraries:
+> 
+> ```pawn
+> // Fix for " Run time error 3: "Stack/heap collision (insufficient stack size)"
+> // Serves as a maximum memory size for variables and arrays (ex: new string[8192])
+> #pragma dynamic 4096*2
+> #define CGEN_MEMORY (60000) // Fix for CGen space error
+> ```
 
 ## 📝 Item Formatting
 

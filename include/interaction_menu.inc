@@ -1363,7 +1363,7 @@ public OnPlayerDisconnect(playerid, reason)
 
 	unfreezeTimer[playerid] = INVALID_TIMER;
 
-	return CallLocalFunction("IM_OnPlayerDisconnect", "is", playerid, reason);
+	return CallLocalFunction("IM_OnPlayerDisconnect", "ii", playerid, reason);
 }
 forward IM_OnPlayerDisconnect(playerid, reason);
 #if defined _ALS_OnPlayerDisconnect

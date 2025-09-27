@@ -5,6 +5,7 @@
 - [SA-MP Interaction Menu Documentation](#sa-mp-interaction-menu-documentation)
   - [Table of Contents](#table-of-contents)
   - [Installation](#installation)
+  - [Defines](#defines)
   - [Function Reference](#function-reference)
     - [⚙️ Functions](#️-functions)
       - [`ShowPlayerInteractionMenu`](#showplayerinteractionmenu)
@@ -31,6 +32,28 @@
 
 1. Include the script in your SA-MP gamemode:  
    ```#include <interaction_menu>```
+
+## Defines
+
+| Description                                  | Default Value | Redefinable |
+|----------------------------------------------|---------------|-------------|
+| Maximum total number of menu items (`MAX_MENU_ITEMS`)   | 35            | Yes         |
+| Maximum item length (`MAX_ITEM_LEN`)         | 256           | Yes         |
+| Maximum description length (`MAX_DESCRIPTION_LEN`) | 70            | Yes         |
+| Maximum number of scrollable values (`MAX_SCROLL_ITEMS`) | 15            | Yes         |
+| Maximum scrollable value length (`MAX_SCROLL_LEN`)     | 10            | Yes         |
+| Default box transparency color (`DEFAULT_BOX_ALPHA`)    | 0xAA          | Yes         |
+
+> [!WARNING]
+> For now, all defined values can be redefined, but the more you increase them, the more memory they will require  
+> When increasing these values (and sometimes by default), you will be required to increase the heap/stack size accordingly, after including all your libraries:
+> 
+> ```pawn
+> // Fix for " Run time error 3: "Stack/heap collision (insufficient stack size)"
+> // Serves as a maximum memory size for variables and arrays (ex: new string[8192])
+> #pragma dynamic 4096*2
+> #define CGEN_MEMORY (60000) // Fix for CGen space error
+> ```
 
 ## Function Reference
 

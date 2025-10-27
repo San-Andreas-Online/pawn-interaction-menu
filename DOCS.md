@@ -207,7 +207,7 @@ GetMenuScrollItemString(output, playerid, imenuitem, scrollitem)
 
 ```pawn
 new string[128];
-GetMenuItemScrollString(string, playerid, 0, 2);
+GetMenuScrollItemString(string, playerid, 0, 2);
 print(string);
 ```
 

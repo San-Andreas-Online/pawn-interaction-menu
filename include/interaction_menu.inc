@@ -5,7 +5,7 @@
 // | | |  | || |___| |\  | |_| |
 // |_\_|  |_/\____/\_| \_/\___/ 
 //
-// Version 1.2.0 by
+// Version 1.5.0 by
 //    _____ ___   ____     _______________    __  ___
 //   / ___//   | / __ \   /_  __/ ____/   |  /  |/  /
 //   \__ \/ /| |/ / / /    / / / __/ / /| | / /|_/ / 
@@ -126,6 +126,8 @@ static
 ;
 
 static unfreezeTimer[MAX_PLAYERS] = INVALID_TIMER;
+
+static bool:bWasFrozen[MAX_PLAYERS] = false;
 
 static lastActionTick[MAX_PLAYERS],
 	actionCount[MAX_PLAYERS]
@@ -921,16 +923,16 @@ static InitMenuState(playerid, menuid)
 	#if defined _FOREACH_LOCAL_VERSION
 		if (!Iter_Contains(itIsInMenu, playerid))
 		{
-			TogglePlayerControllable(playerid, false);
+			IM_TogglePlayerControllable(playerid, false);
 			Iter_Add(itHasLastMenu, playerid);
 		}
-		else HideInteractionMenu(playerid);
+		else IM_HideInteractionMenu(playerid, false);
 		Iter_Add(itIsInMenu, playerid);
 
 	#else 
 		if (!bIsInMenu[playerid])
 		{
-			TogglePlayerControllable(playerid, false);
+			IM_TogglePlayerControllable(playerid, false);
 			bHasLastMenu[playerid] = true;
 		}
 		else HideInteractionMenu(playerid);
@@ -1026,6 +1028,25 @@ static FormatMenuDescriptions(playerid, const menu_desc[])
 	}
 }
 
+/** 
+ * <summary> Checks if the player was frozen before opening the menu.</summary>
+ * <remarks> Used internally to check when the menu should unfreeze the player.</remarks>
+ * <param name="playerid"> The player to check and then freeze.</param>
+ * <param name="toggle"> Boolean to freeze or not the player.</param>
+ * <
+*/
+static IM_TogglePlayerControllable(playerid, toggle)
+{
+	if (bWasFrozen[playerid] && toggle == 1) 
+	{
+		bWasFrozen[playerid] = false;
+		
+		return TogglePlayerControllable(playerid, false);
+	}
+
+	return TogglePlayerControllable(playerid, bool:toggle);
+}
+
 /**
  * <summary>Checks if the player is in a menu</summary>
  * <remarks>Returns true if the player currently has a menu open</remarks>
@@ -1118,14 +1139,14 @@ HandleMenuSelection(playerid, KEY:keys, index)
 		if (!bIsItemLocked[playerid][index])
 		{
 			HandleTDMenuItem(playerid, iSelectedMenuItemId[playerid], iMenuId[playerid], true);
-			HideInteractionMenu(playerid);
+			IM_HideInteractionMenu(playerid, false);
 		}
 		else PlayerPlaySound(playerid, 1085);
 		actionCount[playerid]++;
 	}
 	else if (keys & KEY_SECONDARY_ATTACK)
 	{
-		HideInteractionMenu(playerid);
+		IM_HideInteractionMenu(playerid, false);
 		HandleTDMenuItem(playerid, iSelectedMenuItemId[playerid], iMenuId[playerid], false);
 		PlayerPlaySound(playerid, 1085);
 		actionCount[playerid]++;
@@ -1427,6 +1448,18 @@ static stock LightenColor(color, Float:amount)
 }
 
 /**
+ * <summary>Closes the interaction menu for a player.</summary>
+ * <remarks>
+ * Called when a player closed the menu or clicked on an item
+ * </remarks>
+ * <param name="playerid">The player to close the menu.</param>
+ */
+stock HideInteractionMenu(playerid)
+{
+	IM_HideInteractionMenu(playerid, true);
+}
+
+/**
  * <summary>Checks and formats the given menu item text.</summary>
  * <remarks>
  * Checks if the given menu item is locked or scrollable
@@ -1484,6 +1517,68 @@ static ItemPropertyCheck(playerid, const item[MAX_ITEM_LEN])
 	}
 }
 
+/**
+ * <summary>Used internally to clean up the menu after closing for a player.</summary>
+ * <remarks>
+ * Called when a player closed the menu or clicked on an item
+ * </remarks>
+ * <param name="playerid">The player to close the menu.</param>
+ * <param name="forced">If the menu was closed by the menu itself, or by HideInteractionMenu</param>
+ */
+static IM_HideInteractionMenu(playerid, bool:forced)
+{
+	#if defined _FOREACH_LOCAL_VERSION
+		Iter_Remove(itIsInMenu, playerid);
+	#else
+		bIsInMenu[playerid] = false;
+	#endif
+
+	iSelectedMenuItemId[playerid] = 0;
+
+	for (new i = 0; i < sizeof(tdAndroidButtons[]); i++)
+	{
+		PlayerTextDrawHide(playerid, tdAndroidButtons[playerid][e_CONTROL_BUTTON:i]);
+	}
+	for (new i = 0; i < sizeof(tdAndroidButtons[]); i++)
+	{
+		PlayerTextDrawHide(playerid, tdAndroidText[playerid][e_CONTROL_TEXT:i]);
+	}
+
+	for (new i = 0; i < sizeof(tdMenuItemText[]); i++)
+	{
+		PlayerTextDrawHide(playerid, tdMenuItemBox[playerid][e_MENU_ITEM:i]);
+		PlayerTextDrawHide(playerid, tdMenuItemText[playerid][e_MENU_ITEM:i]);
+		PlayerTextDrawHide(playerid, tdMenuItemScroll[playerid][e_MENU_ITEM:i]);
+	}
+	for (new i = 0; i < sizeof(tdInteractionMenu[]); i++)
+	{
+		PlayerTextDrawHide(playerid, tdInteractionMenu[playerid][e_MENU_TD:i]);
+	}
+
+	for (new i = 0; i < MAX_MENU_ITEMS; i++)
+	{
+		if (bIsItemLocked[playerid][i]) bIsItemLocked[playerid][i] = false; 
+		
+		if (bIsItemEx[playerid][i])
+		{
+			bIsItemEx[playerid][i] = false;
+			boxExColor[playerid][i] = COLOR_MENU_ITEM_BOX;
+			boxExHighlight[playerid][i] = COLOR_MENU_ITEM_BOX_HIGHLIGHT;
+		}
+
+		if (bIsItemScrollable[playerid][i])
+		{
+			bIsItemScrollable[playerid][i] = false;
+			interactionMenuScrollCount[playerid][i] = 0;
+			interactionMenuScrollIndex[playerid][i] = 0;
+		}
+	}
+
+	if (forced) IM_TogglePlayerControllable(playerid, true);
+
+	return 1;
+}
+
 forward OnInteractionMenuResponse(playerid, menuid, bool:response, menuitem);
 forward OnScrollItemChange(playerid, menuid, menuitem, scrollitem);
 
@@ -1512,7 +1607,7 @@ public DelayFromLastMenu(playerid)
 	#endif
 	
 	unfreezeTimer[playerid] = INVALID_TIMER;
-	TogglePlayerControllable(playerid, true);
+	IM_TogglePlayerControllable(playerid, true);
 }
 
 /**
@@ -1659,7 +1754,7 @@ forward IM_OnPlayerUpdate(playerid);
  */
 public OnPlayerDeath(playerid, killerid, WEAPON:reason)
 {
-	HideInteractionMenu(playerid);
+	IM_HideInteractionMenu(playerid, false);
 
 	return CallLocalFunction("IM_OnPlayerDeath", "iii", playerid, killerid, _:reason);
 }
@@ -1743,7 +1838,7 @@ public OnPlayerClickPlayerTextDraw(playerid, PlayerText:playertextid)
 		if (!bIsItemLocked[playerid][index])
 		{
 			HandleTDMenuItem(playerid, iSelectedMenuItemId[playerid], iMenuId[playerid], true);
-			HideInteractionMenu(playerid);
+			IM_HideInteractionMenu(playerid, false);
 			CancelSelectTextDraw(playerid);
 		}
 		else PlayerPlaySound(playerid, 1085);
@@ -1752,7 +1847,7 @@ public OnPlayerClickPlayerTextDraw(playerid, PlayerText:playertextid)
 
 	if (playertextid == tdAndroidText[playerid][CONTROL_BUTTON_CLOSE])
 	{
-		HideInteractionMenu(playerid);
+		IM_HideInteractionMenu(playerid, false);
 		HandleTDMenuItem(playerid, iSelectedMenuItemId[playerid], iMenuId[playerid], false);
 		CancelSelectTextDraw(playerid);
 		PlayerPlaySound(playerid, 1085);
@@ -1770,3 +1865,25 @@ forward IM_OnPlayerClickPlayerTextDraw(playerid, PlayerText:playertextid);
 	#define _ALS_OnPlayerClickPlayerTextDraw
 #endif
 #define OnPlayerClickPlayerTextDraw IM_OnPlayerClickPlayerTextDraw
+
+/*
+ * Hook of TogglePlayerControllable to store when the player was frozen or unfrozen.
+*/
+
+hook_TogglePlayerControllable(playerid, toggle)
+{
+	if (toggle == 0) bWasFrozen[playerid] = true;
+	else bWasFrozen[playerid] = false;	
+
+	if (IsPlayerInMenu(playerid)) return 0;
+
+	return TogglePlayerControllable(playerid, bool:toggle);
+}
+
+#if defined _ALS_TogglePlayerControllable
+	#undef TogglePlayerControllable
+#else
+	#define _ALS_TogglePlayerControllable
+#endif
+
+#define TogglePlayerControllable hook_TogglePlayerControllable

@@ -5,7 +5,7 @@
 // | | |  | || |___| |\  | |_| |
 // |_\_|  |_/\____/\_| \_/\___/ 
 //
-// Version 1.3.1 by
+// Version 1.4.0
 //    _____ ___   ____     _______________    __  ___
 //   / ___//   | / __ \   /_  __/ ____/   |  /  |/  /
 //   \__ \/ /| |/ / / /    / / / __/ / /| | / /|_/ / 
@@ -136,6 +136,8 @@ static
 ;
 
 static unfreezeTimer[MAX_PLAYERS] = INVALID_TIMER;
+
+static bool:bWasFrozen[MAX_PLAYERS] = false;
 
 static lastActionTick[MAX_PLAYERS],
 	actionCount[MAX_PLAYERS]
@@ -943,7 +945,7 @@ static InitMenuState(playerid, menuid)
 	#if defined _FOREACH_LOCAL_VERSION
 		if (!Iter_Contains(itIsInMenu, playerid))
 		{
-			TogglePlayerControllable(playerid, false);
+			IM_TogglePlayerControllable(playerid, false);
 			Iter_Add(itHasLastMenu, playerid);
 		}
 		else IM_HideInteractionMenu(playerid, false);
@@ -952,7 +954,7 @@ static InitMenuState(playerid, menuid)
 	#else 
 		if (!bIsInMenu[playerid])
 		{
-			TogglePlayerControllable(playerid, false);
+			IM_TogglePlayerControllable(playerid, false);
 			bHasLastMenu[playerid] = true;
 		}
 		else HideInteractionMenu(playerid);
@@ -1046,6 +1048,25 @@ static FormatMenuDescriptions(playerid, const menu_desc[])
 			interactionMenuDesc[playerid][i] = "No description";
 		}
 	}
+}
+
+/** 
+ * <summary> Checks if the player was frozen before opening the menu.</summary>
+ * <remarks> Used internally to check when the menu should unfreeze the player.</remarks>
+ * <param name="playerid"> The player to check and then freeze.</param>
+ * <param name="toggle"> Boolean to freeze or not the player.</param>
+ * <
+*/
+static IM_TogglePlayerControllable(playerid, toggle)
+{
+	if (bWasFrozen[playerid] && toggle == 1) 
+	{
+		bWasFrozen[playerid] = false;
+		
+		return TogglePlayerControllable(playerid, false);
+	}
+
+	return TogglePlayerControllable(playerid, bool:toggle);
 }
 
 /**
@@ -1524,7 +1545,7 @@ public DelayFromLastMenu(playerid)
 	#endif
 	
 	unfreezeTimer[playerid] = INVALID_TIMER;
-	TogglePlayerControllable(playerid, true);
+	IM_TogglePlayerControllable(playerid, true);
 }
 
 /**
@@ -1782,3 +1803,25 @@ forward IM_OnPlayerClickPlayerTextDraw(playerid, PlayerText:playertextid);
 	#define _ALS_OnPlayerClickPlayerTextDraw
 #endif
 #define OnPlayerClickPlayerTextDraw IM_OnPlayerClickPlayerTextDraw
+
+/*
+ * Hook of TogglePlayerControllable to store when the player was frozen or unfrozen.
+*/
+
+hook_TogglePlayerControllable(playerid, toggle)
+{
+	if (toggle == 0) bWasFrozen[playerid] = true;
+	else bWasFrozen[playerid] = false;	
+
+	if (IsPlayerInMenu(playerid)) return 0;
+
+	return TogglePlayerControllable(playerid, bool:toggle);
+}
+
+#if defined _ALS_TogglePlayerControllable
+	#undef TogglePlayerControllable
+#else
+	#define _ALS_TogglePlayerControllable
+#endif
+
+#define TogglePlayerControllable hook_TogglePlayerControllable

@@ -5,7 +5,7 @@
 // | | |  | || |___| |\  | |_| |
 // |_\_|  |_/\____/\_| \_/\___/ 
 //
-// Version 1.5.0 by
+// Version 1.5.1 by
 //    _____ ___   ____     _______________    __  ___
 //   / ___//   | / __ \   /_  __/ ____/   |  /  |/  /
 //   \__ \/ /| |/ / / /    / / / __/ / /| | / /|_/ / 
@@ -257,7 +257,7 @@ static CreateIMenu(playerid)
 	PlayerTextDrawSetProportional(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_SELECT], true);
 	PlayerTextDrawSetSelectable(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_SELECT], false);
 
-	tdAndroidText[playerid][CONTROL_BUTTON_SELECT] = CreatePlayerTextDraw(playerid, 142.000, 216.000, "__select_"); select select ona
+	tdAndroidText[playerid][CONTROL_BUTTON_SELECT] = CreatePlayerTextDraw(playerid, 142.000, 216.000, "__select_");
 	PlayerTextDrawLetterSize(playerid, tdAndroidText[playerid][CONTROL_BUTTON_SELECT], 0.168, 1.699);
 	PlayerTextDrawTextSize(playerid, tdAndroidText[playerid][CONTROL_BUTTON_SELECT], 170.000, 15.000);
 	PlayerTextDrawAlignment(playerid, tdAndroidText[playerid][CONTROL_BUTTON_SELECT], TEXT_DRAW_ALIGN_LEFT);
@@ -700,9 +700,9 @@ stock ShowPlayerInteractionMenu(playerid, menuid, const tdMenuItems[], const tit
 	strcat(sConvertTitle, title);
 	strcat(sConvertDesc, desc);
 	strcat(sConvertItems, tdMenuItems);
-	ConvertEncoding(sConvertTitle);
-	ConvertEncoding(sConvertDesc);
-	ConvertEncoding(sConvertItems);
+	IM_ConvertEncoding(sConvertTitle);
+	IM_ConvertEncoding(sConvertDesc);
+	IM_ConvertEncoding(sConvertItems);
 
 	if (unfreezeTimer[playerid]) unfreezeTimer[playerid] = KillTimer(unfreezeTimer[playerid]);
 	SetTimerEx("DelayShowPlayerInteractionMenu", 150, false, "iisssi", playerid, menuid, sConvertItems, sConvertTitle, sConvertDesc, color);
@@ -1198,7 +1198,7 @@ HandleMenuScrolling(playerid, leftright, index)
  * <param name="string">The string that needs to be converted</param>
  * <returns>Doesn't return anything, acts directly on the string</returns>
  */
-static stock ConvertEncoding(string[])
+static stock IM_ConvertEncoding(string[])
 {
 	static const scRealChars[256] =
 	{
@@ -1541,7 +1541,7 @@ static IM_HideInteractionMenu(playerid, bool:forced)
 	}
 	for (new i = 0; i < sizeof(tdAndroidButtons[]); i++)
 	{
-		PlayerTextDrawHide(playerid, tdAndroidText[playerid][e_CONTROL_TEXT:i]);
+		PlayerTextDrawHide(playerid, tdAndroidText[playerid][e_CONTROL_BUTTON:i]);
 	}
 
 	for (new i = 0; i < sizeof(tdMenuItemText[]); i++)

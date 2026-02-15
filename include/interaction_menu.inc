@@ -5,7 +5,7 @@
 // | | |  | || |___| |\  | |_| |
 // |_\_|  |_/\____/\_| \_/\___/ 
 //
-// Version 1.0.6 by
+// Version 1.5.0 by
 //    _____ ___   ____     _______________    __  ___
 //   / ___//   | / __ \   /_  __/ ____/   |  /  |/  /
 //   \__ \/ /| |/ / / /    / / / __/ / /| | / /|_/ / 
@@ -64,11 +64,26 @@ static enum e_MENU_ITEM
 	PlayerText:MENU_ITEM_7
 }
 
+enum e_CONTROL_BUTTON
+{
+	PlayerText:CONTROL_BUTTON_UP,
+	PlayerText:CONTROL_BUTTON_DOWN,
+	PlayerText:CONTROL_BUTTON_LEFT,
+	PlayerText:CONTROL_BUTTON_RIGHT,
+	PlayerText:CONTROL_BUTTON_SELECT,
+	PlayerText:CONTROL_BUTTON_CLOSE
+};
+
+
+	
+
 static
 	PlayerText:tdMenuItemBox[MAX_PLAYERS][e_MENU_ITEM],
 	PlayerText:tdMenuItemText[MAX_PLAYERS][e_MENU_ITEM],
 	PlayerText:tdMenuItemScroll[MAX_PLAYERS][e_MENU_ITEM],
-	PlayerText:tdInteractionMenu[MAX_PLAYERS][e_MENU_TD]
+	PlayerText:tdInteractionMenu[MAX_PLAYERS][e_MENU_TD],
+	PlayerText:tdAndroidButtons[MAX_PLAYERS][e_CONTROL_BUTTON],
+	PlayerText:tdAndroidText[MAX_PLAYERS][e_CONTROL_BUTTON]
 ;
 /**
  * Store menu state differently depending if foreach is included or not.
@@ -112,6 +127,8 @@ static
 
 static unfreezeTimer[MAX_PLAYERS] = INVALID_TIMER;
 
+static bool:bWasFrozen[MAX_PLAYERS] = false;
+
 static lastActionTick[MAX_PLAYERS],
 	actionCount[MAX_PLAYERS]
 ;
@@ -123,6 +140,161 @@ static lastActionTick[MAX_PLAYERS],
  */
 static CreateIMenu(playerid)
 {
+
+	// == ANDROID BUTTONS ==
+
+	tdAndroidButtons[playerid][CONTROL_BUTTON_UP] = CreatePlayerTextDraw(playerid, 142.000, 188.000, "_");
+	PlayerTextDrawLetterSize(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_UP], 0.349, 2.198);
+	PlayerTextDrawTextSize(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_UP], 180.000, 16.000);
+	PlayerTextDrawAlignment(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_UP], TEXT_DRAW_ALIGN_LEFT);
+	PlayerTextDrawColour(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_UP], -1);
+	PlayerTextDrawUseBox(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_UP], true);
+	PlayerTextDrawBoxColour(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_UP], 150);
+	PlayerTextDrawSetShadow(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_UP], 1);
+	PlayerTextDrawSetOutline(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_UP], 1);
+	PlayerTextDrawBackgroundColour(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_UP], 150);
+	PlayerTextDrawFont(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_UP], TEXT_DRAW_FONT_1);
+	PlayerTextDrawSetProportional(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_UP], true);
+
+	tdAndroidText[playerid][CONTROL_BUTTON_UP] = CreatePlayerTextDraw(playerid, 148.000, 189.000, "_up_");
+	PlayerTextDrawLetterSize(playerid, tdAndroidText[playerid][CONTROL_BUTTON_UP], 0.270, 1.699);
+	PlayerTextDrawTextSize(playerid, tdAndroidText[playerid][CONTROL_BUTTON_UP], 180.000, 17.000);
+	PlayerTextDrawAlignment(playerid, tdAndroidText[playerid][CONTROL_BUTTON_UP], TEXT_DRAW_ALIGN_LEFT);
+	PlayerTextDrawColour(playerid, tdAndroidText[playerid][CONTROL_BUTTON_UP], -1);
+	PlayerTextDrawSetShadow(playerid, tdAndroidText[playerid][CONTROL_BUTTON_UP], 0);
+	PlayerTextDrawSetOutline(playerid, tdAndroidText[playerid][CONTROL_BUTTON_UP], 0);
+	PlayerTextDrawBackgroundColour(playerid, tdAndroidText[playerid][CONTROL_BUTTON_UP], 150);
+	PlayerTextDrawFont(playerid, tdAndroidText[playerid][CONTROL_BUTTON_UP], TEXT_DRAW_FONT_2);
+	PlayerTextDrawSetProportional(playerid, tdAndroidText[playerid][CONTROL_BUTTON_UP], true);
+	PlayerTextDrawSetSelectable(playerid, tdAndroidText[playerid][CONTROL_BUTTON_UP], true);
+
+	tdAndroidButtons[playerid][CONTROL_BUTTON_DOWN] = CreatePlayerTextDraw(playerid, 142.000, 242.000, "_");
+	PlayerTextDrawLetterSize(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_DOWN], 0.349, 2.198);
+	PlayerTextDrawTextSize(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_DOWN], 180.000, 16.000);
+	PlayerTextDrawAlignment(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_DOWN], TEXT_DRAW_ALIGN_LEFT);
+	PlayerTextDrawColour(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_DOWN], -1);
+	PlayerTextDrawUseBox(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_DOWN], true);
+	PlayerTextDrawBoxColour(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_DOWN], 150);
+	PlayerTextDrawSetShadow(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_DOWN], 1);
+	PlayerTextDrawSetOutline(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_DOWN], 1);
+	PlayerTextDrawBackgroundColour(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_DOWN], 150);
+	PlayerTextDrawFont(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_DOWN], TEXT_DRAW_FONT_1);
+	PlayerTextDrawSetProportional(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_DOWN], true);
+
+	tdAndroidText[playerid][CONTROL_BUTTON_DOWN] = CreatePlayerTextDraw(playerid, 145.000, 243.000, "_down");
+	PlayerTextDrawLetterSize(playerid, tdAndroidText[playerid][CONTROL_BUTTON_DOWN], 0.270, 1.699);
+	PlayerTextDrawTextSize(playerid, tdAndroidText[playerid][CONTROL_BUTTON_DOWN], 180.000, 17.000);
+	PlayerTextDrawAlignment(playerid, tdAndroidText[playerid][CONTROL_BUTTON_DOWN], TEXT_DRAW_ALIGN_LEFT);
+	PlayerTextDrawColour(playerid, tdAndroidText[playerid][CONTROL_BUTTON_DOWN], -1);
+	PlayerTextDrawSetShadow(playerid, tdAndroidText[playerid][CONTROL_BUTTON_DOWN], 0);
+	PlayerTextDrawSetOutline(playerid, tdAndroidText[playerid][CONTROL_BUTTON_DOWN], 0);
+	PlayerTextDrawBackgroundColour(playerid, tdAndroidText[playerid][CONTROL_BUTTON_DOWN], 150);
+	PlayerTextDrawFont(playerid, tdAndroidText[playerid][CONTROL_BUTTON_DOWN], TEXT_DRAW_FONT_2);
+	PlayerTextDrawSetProportional(playerid, tdAndroidText[playerid][CONTROL_BUTTON_DOWN], true);
+	PlayerTextDrawSetSelectable(playerid, tdAndroidText[playerid][CONTROL_BUTTON_DOWN], true);
+
+	tdAndroidButtons[playerid][CONTROL_BUTTON_LEFT] = CreatePlayerTextDraw(playerid, 210.000, 242.000, "_");
+	PlayerTextDrawLetterSize(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_LEFT], 0.418, 2.198);
+	PlayerTextDrawTextSize(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_LEFT], 182.000, 16.000);
+	PlayerTextDrawAlignment(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_LEFT], TEXT_DRAW_ALIGN_LEFT);
+	PlayerTextDrawColour(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_LEFT], -1);
+	PlayerTextDrawUseBox(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_LEFT], true);
+	PlayerTextDrawBoxColour(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_LEFT], 150);
+	PlayerTextDrawSetShadow(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_LEFT], 1);
+	PlayerTextDrawSetOutline(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_LEFT], 1);
+	PlayerTextDrawBackgroundColour(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_LEFT], 150);
+	PlayerTextDrawFont(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_LEFT], TEXT_DRAW_FONT_1);
+	PlayerTextDrawSetProportional(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_LEFT], true);
+
+	tdAndroidText[playerid][CONTROL_BUTTON_LEFT] = CreatePlayerTextDraw(playerid, 191.000, 241.000, "<");
+	PlayerTextDrawLetterSize(playerid, tdAndroidText[playerid][CONTROL_BUTTON_LEFT], 0.338, 2.299);
+	PlayerTextDrawTextSize(playerid, tdAndroidText[playerid][CONTROL_BUTTON_LEFT], 205.000, 17.000);
+	PlayerTextDrawAlignment(playerid, tdAndroidText[playerid][CONTROL_BUTTON_LEFT], TEXT_DRAW_ALIGN_LEFT);
+	PlayerTextDrawColour(playerid, tdAndroidText[playerid][CONTROL_BUTTON_LEFT], -1);
+	PlayerTextDrawSetShadow(playerid, tdAndroidText[playerid][CONTROL_BUTTON_LEFT], 0);
+	PlayerTextDrawSetOutline(playerid, tdAndroidText[playerid][CONTROL_BUTTON_LEFT], 0);
+	PlayerTextDrawBackgroundColour(playerid, tdAndroidText[playerid][CONTROL_BUTTON_LEFT], 150);
+	PlayerTextDrawFont(playerid, tdAndroidText[playerid][CONTROL_BUTTON_LEFT], TEXT_DRAW_FONT_2);
+	PlayerTextDrawSetProportional(playerid, tdAndroidText[playerid][CONTROL_BUTTON_LEFT], true);
+	PlayerTextDrawSetSelectable(playerid, tdAndroidText[playerid][CONTROL_BUTTON_LEFT], true);
+
+	tdAndroidButtons[playerid][CONTROL_BUTTON_RIGHT] = CreatePlayerTextDraw(playerid, 210.000, 188.000, "_");
+	PlayerTextDrawLetterSize(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_RIGHT], 0.418, 2.198);
+	PlayerTextDrawTextSize(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_RIGHT], 182.000, 16.000);
+	PlayerTextDrawAlignment(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_RIGHT], TEXT_DRAW_ALIGN_LEFT);
+	PlayerTextDrawColour(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_RIGHT], -1);
+	PlayerTextDrawUseBox(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_RIGHT], true);
+	PlayerTextDrawBoxColour(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_RIGHT], 150);
+	PlayerTextDrawSetShadow(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_RIGHT], 1);
+	PlayerTextDrawSetOutline(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_RIGHT], 1);
+	PlayerTextDrawBackgroundColour(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_RIGHT], 150);
+	PlayerTextDrawFont(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_RIGHT], TEXT_DRAW_FONT_1);
+	PlayerTextDrawSetProportional(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_RIGHT], true);
+
+	tdAndroidText[playerid][CONTROL_BUTTON_RIGHT] = CreatePlayerTextDraw(playerid, 191.000, 187.000, ">");
+	PlayerTextDrawLetterSize(playerid, tdAndroidText[playerid][CONTROL_BUTTON_RIGHT], 0.338, 2.299);
+	PlayerTextDrawTextSize(playerid, tdAndroidText[playerid][CONTROL_BUTTON_RIGHT], 205.000, 15.000);
+	PlayerTextDrawAlignment(playerid, tdAndroidText[playerid][CONTROL_BUTTON_RIGHT], TEXT_DRAW_ALIGN_LEFT);
+	PlayerTextDrawColour(playerid, tdAndroidText[playerid][CONTROL_BUTTON_RIGHT], -1);
+	PlayerTextDrawSetShadow(playerid, tdAndroidText[playerid][CONTROL_BUTTON_RIGHT], 0);
+	PlayerTextDrawSetOutline(playerid, tdAndroidText[playerid][CONTROL_BUTTON_RIGHT], 0);
+	PlayerTextDrawBackgroundColour(playerid, tdAndroidText[playerid][CONTROL_BUTTON_RIGHT], 150);
+	PlayerTextDrawFont(playerid, tdAndroidText[playerid][CONTROL_BUTTON_RIGHT], TEXT_DRAW_FONT_2);
+	PlayerTextDrawSetProportional(playerid, tdAndroidText[playerid][CONTROL_BUTTON_RIGHT], true);
+	PlayerTextDrawSetSelectable(playerid, tdAndroidText[playerid][CONTROL_BUTTON_RIGHT], true);
+
+	tdAndroidButtons[playerid][CONTROL_BUTTON_SELECT] = CreatePlayerTextDraw(playerid, 142.000, 215.000, "_");
+	PlayerTextDrawLetterSize(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_SELECT], 0.349, 2.198);
+	PlayerTextDrawTextSize(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_SELECT], 180.000, 16.000);
+	PlayerTextDrawAlignment(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_SELECT], TEXT_DRAW_ALIGN_LEFT);
+	PlayerTextDrawColour(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_SELECT], -1);
+	PlayerTextDrawUseBox(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_SELECT], true);
+	PlayerTextDrawBoxColour(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_SELECT], 150);
+	PlayerTextDrawSetShadow(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_SELECT], 1);
+	PlayerTextDrawSetOutline(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_SELECT], 1);
+	PlayerTextDrawBackgroundColour(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_SELECT], 150);
+	PlayerTextDrawFont(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_SELECT], TEXT_DRAW_FONT_1);
+	PlayerTextDrawSetProportional(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_SELECT], true);
+	PlayerTextDrawSetSelectable(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_SELECT], false);
+
+	tdAndroidText[playerid][CONTROL_BUTTON_SELECT] = CreatePlayerTextDraw(playerid, 142.000, 216.000, "__select_"); select select ona
+	PlayerTextDrawLetterSize(playerid, tdAndroidText[playerid][CONTROL_BUTTON_SELECT], 0.168, 1.699);
+	PlayerTextDrawTextSize(playerid, tdAndroidText[playerid][CONTROL_BUTTON_SELECT], 170.000, 15.000);
+	PlayerTextDrawAlignment(playerid, tdAndroidText[playerid][CONTROL_BUTTON_SELECT], TEXT_DRAW_ALIGN_LEFT);
+	PlayerTextDrawColour(playerid, tdAndroidText[playerid][CONTROL_BUTTON_SELECT], -1);
+	PlayerTextDrawSetShadow(playerid, tdAndroidText[playerid][CONTROL_BUTTON_SELECT], 0);
+	PlayerTextDrawSetOutline(playerid, tdAndroidText[playerid][CONTROL_BUTTON_SELECT], 0);
+	PlayerTextDrawBackgroundColour(playerid, tdAndroidText[playerid][CONTROL_BUTTON_SELECT], 150);
+	PlayerTextDrawFont(playerid, tdAndroidText[playerid][CONTROL_BUTTON_SELECT], TEXT_DRAW_FONT_2);
+	PlayerTextDrawSetProportional(playerid, tdAndroidText[playerid][CONTROL_BUTTON_SELECT], true);
+	PlayerTextDrawSetSelectable(playerid, tdAndroidText[playerid][CONTROL_BUTTON_SELECT], true);
+
+	tdAndroidButtons[playerid][CONTROL_BUTTON_CLOSE] = CreatePlayerTextDraw(playerid, 210.000, 215.000, "_");
+	PlayerTextDrawLetterSize(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_CLOSE], 0.418, 2.198);
+	PlayerTextDrawTextSize(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_CLOSE], 182.000, 16.000);
+	PlayerTextDrawAlignment(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_CLOSE], TEXT_DRAW_ALIGN_LEFT);
+	PlayerTextDrawColour(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_CLOSE], -1);
+	PlayerTextDrawUseBox(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_CLOSE], true);
+	PlayerTextDrawBoxColour(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_CLOSE], 150);
+	PlayerTextDrawSetShadow(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_CLOSE], 1);
+	PlayerTextDrawSetOutline(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_CLOSE], 1);
+	PlayerTextDrawBackgroundColour(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_CLOSE], 150);
+	PlayerTextDrawFont(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_CLOSE], TEXT_DRAW_FONT_1);
+	PlayerTextDrawSetProportional(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_CLOSE], true);
+	PlayerTextDrawSetSelectable(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_CLOSE], false);
+
+	tdAndroidText[playerid][CONTROL_BUTTON_CLOSE] = CreatePlayerTextDraw(playerid, 191.000, 214.000, "X");
+	PlayerTextDrawLetterSize(playerid, tdAndroidText[playerid][CONTROL_BUTTON_CLOSE], 0.338, 2.299);
+	PlayerTextDrawTextSize(playerid, tdAndroidText[playerid][CONTROL_BUTTON_CLOSE], 205.000, 15.000);
+	PlayerTextDrawAlignment(playerid, tdAndroidText[playerid][CONTROL_BUTTON_CLOSE], TEXT_DRAW_ALIGN_LEFT);
+	PlayerTextDrawColour(playerid, tdAndroidText[playerid][CONTROL_BUTTON_CLOSE], -1);
+	PlayerTextDrawSetShadow(playerid, tdAndroidText[playerid][CONTROL_BUTTON_CLOSE], 0);
+	PlayerTextDrawSetOutline(playerid, tdAndroidText[playerid][CONTROL_BUTTON_CLOSE], 0);
+	PlayerTextDrawBackgroundColour(playerid, tdAndroidText[playerid][CONTROL_BUTTON_CLOSE], 150);
+	PlayerTextDrawFont(playerid, tdAndroidText[playerid][CONTROL_BUTTON_CLOSE], TEXT_DRAW_FONT_2);
+	PlayerTextDrawSetProportional(playerid, tdAndroidText[playerid][CONTROL_BUTTON_CLOSE], true);
+	PlayerTextDrawSetSelectable(playerid, tdAndroidText[playerid][CONTROL_BUTTON_CLOSE], true);
+
 	// == MENU CONTAINER ==
 	tdInteractionMenu[playerid][MENU_TITLE_BOX] = CreatePlayerTextDraw(playerid, 20.000, 146.000, "_");
 	PlayerTextDrawLetterSize(playerid, tdInteractionMenu[playerid][MENU_TITLE_BOX], 0.310, 2.799);
@@ -751,16 +923,16 @@ static InitMenuState(playerid, menuid)
 	#if defined _FOREACH_LOCAL_VERSION
 		if (!Iter_Contains(itIsInMenu, playerid))
 		{
-			TogglePlayerControllable(playerid, false);
+			IM_TogglePlayerControllable(playerid, false);
 			Iter_Add(itHasLastMenu, playerid);
 		}
-		else HideInteractionMenu(playerid);
+		else IM_HideInteractionMenu(playerid, false);
 		Iter_Add(itIsInMenu, playerid);
 
 	#else 
 		if (!bIsInMenu[playerid])
 		{
-			TogglePlayerControllable(playerid, false);
+			IM_TogglePlayerControllable(playerid, false);
 			bHasLastMenu[playerid] = true;
 		}
 		else HideInteractionMenu(playerid);
@@ -856,6 +1028,25 @@ static FormatMenuDescriptions(playerid, const menu_desc[])
 	}
 }
 
+/** 
+ * <summary> Checks if the player was frozen before opening the menu.</summary>
+ * <remarks> Used internally to check when the menu should unfreeze the player.</remarks>
+ * <param name="playerid"> The player to check and then freeze.</param>
+ * <param name="toggle"> Boolean to freeze or not the player.</param>
+ * <
+*/
+static IM_TogglePlayerControllable(playerid, toggle)
+{
+	if (bWasFrozen[playerid] && toggle == 1) 
+	{
+		bWasFrozen[playerid] = false;
+		
+		return TogglePlayerControllable(playerid, false);
+	}
+
+	return TogglePlayerControllable(playerid, bool:toggle);
+}
+
 /**
  * <summary>Checks if the player is in a menu</summary>
  * <remarks>Returns true if the player currently has a menu open</remarks>
@@ -948,14 +1139,14 @@ HandleMenuSelection(playerid, KEY:keys, index)
 		if (!bIsItemLocked[playerid][index])
 		{
 			HandleTDMenuItem(playerid, iSelectedMenuItemId[playerid], iMenuId[playerid], true);
-			HideInteractionMenu(playerid);
+			IM_HideInteractionMenu(playerid, false);
 		}
 		else PlayerPlaySound(playerid, 1085);
 		actionCount[playerid]++;
 	}
 	else if (keys & KEY_SECONDARY_ATTACK)
 	{
-		HideInteractionMenu(playerid);
+		IM_HideInteractionMenu(playerid, false);
 		HandleTDMenuItem(playerid, iSelectedMenuItemId[playerid], iMenuId[playerid], false);
 		PlayerPlaySound(playerid, 1085);
 		actionCount[playerid]++;
@@ -1108,6 +1299,16 @@ HideInteractionMenu(playerid)
 	#endif
 
 	iSelectedMenuItemId[playerid] = 0;
+
+	for (new i = 0; i < sizeof(tdAndroidButtons[]); i++)
+	{
+		PlayerTextDrawHide(playerid, tdAndroidButtons[playerid][e_CONTROL_BUTTON:i]);
+	}
+	for (new i = 0; i < sizeof(tdAndroidButtons[]); i++)
+	{
+		PlayerTextDrawHide(playerid, tdAndroidText[playerid][e_CONTROL_BUTTON:i]);
+	}
+
 	for (new i = 0; i < sizeof(tdMenuItemText[]); i++)
 	{
 		PlayerTextDrawHide(playerid, tdMenuItemBox[playerid][e_MENU_ITEM:i]);
@@ -1191,6 +1392,47 @@ stock AddInteractionMenuItemEx(playerid, const item[MAX_ITEM_LEN], const boxcolo
 	UpdateMenuHighlight(playerid, interactionMenuItemCount[playerid]);
 }
 
+/**
+ * <summary>Updates the item and item description without re-opening the menu</summary>
+ * <remarks>This updates the menu so the player can see the item and its description</remarks>
+ * <param name="playerid">The player who will have the item modified.</param>
+ * <param name="menuitem">The item id to be updated.</param>
+ * <param name="item">New text for the menu item.</param>
+ * <param name="desc">New description for the menu item; defaults to "No Description" if none is provided.</param>
+*/
+stock UpdateInteractionMenuItem(playerid, menuitem, const item[MAX_ITEM_LEN], const desc[MAX_DESCRIPTION_LEN] = "No Description")
+{
+	if (!IsPlayerInMenu(playerid)) return 0;
+
+	bIsItemScrollable[playerid][menuitem] = false;
+	bIsItemLocked[playerid][menuitem] = false;
+	interactionMenuDesc[playerid][menuitem][0] = '\0';
+	interactionMenuItems[playerid][menuitem][0] = '\0';
+	interactionMenuScrollCount[playerid][menuitem] = 0;
+
+	ItemPropertyCheck(playerid, menuitem, item);
+
+	interactionMenuDesc[playerid][interactionMenuItemCount[playerid]] = desc;
+	interactionMenuScrollIndex[playerid][menuitem + iMenuScrollOffset[playerid]] = 0;
+	UpdateMenuHighlight(playerid, interactionMenuItemCount[playerid]);
+
+	return 1;
+}
+
+stock ShowAndroidButtons(playerid)
+{
+	for (new i = 0; i < 6; i++)
+	{
+		PlayerTextDrawShow(playerid, tdAndroidButtons[playerid][e_CONTROL_BUTTON:i]);
+	}
+	for (new i = 0; i < 6; i++)
+	{
+		PlayerTextDrawShow(playerid, tdAndroidText[playerid][e_CONTROL_BUTTON:i]);
+	}
+
+	SelectTextDraw(playerid, 0x818181DC);
+}
+
 static stock LightenColor(color, Float:amount)
 {
 	new a = (color >> 24) & 0xFF;
@@ -1203,6 +1445,18 @@ static stock LightenColor(color, Float:amount)
 	b = min(255, floatround(b + (255 - b) * amount));
 
 	return (a << 24) | (r << 16) | (g << 8) | b;
+}
+
+/**
+ * <summary>Closes the interaction menu for a player.</summary>
+ * <remarks>
+ * Called when a player closed the menu or clicked on an item
+ * </remarks>
+ * <param name="playerid">The player to close the menu.</param>
+ */
+stock HideInteractionMenu(playerid)
+{
+	IM_HideInteractionMenu(playerid, true);
 }
 
 /**
@@ -1263,6 +1517,68 @@ static ItemPropertyCheck(playerid, const item[MAX_ITEM_LEN])
 	}
 }
 
+/**
+ * <summary>Used internally to clean up the menu after closing for a player.</summary>
+ * <remarks>
+ * Called when a player closed the menu or clicked on an item
+ * </remarks>
+ * <param name="playerid">The player to close the menu.</param>
+ * <param name="forced">If the menu was closed by the menu itself, or by HideInteractionMenu</param>
+ */
+static IM_HideInteractionMenu(playerid, bool:forced)
+{
+	#if defined _FOREACH_LOCAL_VERSION
+		Iter_Remove(itIsInMenu, playerid);
+	#else
+		bIsInMenu[playerid] = false;
+	#endif
+
+	iSelectedMenuItemId[playerid] = 0;
+
+	for (new i = 0; i < sizeof(tdAndroidButtons[]); i++)
+	{
+		PlayerTextDrawHide(playerid, tdAndroidButtons[playerid][e_CONTROL_BUTTON:i]);
+	}
+	for (new i = 0; i < sizeof(tdAndroidButtons[]); i++)
+	{
+		PlayerTextDrawHide(playerid, tdAndroidText[playerid][e_CONTROL_TEXT:i]);
+	}
+
+	for (new i = 0; i < sizeof(tdMenuItemText[]); i++)
+	{
+		PlayerTextDrawHide(playerid, tdMenuItemBox[playerid][e_MENU_ITEM:i]);
+		PlayerTextDrawHide(playerid, tdMenuItemText[playerid][e_MENU_ITEM:i]);
+		PlayerTextDrawHide(playerid, tdMenuItemScroll[playerid][e_MENU_ITEM:i]);
+	}
+	for (new i = 0; i < sizeof(tdInteractionMenu[]); i++)
+	{
+		PlayerTextDrawHide(playerid, tdInteractionMenu[playerid][e_MENU_TD:i]);
+	}
+
+	for (new i = 0; i < MAX_MENU_ITEMS; i++)
+	{
+		if (bIsItemLocked[playerid][i]) bIsItemLocked[playerid][i] = false; 
+		
+		if (bIsItemEx[playerid][i])
+		{
+			bIsItemEx[playerid][i] = false;
+			boxExColor[playerid][i] = COLOR_MENU_ITEM_BOX;
+			boxExHighlight[playerid][i] = COLOR_MENU_ITEM_BOX_HIGHLIGHT;
+		}
+
+		if (bIsItemScrollable[playerid][i])
+		{
+			bIsItemScrollable[playerid][i] = false;
+			interactionMenuScrollCount[playerid][i] = 0;
+			interactionMenuScrollIndex[playerid][i] = 0;
+		}
+	}
+
+	if (forced) IM_TogglePlayerControllable(playerid, true);
+
+	return 1;
+}
+
 forward OnInteractionMenuResponse(playerid, menuid, bool:response, menuitem);
 forward OnScrollItemChange(playerid, menuid, menuitem, scrollitem);
 
@@ -1291,7 +1607,7 @@ public DelayFromLastMenu(playerid)
 	#endif
 	
 	unfreezeTimer[playerid] = INVALID_TIMER;
-	TogglePlayerControllable(playerid, true);
+	IM_TogglePlayerControllable(playerid, true);
 }
 
 /**
@@ -1438,7 +1754,7 @@ forward IM_OnPlayerUpdate(playerid);
  */
 public OnPlayerDeath(playerid, killerid, WEAPON:reason)
 {
-	HideInteractionMenu(playerid);
+	IM_HideInteractionMenu(playerid, false);
 
 	return CallLocalFunction("IM_OnPlayerDeath", "iii", playerid, killerid, _:reason);
 }
@@ -1450,3 +1766,124 @@ forward IM_OnPlayerDeath(playerid, killerid, WEAPON:reason);
 	#define _ALS_OnPlayerDeath
 #endif
 #define OnPlayerDeath IM_OnPlayerDeath
+
+/*
+ * Handles android button controls
+ */
+ 
+public OnPlayerClickPlayerTextDraw(playerid, PlayerText:playertextid)
+{
+	new index = iMenuScrollOffset[playerid] + iSelectedMenuItemId[playerid];
+	if (playertextid == tdAndroidText[playerid][CONTROL_BUTTON_UP])
+	{
+		if (iSelectedMenuItemId[playerid] > 0) 
+		{
+			iSelectedMenuItemId[playerid]--;
+			PlayerPlaySound(playerid, 1084);
+		}
+		else if (iMenuScrollOffset[playerid] > 0) 
+		{
+			iMenuScrollOffset[playerid]--;
+			PlayerPlaySound(playerid, 1084);
+		}
+
+		UpdateMenuHighlight(playerid, interactionMenuItemCount[playerid]);
+		actionCount[playerid]++;
+	}
+
+	if (playertextid == tdAndroidText[playerid][CONTROL_BUTTON_DOWN])
+	{
+		if (iSelectedMenuItemId[playerid] < sizeof(tdMenuItemText[]) - 1 
+		&& index < interactionMenuItemCount[playerid] - 1)
+		{
+			iSelectedMenuItemId[playerid]++;
+			PlayerPlaySound(playerid, 1084);
+		}
+		else if (iMenuScrollOffset[playerid] + sizeof(tdMenuItemText[]) < interactionMenuItemCount[playerid])
+		{
+			iMenuScrollOffset[playerid]++;
+			PlayerPlaySound(playerid, 1084);
+		}
+
+		UpdateMenuHighlight(playerid, interactionMenuItemCount[playerid]);
+		actionCount[playerid]++;
+	}
+
+
+	if (playertextid == tdAndroidText[playerid][CONTROL_BUTTON_RIGHT])
+	{
+		interactionMenuScrollIndex[playerid][index]++;
+		if (interactionMenuScrollIndex[playerid][index] >= interactionMenuScrollCount[playerid][index]) 
+			interactionMenuScrollIndex[playerid][index] = 0;
+
+		HandleScrollItem(playerid, iMenuId[playerid], index, interactionMenuScrollIndex[playerid][index]);
+		UpdateMenuHighlight(playerid, interactionMenuItemCount[playerid]);
+		actionCount[playerid]++;
+	}
+
+	if (playertextid == tdAndroidText[playerid][CONTROL_BUTTON_LEFT])
+	{
+		if (interactionMenuScrollIndex[playerid][index] == 0) 
+			interactionMenuScrollIndex[playerid][index] = interactionMenuScrollCount[playerid][index] - 1;
+		else 
+			interactionMenuScrollIndex[playerid][index]--;
+
+		HandleScrollItem(playerid, iMenuId[playerid], index, interactionMenuScrollIndex[playerid][index]);
+		UpdateMenuHighlight(playerid, interactionMenuItemCount[playerid]);
+		actionCount[playerid]++;
+	}
+
+	if (playertextid == tdAndroidText[playerid][CONTROL_BUTTON_SELECT])
+	{
+		if (!bIsItemLocked[playerid][index])
+		{
+			HandleTDMenuItem(playerid, iSelectedMenuItemId[playerid], iMenuId[playerid], true);
+			IM_HideInteractionMenu(playerid, false);
+			CancelSelectTextDraw(playerid);
+		}
+		else PlayerPlaySound(playerid, 1085);
+		actionCount[playerid]++;
+	}
+
+	if (playertextid == tdAndroidText[playerid][CONTROL_BUTTON_CLOSE])
+	{
+		IM_HideInteractionMenu(playerid, false);
+		HandleTDMenuItem(playerid, iSelectedMenuItemId[playerid], iMenuId[playerid], false);
+		CancelSelectTextDraw(playerid);
+		PlayerPlaySound(playerid, 1085);
+		actionCount[playerid]++;
+	}
+	
+	return CallLocalFunction("IM_OnPlayerClickPlayerTextDraw", "ii", playerid, playertextid);
+
+}
+
+forward IM_OnPlayerClickPlayerTextDraw(playerid, PlayerText:playertextid);
+#if defined _ALS_OnPlayerClickPlayerTextDraw
+	#undef OnPlayerClickPlayerTextDraw
+#else
+	#define _ALS_OnPlayerClickPlayerTextDraw
+#endif
+#define OnPlayerClickPlayerTextDraw IM_OnPlayerClickPlayerTextDraw
+
+/*
+ * Hook of TogglePlayerControllable to store when the player was frozen or unfrozen.
+*/
+
+hook_TogglePlayerControllable(playerid, toggle)
+{
+	if (toggle == 0) bWasFrozen[playerid] = true;
+	else bWasFrozen[playerid] = false;	
+
+	if (IsPlayerInMenu(playerid)) return 0;
+
+	return TogglePlayerControllable(playerid, bool:toggle);
+}
+
+#if defined _ALS_TogglePlayerControllable
+	#undef TogglePlayerControllable
+#else
+	#define _ALS_TogglePlayerControllable
+#endif
+
+#define TogglePlayerControllable hook_TogglePlayerControllable

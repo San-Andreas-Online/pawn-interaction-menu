@@ -4,6 +4,8 @@
 
 Inspired by GTA Online’s interaction menu, it allows developers to add UI functionality to their SA-MP gamemodes.  
 
+![Example image of menu](./docs/resources/menu_1.png "Example image of menu")
+
 - [SA-MP Interaction Menu](#sa-mp-interaction-menu)
   - [✨ Features](#-features)
   - [📦 Installation](#-installation)

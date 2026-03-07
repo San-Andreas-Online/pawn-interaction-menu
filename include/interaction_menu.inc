@@ -5,7 +5,7 @@
 // | | |  | || |___| |\  | |_| |
 // |_\_|  |_/\____/\_| \_/\___/ 
 //
-// Version 1.5.2 by
+// Version 1.5.3 by
 //    _____ ___   ____     _______________    __  ___
 //   / ___//   | / __ \   /_  __/ ____/   |  /  |/  /
 //   \__ \/ /| |/ / / /    / / / __/ / /| | / /|_/ / 
@@ -19,7 +19,7 @@
 
 #define MAX_ITEM_LEN 256
 #define MAX_DESCRIPTION_LEN 70
-#define MAX_SCROLL_LEN 10
+#define MAX_SCROLL_LEN 25
 #define MAX_MENU_ITEMS 35
 #define MAX_SCROLL_ITEMS 15
 #define DEFAULT_BOX_ALPHA 0xAA
@@ -128,6 +128,7 @@ static
 static unfreezeTimer[MAX_PLAYERS] = INVALID_TIMER;
 
 static bool:bWasFrozen[MAX_PLAYERS] = false;
+static bool:bIgnoreHook[MAX_PLAYERS] = false;
 
 static lastActionTick[MAX_PLAYERS],
 	actionCount[MAX_PLAYERS]
@@ -1039,9 +1040,11 @@ static IM_TogglePlayerControllable(playerid, toggle)
 {
 	if (bWasFrozen[playerid] && toggle == 1) 
 	{
-		bWasFrozen[playerid] = false;
+		bIgnoreHook[playerid] = true;
+		TogglePlayerControllable(playerid, false);
+		bIgnoreHook[playerid] = false;
 		
-		return TogglePlayerControllable(playerid, false);
+		return 1;
 	}
 
 	return TogglePlayerControllable(playerid, bool:toggle);
@@ -1818,8 +1821,11 @@ forward IM_OnPlayerClickPlayerTextDraw(playerid, PlayerText:playertextid);
 
 hook_TogglePlayerControllable(playerid, toggle)
 {
-	if (toggle == 0) bWasFrozen[playerid] = true;
-	else bWasFrozen[playerid] = false;	
+	if (!bIgnoreHook[playerid])
+	{
+		if (toggle == 0) bWasFrozen[playerid] = true;
+		else bWasFrozen[playerid] = false;
+	}
 
 	if (IsPlayerInMenu(playerid)) return 0;
 

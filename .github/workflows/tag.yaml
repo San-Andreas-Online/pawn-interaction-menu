@@ -1,0 +1,65 @@
+name: Auto Release
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Get next version
+        id: version
+        # Since the latest tag, list the commits
+        # Add +1 to the minor version for feat commits
+        # Add +1 to the patch version for other commits
+        run: |
+          latest_tag=$(git describe --tags --abbrev=0 2>/dev/null || true)
+          if [ -z "$latest_tag" ]; then
+            latest_tag=$(sed -n 's/^#define FILTERSCRIPT_VERSION "\([0-9]\+\.[0-9]\+\.[0-9]\+\)"/\1/p' include/interaction_menu.inc | head -n1)
+            if [ -z "$latest_tag" ]; then
+              latest_tag="0.0.0"
+              echo "No git tag or inc version found, using default: $latest_tag"
+            else
+              echo "No git tag found, using version from inc file: $latest_tag"
+            fi
+          else
+            echo "Latest tag: $latest_tag"
+          fi
+          commits=$(git log "$latest_tag"..HEAD --pretty=format:"%s")
+          echo "Commits since latest tag:"
+          echo "$commits"
+          
+          major=$(echo "$latest_tag" | cut -d. -f1)
+          minor=$(echo "$latest_tag" | cut -d. -f2)
+          patch=$(echo "$latest_tag" | cut -d. -f3)
+
+          if echo "$commits" | grep -q "feat"; then
+            minor=$((minor + 1))
+            patch=0
+          else
+            patch=$((patch + 1))
+          fi
+
+          new_tag="$major.$minor.$patch"
+          echo "New tag: $new_tag"
+          echo "tag=$new_tag" >> "$GITHUB_OUTPUT"
+      - name: Write version into the file
+        run: |
+          sed -i "s/#define FILTERSCRIPT_VERSION \".*\"/#define FILTERSCRIPT_VERSION \"${{ steps.version.outputs.tag }}\"/" include/interaction_menu.inc
+      - name: Commit version update & Create tag
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add include/interaction_menu.inc
+          git commit -m "Update version to ${{ steps.version.outputs.tag }}"
+          git tag ${{ steps.version.outputs.tag }}
+          git push origin ${{ steps.version.outputs.tag }}

@@ -1,0 +1,35 @@
+name: Auto Release
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Find version in file
+        id: version
+        run: |
+            VERSION=$(grep -oP '(?<=#define FILTERSCRIPT_VERSION ")[^"]+' include/interaction_menu.inc || true)
+            if [ -z "$VERSION" ]; then
+              VERSION=$(git rev-parse --short HEAD)
+              echo "Version not found, using latest commit hash: $VERSION"
+            else
+              echo "Version found: $VERSION"
+            fi
+            echo "tag=$VERSION" >> "$GITHUB_OUTPUT"
+      - name: Release
+        uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true
+          name: Release ${{ steps.version.outputs.tag }}
+          tag_name: ${{ steps.version.outputs.tag }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}

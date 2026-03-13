@@ -17,7 +17,7 @@ jobs:
       - name: Find version in file
         id: version
         run: |
-            VERSION=$(grep -oP '(?<=#define FILTERSCRIPT_VERSION ")[^"]+' include/interaction_menu.inc || true)
+            VERSION=$(grep -oP '(?<=#define _INTERACTION_MENU_VERSION ")[^"]+' include/interaction_menu.inc || true)
             if [ -z "$VERSION" ]; then
               VERSION=$(git rev-parse --short HEAD)
               echo "Version not found, using latest commit hash: $VERSION"

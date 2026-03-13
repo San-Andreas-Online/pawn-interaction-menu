@@ -11,7 +11,7 @@
 //  ___/ / ___ / /_/ /    / / / /___/ ___ |/ /  / /  
 // /____/_/  |_\____/    /_/ /_____/_/  |_/_/  /_/    
 
-#define FILTERSCRIPT_VERSION "1.5.2"
+#define _INTERACTION_MENU_VERSION "1.6.0"
 
 #if defined _INC_sao_interaction_menu
 	#endinput
@@ -75,8 +75,15 @@ enum e_CONTROL_BUTTON
 	PlayerText:CONTROL_BUTTON_CLOSE
 };
 
-
-	
+static enum e_MENU_ITEM_TOGGLE
+{
+    PlayerText:MENU_ITEM_TOGGLE_FILL,
+    PlayerText:MENU_ITEM_TOGGLE_BORDER_BOTTOM,
+    PlayerText:MENU_ITEM_TOGGLE_BORDER_TOP,
+    PlayerText:MENU_ITEM_TOGGLE_BORDER_LEFT,
+    PlayerText:MENU_ITEM_TOGGLE_BORDER_RIGHT,
+    PlayerText:MENU_ITEM_TOGGLE_X
+}
 
 static
 	PlayerText:tdMenuItemBox[MAX_PLAYERS][e_MENU_ITEM],
@@ -84,7 +91,8 @@ static
 	PlayerText:tdMenuItemScroll[MAX_PLAYERS][e_MENU_ITEM],
 	PlayerText:tdInteractionMenu[MAX_PLAYERS][e_MENU_TD],
 	PlayerText:tdAndroidButtons[MAX_PLAYERS][e_CONTROL_BUTTON],
-	PlayerText:tdAndroidText[MAX_PLAYERS][e_CONTROL_BUTTON]
+	PlayerText:tdAndroidText[MAX_PLAYERS][e_CONTROL_BUTTON],
+	PlayerText:tdMenuItemToggle[MAX_PLAYERS][e_MENU_ITEM][e_MENU_ITEM_TOGGLE]
 ;
 /**
  * Store menu state differently depending if foreach is included or not.
@@ -118,6 +126,8 @@ static
 	interactionMenuItemCount[MAX_PLAYERS],
    	bool:bIsItemLocked[MAX_PLAYERS][MAX_MENU_ITEMS],
 	bool:bIsItemScrollable[MAX_PLAYERS][MAX_MENU_ITEMS],
+	bool:bIsItemToggle[MAX_PLAYERS][MAX_MENU_ITEMS],
+	bool:bIsItemToggled[MAX_PLAYERS][MAX_MENU_ITEMS],
 	bool:bIsItemEx[MAX_PLAYERS][MAX_MENU_ITEMS]
 ;
 
@@ -650,7 +660,75 @@ static CreateIMenu(playerid)
 	PlayerTextDrawBackgroundColour(playerid, tdMenuItemScroll[playerid][MENU_ITEM_7], 150);
 	PlayerTextDrawFont(playerid, tdMenuItemScroll[playerid][MENU_ITEM_7], TEXT_DRAW_FONT_1);
 	PlayerTextDrawSetProportional(playerid, tdMenuItemScroll[playerid][MENU_ITEM_7], true);
+
+	new Float:offset = 0.0;
+	for (new i = 0; i < sizeof(tdMenuItemToggle[]); i++)
+	{
+		tdMenuItemToggle[playerid][e_MENU_ITEM:i][MENU_ITEM_TOGGLE_FILL] = CreatePlayerTextDraw(playerid, 120.000, 189.000 + offset, "LD_SPAC:white");
+		PlayerTextDrawTextSize(playerid, tdMenuItemToggle[playerid][e_MENU_ITEM:i][MENU_ITEM_TOGGLE_FILL], 6.000, 7.000);
+		PlayerTextDrawAlignment(playerid, tdMenuItemToggle[playerid][e_MENU_ITEM:i][MENU_ITEM_TOGGLE_FILL], TEXT_DRAW_ALIGN_LEFT);
+		PlayerTextDrawColour(playerid, tdMenuItemToggle[playerid][e_MENU_ITEM:i][MENU_ITEM_TOGGLE_FILL], 255);
+		PlayerTextDrawSetShadow(playerid, tdMenuItemToggle[playerid][e_MENU_ITEM:i][MENU_ITEM_TOGGLE_FILL], 0);
+		PlayerTextDrawSetOutline(playerid, tdMenuItemToggle[playerid][e_MENU_ITEM:i][MENU_ITEM_TOGGLE_FILL], 0);
+		PlayerTextDrawBackgroundColour(playerid, tdMenuItemToggle[playerid][e_MENU_ITEM:i][MENU_ITEM_TOGGLE_FILL], 255);
+		PlayerTextDrawFont(playerid, tdMenuItemToggle[playerid][e_MENU_ITEM:i][MENU_ITEM_TOGGLE_FILL], TEXT_DRAW_FONT_SPRITE_DRAW);
+		PlayerTextDrawSetProportional(playerid, tdMenuItemToggle[playerid][e_MENU_ITEM:i][MENU_ITEM_TOGGLE_FILL], true);
+
+		tdMenuItemToggle[playerid][e_MENU_ITEM:i][MENU_ITEM_TOGGLE_BORDER_LEFT] = CreatePlayerTextDraw(playerid, 119.000, 189.000 + offset, "LD_SPAC:white");
+		PlayerTextDrawTextSize(playerid, tdMenuItemToggle[playerid][e_MENU_ITEM:i][MENU_ITEM_TOGGLE_BORDER_LEFT], 1.000, 7.000);
+		PlayerTextDrawAlignment(playerid, tdMenuItemToggle[playerid][e_MENU_ITEM:i][MENU_ITEM_TOGGLE_BORDER_LEFT], TEXT_DRAW_ALIGN_LEFT);
+		PlayerTextDrawColour(playerid, tdMenuItemToggle[playerid][e_MENU_ITEM:i][MENU_ITEM_TOGGLE_BORDER_LEFT], -1);
+		PlayerTextDrawSetShadow(playerid, tdMenuItemToggle[playerid][e_MENU_ITEM:i][MENU_ITEM_TOGGLE_BORDER_LEFT], 0);
+		PlayerTextDrawSetOutline(playerid, tdMenuItemToggle[playerid][e_MENU_ITEM:i][MENU_ITEM_TOGGLE_BORDER_LEFT], 0);
+		PlayerTextDrawBackgroundColour(playerid, tdMenuItemToggle[playerid][e_MENU_ITEM:i][MENU_ITEM_TOGGLE_BORDER_LEFT], 255);
+		PlayerTextDrawFont(playerid, tdMenuItemToggle[playerid][e_MENU_ITEM:i][MENU_ITEM_TOGGLE_BORDER_LEFT], TEXT_DRAW_FONT_SPRITE_DRAW);
+		PlayerTextDrawSetProportional(playerid, tdMenuItemToggle[playerid][e_MENU_ITEM:i][MENU_ITEM_TOGGLE_BORDER_LEFT], true);
+
+		tdMenuItemToggle[playerid][e_MENU_ITEM:i][MENU_ITEM_TOGGLE_BORDER_RIGHT] = CreatePlayerTextDraw(playerid, 126.000, 189.000 + offset, "LD_SPAC:white");
+		PlayerTextDrawTextSize(playerid, tdMenuItemToggle[playerid][e_MENU_ITEM:i][MENU_ITEM_TOGGLE_BORDER_RIGHT], 1.000, 7.000);
+		PlayerTextDrawAlignment(playerid, tdMenuItemToggle[playerid][e_MENU_ITEM:i][MENU_ITEM_TOGGLE_BORDER_RIGHT], TEXT_DRAW_ALIGN_LEFT);
+		PlayerTextDrawColour(playerid, tdMenuItemToggle[playerid][e_MENU_ITEM:i][MENU_ITEM_TOGGLE_BORDER_RIGHT], -1);
+		PlayerTextDrawSetShadow(playerid, tdMenuItemToggle[playerid][e_MENU_ITEM:i][MENU_ITEM_TOGGLE_BORDER_RIGHT], 0);
+		PlayerTextDrawSetOutline(playerid, tdMenuItemToggle[playerid][e_MENU_ITEM:i][MENU_ITEM_TOGGLE_BORDER_RIGHT], 0);
+		PlayerTextDrawBackgroundColour(playerid, tdMenuItemToggle[playerid][e_MENU_ITEM:i][MENU_ITEM_TOGGLE_BORDER_RIGHT], 255);
+		PlayerTextDrawFont(playerid, tdMenuItemToggle[playerid][e_MENU_ITEM:i][MENU_ITEM_TOGGLE_BORDER_RIGHT], TEXT_DRAW_FONT_SPRITE_DRAW);
+		PlayerTextDrawSetProportional(playerid, tdMenuItemToggle[playerid][e_MENU_ITEM:i][MENU_ITEM_TOGGLE_BORDER_RIGHT], true);
+
+		tdMenuItemToggle[playerid][e_MENU_ITEM:i][MENU_ITEM_TOGGLE_BORDER_BOTTOM] = CreatePlayerTextDraw(playerid, 127.000, 196.000 + offset, "LD_SPAC:white");
+		PlayerTextDrawTextSize(playerid, tdMenuItemToggle[playerid][e_MENU_ITEM:i][MENU_ITEM_TOGGLE_BORDER_BOTTOM], -8.000, 1.000);
+		PlayerTextDrawAlignment(playerid, tdMenuItemToggle[playerid][e_MENU_ITEM:i][MENU_ITEM_TOGGLE_BORDER_BOTTOM], TEXT_DRAW_ALIGN_LEFT);
+		PlayerTextDrawColour(playerid, tdMenuItemToggle[playerid][e_MENU_ITEM:i][MENU_ITEM_TOGGLE_BORDER_BOTTOM], -1);
+		PlayerTextDrawSetShadow(playerid, tdMenuItemToggle[playerid][e_MENU_ITEM:i][MENU_ITEM_TOGGLE_BORDER_BOTTOM], 0);
+		PlayerTextDrawSetOutline(playerid, tdMenuItemToggle[playerid][e_MENU_ITEM:i][MENU_ITEM_TOGGLE_BORDER_BOTTOM], 0);
+		PlayerTextDrawBackgroundColour(playerid, tdMenuItemToggle[playerid][e_MENU_ITEM:i][MENU_ITEM_TOGGLE_BORDER_BOTTOM], 255);
+		PlayerTextDrawFont(playerid, tdMenuItemToggle[playerid][e_MENU_ITEM:i][MENU_ITEM_TOGGLE_BORDER_BOTTOM], TEXT_DRAW_FONT_SPRITE_DRAW);
+		PlayerTextDrawSetProportional(playerid, tdMenuItemToggle[playerid][e_MENU_ITEM:i][MENU_ITEM_TOGGLE_BORDER_BOTTOM], true);
+
+		tdMenuItemToggle[playerid][e_MENU_ITEM:i][MENU_ITEM_TOGGLE_BORDER_TOP] = CreatePlayerTextDraw(playerid, 127.000, 188.000 + offset, "LD_SPAC:white");
+		PlayerTextDrawTextSize(playerid, tdMenuItemToggle[playerid][e_MENU_ITEM:i][MENU_ITEM_TOGGLE_BORDER_TOP], -8.000, 1.000);
+		PlayerTextDrawAlignment(playerid, tdMenuItemToggle[playerid][e_MENU_ITEM:i][MENU_ITEM_TOGGLE_BORDER_TOP], TEXT_DRAW_ALIGN_LEFT);
+		PlayerTextDrawColour(playerid, tdMenuItemToggle[playerid][e_MENU_ITEM:i][MENU_ITEM_TOGGLE_BORDER_TOP], -1);
+		PlayerTextDrawSetShadow(playerid, tdMenuItemToggle[playerid][e_MENU_ITEM:i][MENU_ITEM_TOGGLE_BORDER_TOP], 0);
+		PlayerTextDrawSetOutline(playerid, tdMenuItemToggle[playerid][e_MENU_ITEM:i][MENU_ITEM_TOGGLE_BORDER_TOP], 0);
+		PlayerTextDrawBackgroundColour(playerid, tdMenuItemToggle[playerid][e_MENU_ITEM:i][MENU_ITEM_TOGGLE_BORDER_TOP], 255);
+		PlayerTextDrawFont(playerid, tdMenuItemToggle[playerid][e_MENU_ITEM:i][MENU_ITEM_TOGGLE_BORDER_TOP], TEXT_DRAW_FONT_SPRITE_DRAW);
+		PlayerTextDrawSetProportional(playerid, tdMenuItemToggle[playerid][e_MENU_ITEM:i][MENU_ITEM_TOGGLE_BORDER_TOP], true);
+
+		tdMenuItemToggle[playerid][e_MENU_ITEM:i][MENU_ITEM_TOGGLE_X] = CreatePlayerTextDraw(playerid, 119.500, 186.500 + offset, "X");
+		PlayerTextDrawLetterSize(playerid, tdMenuItemToggle[playerid][e_MENU_ITEM:i][MENU_ITEM_TOGGLE_X], 0.280, 1.199);
+		PlayerTextDrawAlignment(playerid, tdMenuItemToggle[playerid][e_MENU_ITEM:i][MENU_ITEM_TOGGLE_X], TEXT_DRAW_ALIGN_LEFT);
+		PlayerTextDrawColour(playerid, tdMenuItemToggle[playerid][e_MENU_ITEM:i][MENU_ITEM_TOGGLE_X], 255);
+		PlayerTextDrawSetShadow(playerid, tdMenuItemToggle[playerid][e_MENU_ITEM:i][MENU_ITEM_TOGGLE_X], 0);
+		PlayerTextDrawSetOutline(playerid, tdMenuItemToggle[playerid][e_MENU_ITEM:i][MENU_ITEM_TOGGLE_X], 0);
+		PlayerTextDrawBackgroundColour(playerid, tdMenuItemToggle[playerid][e_MENU_ITEM:i][MENU_ITEM_TOGGLE_X], 150);
+		PlayerTextDrawFont(playerid, tdMenuItemToggle[playerid][e_MENU_ITEM:i][MENU_ITEM_TOGGLE_X], TEXT_DRAW_FONT_2);
+		PlayerTextDrawSetProportional(playerid, tdMenuItemToggle[playerid][e_MENU_ITEM:i][MENU_ITEM_TOGGLE_X], true);
+
+		offset += 14.5;
+	}
 }
+
+
 
 /**
  * <summary>Clears out all the menu textdraws for a player</summary>
@@ -676,6 +754,15 @@ static DestroyIMenu(playerid)
 	
 		PlayerTextDrawDestroy(playerid, tdMenuItemScroll[playerid][e_MENU_ITEM:i]);
 		tdMenuItemScroll[playerid][e_MENU_ITEM:i] = INVALID_PLAYER_TEXT_DRAW;
+	}
+
+	for (new i = 0; i < sizeof(tdMenuItemToggle[]); i++)
+	{
+		for (new j = 0; j < sizeof(tdMenuItemToggle[][]); j++)
+		{
+			PlayerTextDrawDestroy(playerid, tdMenuItemToggle[playerid][e_MENU_ITEM:i][e_MENU_ITEM_TOGGLE:j]);
+			tdMenuItemToggle[playerid][e_MENU_ITEM:i][e_MENU_ITEM_TOGGLE:j] = INVALID_PLAYER_TEXT_DRAW;
+		}
 	}
 }
 
@@ -812,21 +899,23 @@ static UpdateFooterDescription(playerid)
  */
 static UpdateMenuItem(playerid, e_MENU_ITEM:slot, index)
 {
-	PlayerTextDrawSetString(playerid, tdMenuItemText[playerid][slot], interactionMenuItems[playerid][index]);
+    PlayerTextDrawSetString(playerid, tdMenuItemText[playerid][slot], interactionMenuItems[playerid][index]);
 
-	if (slot == e_MENU_ITEM:iSelectedMenuItemId[playerid]) HighlightMenuItem(playerid, slot, index);
-	else ResetMenuItemColor(playerid, slot, index);
+    if (slot == e_MENU_ITEM:iSelectedMenuItemId[playerid]) HighlightMenuItem(playerid, slot, index);
+    else ResetMenuItemColor(playerid, slot, index);
 
-	if (bIsItemLocked[playerid][index]) UpdateLockedItem(playerid, slot);
+    if (bIsItemLocked[playerid][index]) UpdateLockedItem(playerid, slot);
 
-	if (bIsItemScrollable[playerid][index]) UpdateScrollableItem(playerid, slot, index);
-	else PlayerTextDrawSetString(playerid, tdMenuItemScroll[playerid][slot], "");
+    if (bIsItemScrollable[playerid][index]) UpdateScrollableItem(playerid, slot, index);
+    else PlayerTextDrawSetString(playerid, tdMenuItemScroll[playerid][slot], "");
 
-	// Always show textdraws for active items
-	PlayerTextDrawShow(playerid, tdInteractionMenu[playerid][MENU_FOOTER_TEXT]);
-	PlayerTextDrawShow(playerid, tdMenuItemBox[playerid][slot]);
-	PlayerTextDrawShow(playerid, tdMenuItemText[playerid][slot]);
-	PlayerTextDrawShow(playerid, tdMenuItemScroll[playerid][slot]);
+    if (bIsItemToggle[playerid][index]) UpdateToggleItem(playerid, slot, index);
+    else HideToggleItem(playerid, slot);
+
+    PlayerTextDrawShow(playerid, tdInteractionMenu[playerid][MENU_FOOTER_TEXT]);
+    PlayerTextDrawShow(playerid, tdMenuItemBox[playerid][slot]);
+    PlayerTextDrawShow(playerid, tdMenuItemText[playerid][slot]);
+    PlayerTextDrawShow(playerid, tdMenuItemScroll[playerid][slot]);
 }
 
 /**
@@ -842,6 +931,7 @@ static HideMenuItem(playerid, e_MENU_ITEM:slot)
 	PlayerTextDrawHide(playerid, tdMenuItemBox[playerid][slot]);
 	PlayerTextDrawHide(playerid, tdMenuItemText[playerid][slot]);
 	PlayerTextDrawHide(playerid, tdMenuItemScroll[playerid][slot]);
+	HideToggleItem(playerid, slot);
 }
 
 /**
@@ -862,6 +952,13 @@ static HighlightMenuItem(playerid, e_MENU_ITEM:slot, index)
 		PlayerTextDrawBoxColour(playerid, tdMenuItemBox[playerid][slot], COLOR_MENU_ITEM_BOX_HIGHLIGHT);
 		PlayerTextDrawColour(playerid, tdMenuItemText[playerid][slot], COLOR_MENU_ITEM_TEXT_HIGHLIGHT);
 		PlayerTextDrawColour(playerid, tdMenuItemScroll[playerid][slot], COLOR_MENU_ITEM_TEXT_HIGHLIGHT);
+
+		PlayerTextDrawColour(playerid, tdMenuItemToggle[playerid][slot][MENU_ITEM_TOGGLE_BORDER_BOTTOM], COLOR_MENU_ITEM_TEXT_HIGHLIGHT);
+		PlayerTextDrawColour(playerid, tdMenuItemToggle[playerid][slot][MENU_ITEM_TOGGLE_BORDER_TOP], COLOR_MENU_ITEM_TEXT_HIGHLIGHT);
+		PlayerTextDrawColour(playerid, tdMenuItemToggle[playerid][slot][MENU_ITEM_TOGGLE_BORDER_LEFT], COLOR_MENU_ITEM_TEXT_HIGHLIGHT);
+		PlayerTextDrawColour(playerid, tdMenuItemToggle[playerid][slot][MENU_ITEM_TOGGLE_BORDER_RIGHT], COLOR_MENU_ITEM_TEXT_HIGHLIGHT);
+		PlayerTextDrawColour(playerid, tdMenuItemToggle[playerid][slot][MENU_ITEM_TOGGLE_FILL], COLOR_MENU_ITEM_TEXT_HIGHLIGHT);
+		PlayerTextDrawColour(playerid, tdMenuItemToggle[playerid][slot][MENU_ITEM_TOGGLE_X], COLOR_MENU_ITEM_TEXT);
 	}
 }
 
@@ -883,6 +980,13 @@ static ResetMenuItemColor(playerid, e_MENU_ITEM:slot, index)
 		PlayerTextDrawBoxColour(playerid, tdMenuItemBox[playerid][e_MENU_ITEM:slot], COLOR_MENU_ITEM_BOX);
 		PlayerTextDrawColour(playerid, tdMenuItemText[playerid][e_MENU_ITEM:slot], COLOR_MENU_ITEM_TEXT);
 		PlayerTextDrawColour(playerid, tdMenuItemScroll[playerid][e_MENU_ITEM:slot], COLOR_MENU_ITEM_TEXT);
+
+		PlayerTextDrawColour(playerid, tdMenuItemToggle[playerid][slot][MENU_ITEM_TOGGLE_BORDER_BOTTOM], COLOR_MENU_ITEM_BOX_HIGHLIGHT);
+		PlayerTextDrawColour(playerid, tdMenuItemToggle[playerid][slot][MENU_ITEM_TOGGLE_BORDER_TOP], COLOR_MENU_ITEM_BOX_HIGHLIGHT);
+		PlayerTextDrawColour(playerid, tdMenuItemToggle[playerid][slot][MENU_ITEM_TOGGLE_BORDER_LEFT], COLOR_MENU_ITEM_BOX_HIGHLIGHT);
+		PlayerTextDrawColour(playerid, tdMenuItemToggle[playerid][slot][MENU_ITEM_TOGGLE_BORDER_RIGHT], COLOR_MENU_ITEM_BOX_HIGHLIGHT);
+		PlayerTextDrawColour(playerid, tdMenuItemToggle[playerid][slot][MENU_ITEM_TOGGLE_FILL], COLOR_MENU_ITEM_BOX_HIGHLIGHT);
+		PlayerTextDrawColour(playerid, tdMenuItemToggle[playerid][slot][MENU_ITEM_TOGGLE_X], COLOR_MENU_ITEM_TEXT_HIGHLIGHT);
 	}
 }
 
@@ -894,8 +998,19 @@ static ResetMenuItemColor(playerid, e_MENU_ITEM:slot, index)
  */
 static UpdateLockedItem(playerid, e_MENU_ITEM:slot)
 {
-	PlayerTextDrawColour(playerid, tdMenuItemText[playerid][slot], COLOR_MENU_LOCKED_ITEM);
-	PlayerTextDrawColour(playerid, tdMenuItemScroll[playerid][slot], COLOR_MENU_LOCKED_ITEM);
+    new index = iMenuScrollOffset[playerid] + _:slot;
+    PlayerTextDrawColour(playerid, tdMenuItemText[playerid][slot], COLOR_MENU_LOCKED_ITEM);
+    PlayerTextDrawColour(playerid, tdMenuItemScroll[playerid][slot], COLOR_MENU_LOCKED_ITEM);
+
+    if (bIsItemToggle[playerid][index])
+    {
+        PlayerTextDrawColour(playerid, tdMenuItemToggle[playerid][slot][MENU_ITEM_TOGGLE_BORDER_BOTTOM], COLOR_MENU_LOCKED_ITEM);
+        PlayerTextDrawColour(playerid, tdMenuItemToggle[playerid][slot][MENU_ITEM_TOGGLE_BORDER_TOP], COLOR_MENU_LOCKED_ITEM);
+        PlayerTextDrawColour(playerid, tdMenuItemToggle[playerid][slot][MENU_ITEM_TOGGLE_BORDER_LEFT], COLOR_MENU_LOCKED_ITEM);
+        PlayerTextDrawColour(playerid, tdMenuItemToggle[playerid][slot][MENU_ITEM_TOGGLE_BORDER_RIGHT], COLOR_MENU_LOCKED_ITEM);
+        PlayerTextDrawColour(playerid, tdMenuItemToggle[playerid][slot][MENU_ITEM_TOGGLE_X], COLOR_MENU_LOCKED_ITEM);
+        PlayerTextDrawColour(playerid, tdMenuItemToggle[playerid][slot][MENU_ITEM_TOGGLE_FILL], COLOR_MENU_LOCKED_ITEM);
+    }
 }
 
 /**
@@ -911,6 +1026,45 @@ static UpdateScrollableItem(playerid, e_MENU_ITEM:slot, index)
 	strins((scroll[0] = EOS, scroll), interactionMenuScrollItems[playerid][index][interactionMenuScrollIndex[playerid][index]], 0, sizeof(scroll));
 	format(str, sizeof str, "<%s>", scroll);
 	PlayerTextDrawSetString(playerid, tdMenuItemScroll[playerid][slot], str);
+}
+
+/**
+ * <summary>Updates the toggle item checkbox</summary>
+ * <remarks>When the item is scrollable, update it's text to show the current selected option.</remarks>
+ * <param name="playerid">The player who's item we're updating.</param>
+ * <param name="slot">The visible item in the textdraw. (e_MENU_ITEM constant)</param>
+ * <param name="index">The overall item position. (0 - MAX_MENU_ITEMS)</param>
+ */
+static UpdateToggleItem(playerid, e_MENU_ITEM:slot, index)
+{
+    PlayerTextDrawShow(playerid, tdMenuItemToggle[playerid][slot][MENU_ITEM_TOGGLE_BORDER_BOTTOM]);
+    PlayerTextDrawShow(playerid, tdMenuItemToggle[playerid][slot][MENU_ITEM_TOGGLE_BORDER_TOP]);
+    PlayerTextDrawShow(playerid, tdMenuItemToggle[playerid][slot][MENU_ITEM_TOGGLE_BORDER_LEFT]);
+    PlayerTextDrawShow(playerid, tdMenuItemToggle[playerid][slot][MENU_ITEM_TOGGLE_BORDER_RIGHT]);
+
+    if (bIsItemToggled[playerid][index])
+    {
+        PlayerTextDrawShow(playerid, tdMenuItemToggle[playerid][slot][MENU_ITEM_TOGGLE_FILL]);
+        PlayerTextDrawShow(playerid, tdMenuItemToggle[playerid][slot][MENU_ITEM_TOGGLE_X]);
+    }
+    else
+    {
+        PlayerTextDrawHide(playerid, tdMenuItemToggle[playerid][slot][MENU_ITEM_TOGGLE_FILL]);
+        PlayerTextDrawHide(playerid, tdMenuItemToggle[playerid][slot][MENU_ITEM_TOGGLE_X]);
+    }
+}
+
+/**
+ * <summary>hides the toggle item checkbox</summary>
+ * <remarks>When the item is scrollable, update it's text to show the current selected option.</remarks>
+ * <param name="playerid">The player who's item we're updating.</param>
+ * <param name="slot">The visible item in the textdraw. (e_MENU_ITEM constant)</param>
+ */
+static HideToggleItem(playerid, e_MENU_ITEM:slot)
+{
+    new part;
+    for (part = 0; part < sizeof(tdMenuItemToggle[][]); part++)
+        PlayerTextDrawHide(playerid, tdMenuItemToggle[playerid][slot][e_MENU_ITEM_TOGGLE:part]);
 }
 
 /**
@@ -1139,8 +1293,18 @@ HandleMenuSelection(playerid, KEY:keys, index)
 	{
 		if (!bIsItemLocked[playerid][index])
 		{
-			HandleTDMenuItem(playerid, iSelectedMenuItemId[playerid], iMenuId[playerid], true);
-			IM_HideInteractionMenu(playerid, false);
+			if (bIsItemToggle[playerid][index])
+			{
+				bIsItemToggled[playerid][index] = !bIsItemToggled[playerid][index];
+				UpdateMenuHighlight(playerid, interactionMenuItemCount[playerid]);
+				PlayerPlaySound(playerid, 1084);
+				CallLocalFunction("OnInteractionMenuToggle", "iiid", playerid, iMenuId[playerid], index, bIsItemToggled[playerid][index]);
+			}
+			else
+			{
+				HandleTDMenuItem(playerid, iSelectedMenuItemId[playerid], iMenuId[playerid], true);
+				IM_HideInteractionMenu(playerid, false);
+			}
 		}
 		else PlayerPlaySound(playerid, 1085);
 		actionCount[playerid]++;
@@ -1418,16 +1582,43 @@ static ItemPropertyCheck(playerid, const item[MAX_ITEM_LEN])
 {
 	new curentItem = interactionMenuItemCount[playerid];
 	interactionMenuItems[playerid][curentItem] = item;
+	new len = strlen(interactionMenuItems[playerid][curentItem]);
 
-	if (strfind(interactionMenuItems[playerid][curentItem], "[") != -1 && 
+	if (len > 1 &&
+		interactionMenuItems[playerid][curentItem][0] == '#' &&
+		interactionMenuItems[playerid][curentItem][len - 1] == '#')
+	{
+		strdel(interactionMenuItems[playerid][curentItem], len - 1, len);
+		strdel(interactionMenuItems[playerid][curentItem], 0, 1);
+		bIsItemLocked[playerid][curentItem] = true;
+		len = strlen(interactionMenuItems[playerid][curentItem]);
+	}
+
+	if (len > 1 &&
+		interactionMenuItems[playerid][curentItem][0] == '|' &&
+		interactionMenuItems[playerid][curentItem][len - 1] == '|')
+	{
+		if (strfind(interactionMenuItems[playerid][curentItem], "[") != -1 && strfind(interactionMenuItems[playerid][curentItem], "]") != -1)
+		{
+			printf("[Interaction Menu] WARNING - Following item cannot be both a toggle and a scroll item. Scroll will be ignored: \"%s\"", interactionMenuItems[playerid][curentItem]);
+		}
+
+		bIsItemToggle[playerid][curentItem] = true;
+		bIsItemToggled[playerid][curentItem] = (interactionMenuItems[playerid][curentItem][1] == '+');
+
+		if (interactionMenuItems[playerid][curentItem][1] == '+')
+			strdel(interactionMenuItems[playerid][curentItem], 0, 2);
+		else
+			strdel(interactionMenuItems[playerid][curentItem], 0, 1);
+
+		strdel(interactionMenuItems[playerid][curentItem], strlen(interactionMenuItems[playerid][curentItem]) - 1, strlen(interactionMenuItems[playerid][curentItem]));
+	}
+	else if (strfind(interactionMenuItems[playerid][curentItem], "[") != -1 && 
 		strfind(interactionMenuItems[playerid][curentItem], "]") != -1)
 	{
 		bIsItemScrollable[playerid][curentItem] = true;
 
-		new index1,
-			index2
-		;
-
+		new index1, index2;
 		index1 = strfind(interactionMenuItems[playerid][curentItem], "[");
 		index2 = strfind(interactionMenuItems[playerid][curentItem], "]");
 
@@ -1442,26 +1633,15 @@ static ItemPropertyCheck(playerid, const item[MAX_ITEM_LEN])
 		for (new scroll; scroll < MAX_SCROLL_ITEMS; scroll++)
 		{
 			if (strfind(scrollItem, ",") == -1) break;
-			interactionMenuScrollCount[playerid][curentItem] ++;
+			interactionMenuScrollCount[playerid][curentItem]++;
 			strmid(interactionMenuScrollItems[playerid][curentItem][scroll], scrollItem, 0, strfind(scrollItem, ",", true));
 			strdel(scrollItem, 0, strfind(scrollItem, ",", true) + 1);
 			new idx = strfind(interactionMenuScrollItems[playerid][curentItem][scroll], " ");
-			if (strfind(interactionMenuScrollItems[playerid][curentItem][scroll], " ") != -1) strdel(interactionMenuScrollItems[playerid][curentItem][scroll], idx, idx + 1);
-		
+			if (idx != -1) strdel(interactionMenuScrollItems[playerid][curentItem][scroll], idx, idx + 1);
 		}
-		
 	}
 
-	new len = strlen(interactionMenuItems[playerid][curentItem]);
-	if (len > 1 &&
-		interactionMenuItems[playerid][curentItem][0] == '#' &&
-		interactionMenuItems[playerid][curentItem][len - 1] == '#')
-	{
-		strdel(interactionMenuItems[playerid][curentItem], len -1, len);
-		strdel(interactionMenuItems[playerid][curentItem], 0, 1);
-		strins(interactionMenuItems[playerid][curentItem], "[L] ", 0);
-		bIsItemLocked[playerid][curentItem] = true;
-	}
+	if (bIsItemLocked[playerid][curentItem]) strins(interactionMenuItems[playerid][curentItem], "[L] ", 0);
 }
 
 /**
@@ -1501,6 +1681,10 @@ static IM_HideInteractionMenu(playerid, bool:forced)
 	{
 		PlayerTextDrawHide(playerid, tdInteractionMenu[playerid][e_MENU_TD:i]);
 	}
+	for (new i = 0; i < sizeof(tdMenuItemText[]); i++)
+	{
+		HideToggleItem(playerid, e_MENU_ITEM:i);
+	}
 
 	for (new i = 0; i < MAX_MENU_ITEMS; i++)
 	{
@@ -1519,7 +1703,13 @@ static IM_HideInteractionMenu(playerid, bool:forced)
 			interactionMenuScrollCount[playerid][i] = 0;
 			interactionMenuScrollIndex[playerid][i] = 0;
 		}
+		if (bIsItemToggle[playerid][i])
+		{
+			bIsItemToggle[playerid][i] = false;
+			bIsItemToggled[playerid][i] = false;
+		}
 	}
+	
 
 	if (forced) IM_TogglePlayerControllable(playerid, true);
 
@@ -1528,6 +1718,7 @@ static IM_HideInteractionMenu(playerid, bool:forced)
 
 forward OnInteractionMenuResponse(playerid, menuid, bool:response, menuitem);
 forward OnScrollItemChange(playerid, menuid, menuitem, scrollitem);
+forward OnInteractionMenuToggle(playerid, menuid, menuitem, bool:toggled);
 
 /**
  * <summary>Handles unfreezing the player after the last menu is closed.</summary>
@@ -1784,9 +1975,18 @@ public OnPlayerClickPlayerTextDraw(playerid, PlayerText:playertextid)
 	{
 		if (!bIsItemLocked[playerid][index])
 		{
-			HandleTDMenuItem(playerid, iSelectedMenuItemId[playerid], iMenuId[playerid], true);
-			IM_HideInteractionMenu(playerid, false);
-			CancelSelectTextDraw(playerid);
+			if (bIsItemToggle[playerid][index])
+			{
+				bIsItemToggled[playerid][index] = !bIsItemToggled[playerid][index];
+				UpdateMenuHighlight(playerid, interactionMenuItemCount[playerid]);
+				CallLocalFunction("OnInteractionMenuToggle", "iiid", playerid, iMenuId[playerid], index, bIsItemToggled[playerid][index]);
+			}
+			else
+			{
+				HandleTDMenuItem(playerid, iSelectedMenuItemId[playerid], iMenuId[playerid], true);
+				IM_HideInteractionMenu(playerid, false);
+				CancelSelectTextDraw(playerid);
+			}
 		}
 		else PlayerPlaySound(playerid, 1085);
 		actionCount[playerid]++;

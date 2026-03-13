@@ -1284,62 +1284,8 @@ static HandleTDMenuItem(playerid, selected, menuid, bool:response)
 	CallRemoteFunction("OnInteractionMenuResponse", "iibi", playerid, menuid, response, response ? index : -1);
 }
 
-/**
- * <summary>Closes the interaction menu for a player.</summary>
- * <remarks>
- * Called when a player closed the menu or clicked on an item
- * </remarks>
- * <param name="playerid">The player to close the menu.</param>
- */
-HideInteractionMenu(playerid)
-{
-	#if defined _FOREACH_LOCAL_VERSION
-		Iter_Remove(itIsInMenu, playerid);
-	#else
-		bIsInMenu[playerid] = false;
-	#endif
 
-	iSelectedMenuItemId[playerid] = 0;
 
-	for (new i = 0; i < sizeof(tdAndroidButtons[]); i++)
-	{
-		PlayerTextDrawHide(playerid, tdAndroidButtons[playerid][e_CONTROL_BUTTON:i]);
-	}
-	for (new i = 0; i < sizeof(tdAndroidButtons[]); i++)
-	{
-		PlayerTextDrawHide(playerid, tdAndroidText[playerid][e_CONTROL_BUTTON:i]);
-	}
-
-	for (new i = 0; i < sizeof(tdMenuItemText[]); i++)
-	{
-		PlayerTextDrawHide(playerid, tdMenuItemBox[playerid][e_MENU_ITEM:i]);
-		PlayerTextDrawHide(playerid, tdMenuItemText[playerid][e_MENU_ITEM:i]);
-		PlayerTextDrawHide(playerid, tdMenuItemScroll[playerid][e_MENU_ITEM:i]);
-	}
-	for (new i = 0; i < sizeof(tdInteractionMenu[]); i++)
-	{
-		PlayerTextDrawHide(playerid, tdInteractionMenu[playerid][e_MENU_TD:i]);
-	}
-
-	for (new i = 0; i < MAX_MENU_ITEMS; i++)
-	{
-		if (bIsItemLocked[playerid][i]) bIsItemLocked[playerid][i] = false; 
-		
-		if (bIsItemEx[playerid][i])
-		{
-			bIsItemEx[playerid][i] = false;
-			boxExColor[playerid][i] = COLOR_MENU_ITEM_BOX;
-			boxExHighlight[playerid][i] = COLOR_MENU_ITEM_BOX_HIGHLIGHT;
-		}
-
-		if (bIsItemScrollable[playerid][i])
-		{
-			bIsItemScrollable[playerid][i] = false;
-			interactionMenuScrollCount[playerid][i] = 0;
-			interactionMenuScrollIndex[playerid][i] = 0;
-		}
-	}
-}
 
 /**
  * <summary>Removes a specific item from the player's menu.</summary>
@@ -1411,7 +1357,7 @@ stock UpdateInteractionMenuItem(playerid, menuitem, const item[MAX_ITEM_LEN], co
 	interactionMenuItems[playerid][menuitem][0] = '\0';
 	interactionMenuScrollCount[playerid][menuitem] = 0;
 
-	ItemPropertyCheck(playerid, menuitem, item);
+	ItemPropertyCheck(playerid, item);
 
 	interactionMenuDesc[playerid][interactionMenuItemCount[playerid]] = desc;
 	interactionMenuScrollIndex[playerid][menuitem + iMenuScrollOffset[playerid]] = 0;

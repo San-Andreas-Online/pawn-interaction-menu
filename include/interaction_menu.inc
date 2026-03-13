@@ -11,7 +11,7 @@
 //  ___/ / ___ / /_/ /    / / / /___/ ___ |/ /  / /  
 // /____/_/  |_\____/    /_/ /_____/_/  |_/_/  /_/    
 
-#define _INTERACTION_MENU_VERSION "1.6.0"
+#define _INTERACTION_MENU_VERSION "1.6.1"
 
 #if defined _INC_sao_interaction_menu
 	#endinput
@@ -772,7 +772,7 @@ static DestroyIMenu(playerid)
  * This one has to be called first, to convert string and to be able to open another
  * menu, otherwise the new menu won't open.
  * </remarks>
- * <param name="playerid">Who weâ€™re showing the menu to.</param>
+ * <param name="playerid">Who we’re showing the menu to.</param>
  * <param name="menuid">The menuid to be shown for the player</param>
  * <param name="tdMenuItems">The items string for the menu</param>
  * <param name="title">The menu title to be shown.</param>
@@ -803,7 +803,7 @@ stock ShowPlayerInteractionMenu(playerid, menuid, const tdMenuItems[], const tit
  * </remarks>
  * <param name="output">The string to format</param>
  * <param name="playerid">The player with the open menu</param>
- * <param name="imenuitem">Which menu item weâ€™re checking.</param>
+ * <param name="imenuitem">Which menu item we’re checking.</param>
  * <param name="scrollitem">Which scroll option inside that item.</param>
  */
 stock GetMenuScrollItemString(output[MAX_ITEM_LEN], playerid, imenuitem, scrollitem)
@@ -818,7 +818,7 @@ stock GetMenuScrollItemString(output[MAX_ITEM_LEN], playerid, imenuitem, scrolli
  * </remarks>
  * <param name="output">The string to format</param>
  * <param name="playerid">The player with the open menu</param>
- * <param name="imenuitem">Which menu item weâ€™re checking.</param>
+ * <param name="imenuitem">Which menu item we’re checking.</param>
  */
 stock GetMenuItemString(output[MAX_ITEM_LEN], playerid, imenuitem)
 {
@@ -1448,19 +1448,70 @@ static HandleTDMenuItem(playerid, selected, menuid, bool:response)
 	CallRemoteFunction("OnInteractionMenuResponse", "iibi", playerid, menuid, response, response ? index : -1);
 }
 
-
-
+/**
+ * <summary>Clears all properties of a menu item slot.</summary>
+ * <param name="playerid">The player who's item we're clearing.</param>
+ * <param name="index">The item index to clear.</param>
+ */
+static ClearMenuItem(playerid, index)
+{
+    interactionMenuItems[playerid][index][0] = EOS;
+    interactionMenuDesc[playerid][index][0] = EOS;
+    bIsItemLocked[playerid][index] = false;
+    bIsItemScrollable[playerid][index] = false;
+    bIsItemToggle[playerid][index] = false;
+    bIsItemToggled[playerid][index] = false;
+    bIsItemEx[playerid][index] = false;
+    boxExColor[playerid][index] = COLOR_MENU_ITEM_BOX;
+    boxExHighlight[playerid][index] = COLOR_MENU_ITEM_BOX_HIGHLIGHT;
+    interactionMenuScrollCount[playerid][index] = 0;
+    interactionMenuScrollIndex[playerid][index] = 0;
+    for (new s = 0; s < MAX_SCROLL_ITEMS; s++)
+        interactionMenuScrollItems[playerid][index][s][0] = EOS;
+}
 
 /**
- * <summary>Removes a specific item from the player's menu.</summary>
- * <param name="playerid">The player to remove the item from</param>
- * <param name="itemid">The item index to be removed</param>
-*/
+ * <summary>Shifts a menu item down by one slot.</summary>
+ * <param name="playerid">The player who's item we're shifting.</param>
+ * <param name="index">The item index to shift down.</param>
+ */
+static ShiftMenuItemDown(playerid, index)
+{
+    interactionMenuItems[playerid][index] = interactionMenuItems[playerid][index + 1];
+    interactionMenuDesc[playerid][index] = interactionMenuDesc[playerid][index + 1];
+    bIsItemLocked[playerid][index] = bIsItemLocked[playerid][index + 1];
+    bIsItemScrollable[playerid][index] = bIsItemScrollable[playerid][index + 1];
+    bIsItemToggle[playerid][index] = bIsItemToggle[playerid][index + 1];
+    bIsItemToggled[playerid][index] = bIsItemToggled[playerid][index + 1];
+    bIsItemEx[playerid][index] = bIsItemEx[playerid][index + 1];
+    boxExColor[playerid][index] = boxExColor[playerid][index + 1];
+    boxExHighlight[playerid][index] = boxExHighlight[playerid][index + 1];
+    interactionMenuScrollCount[playerid][index] = interactionMenuScrollCount[playerid][index + 1];
+    interactionMenuScrollIndex[playerid][index] = interactionMenuScrollIndex[playerid][index + 1];
+    for (new s = 0; s < MAX_SCROLL_ITEMS; s++)
+        interactionMenuScrollItems[playerid][index][s] = interactionMenuScrollItems[playerid][index + 1][s];
+}
+
+/**
+ * <summary>Removes a specific item from the player's menu, shifting all items below it up.</summary>
+ * <param name="playerid">The player to remove the item from.</param>
+ * <param name="itemid">The item index to be removed.</param>
+ */
 stock RemoveInteractionMenuItem(playerid, itemid)
 {
-	interactionMenuItems[playerid][itemid] = "_";
-	interactionMenuItemCount[playerid] --;
-	UpdateMenuHighlight(playerid, interactionMenuItemCount[playerid]);
+    if (!IsPlayerInMenu(playerid)) return 0;
+
+    for (new i = itemid; i < interactionMenuItemCount[playerid] - 1; i++)
+        ShiftMenuItemDown(playerid, i);
+
+    ClearMenuItem(playerid, interactionMenuItemCount[playerid] - 1);
+    interactionMenuItemCount[playerid]--;
+
+    if (iSelectedMenuItemId[playerid] >= interactionMenuItemCount[playerid])
+        iSelectedMenuItemId[playerid] = interactionMenuItemCount[playerid] - 1;
+
+    UpdateMenuHighlight(playerid, interactionMenuItemCount[playerid]);
+    return 1;
 }
 
 /**
@@ -1472,12 +1523,16 @@ stock RemoveInteractionMenuItem(playerid, itemid)
 */
 stock AddInteractionMenuItem(playerid, const item[MAX_ITEM_LEN], const desc[MAX_DESCRIPTION_LEN] = "No Description")
 {
+	if (!IsPlayerInMenu(playerid)) return 0;
+
 	ItemPropertyCheck(playerid, item);
 
 	interactionMenuDesc[playerid][interactionMenuItemCount[playerid]] = desc;
 	interactionMenuItemCount[playerid] ++;
 	
 	UpdateMenuHighlight(playerid, interactionMenuItemCount[playerid]);
+
+	return 1;
 }
 /**
  * <summary>Adds a new item to the player's interaction menu with a custom box color</summary>
@@ -1489,18 +1544,22 @@ stock AddInteractionMenuItem(playerid, const item[MAX_ITEM_LEN], const desc[MAX_
 */
 stock AddInteractionMenuItemEx(playerid, const item[MAX_ITEM_LEN], const boxcolor = COLOR_MENU_ITEM_BOX, const desc[MAX_DESCRIPTION_LEN] = "No Description")
 {
+	if (!IsPlayerInMenu(playerid)) return 0;
+
 	ItemPropertyCheck(playerid, item);
 
 	interactionMenuDesc[playerid][interactionMenuItemCount[playerid]] = desc;
 
-	boxExColor[playerid][interactionMenuItemCount[playerid]] = (100 << 24) | (boxcolor & 0xFFFFFF);
+	boxExColor[playerid][interactionMenuItemCount[playerid]] = boxcolor;
 
-	boxExHighlight[playerid][interactionMenuItemCount[playerid]] = (255 << 24) | (boxcolor & 0xFFFFFF);
+	boxExHighlight[playerid][interactionMenuItemCount[playerid]] = (boxcolor & 0x00FFFFFF) | (0xFF << 24);
 
 	bIsItemEx[playerid][interactionMenuItemCount[playerid]] = true;
 	interactionMenuItemCount[playerid]++;
 
 	UpdateMenuHighlight(playerid, interactionMenuItemCount[playerid]);
+
+	return 1;
 }
 
 /**
@@ -1513,25 +1572,25 @@ stock AddInteractionMenuItemEx(playerid, const item[MAX_ITEM_LEN], const boxcolo
 */
 stock UpdateInteractionMenuItem(playerid, menuitem, const item[MAX_ITEM_LEN], const desc[MAX_DESCRIPTION_LEN] = "No Description")
 {
-	if (!IsPlayerInMenu(playerid)) return 0;
+    if (!IsPlayerInMenu(playerid)) return 0;
 
-	bIsItemScrollable[playerid][menuitem] = false;
-	bIsItemLocked[playerid][menuitem] = false;
-	interactionMenuDesc[playerid][menuitem][0] = '\0';
-	interactionMenuItems[playerid][menuitem][0] = '\0';
-	interactionMenuScrollCount[playerid][menuitem] = 0;
+    new count = interactionMenuItemCount[playerid];
+    ClearMenuItem(playerid, menuitem);
+    interactionMenuItemCount[playerid] = menuitem;
+    ItemPropertyCheck(playerid, item);
+    interactionMenuItemCount[playerid] = count;
 
-	ItemPropertyCheck(playerid, item);
+    interactionMenuDesc[playerid][menuitem] = desc;
+    interactionMenuScrollIndex[playerid][menuitem] = 0;
+    UpdateMenuHighlight(playerid, interactionMenuItemCount[playerid]);
 
-	interactionMenuDesc[playerid][interactionMenuItemCount[playerid]] = desc;
-	interactionMenuScrollIndex[playerid][menuitem + iMenuScrollOffset[playerid]] = 0;
-	UpdateMenuHighlight(playerid, interactionMenuItemCount[playerid]);
-
-	return 1;
+    return 1;
 }
 
 stock ShowAndroidButtons(playerid)
 {
+	if (!IsPlayerInMenu(playerid)) return 0;
+
 	for (new i = 0; i < 6; i++)
 	{
 		PlayerTextDrawShow(playerid, tdAndroidButtons[playerid][e_CONTROL_BUTTON:i]);
@@ -1542,20 +1601,8 @@ stock ShowAndroidButtons(playerid)
 	}
 
 	SelectTextDraw(playerid, 0x818181DC);
-}
 
-static stock LightenColor(color, Float:amount)
-{
-	new a = (color >> 24) & 0xFF;
-	new r = (color >> 16) & 0xFF;
-	new g = (color >> 8) & 0xFF;
-	new b = color & 0xFF;
-
-	r = min(255, floatround(r + (255 - r) * amount));
-	g = min(255, floatround(g + (255 - g) * amount));
-	b = min(255, floatround(b + (255 - b) * amount));
-
-	return (a << 24) | (r << 16) | (g << 8) | b;
+	return 1;
 }
 
 /**
@@ -1654,66 +1701,37 @@ static ItemPropertyCheck(playerid, const item[MAX_ITEM_LEN])
  */
 static IM_HideInteractionMenu(playerid, bool:forced)
 {
-	#if defined _FOREACH_LOCAL_VERSION
-		Iter_Remove(itIsInMenu, playerid);
-	#else
-		bIsInMenu[playerid] = false;
-	#endif
+    #if defined _FOREACH_LOCAL_VERSION
+        Iter_Remove(itIsInMenu, playerid);
+    #else
+        bIsInMenu[playerid] = false;
+    #endif
 
-	iSelectedMenuItemId[playerid] = 0;
+    iSelectedMenuItemId[playerid] = 0;
 
-	for (new i = 0; i < sizeof(tdAndroidButtons[]); i++)
-	{
-		PlayerTextDrawHide(playerid, tdAndroidButtons[playerid][e_CONTROL_BUTTON:i]);
-	}
-	for (new i = 0; i < sizeof(tdAndroidButtons[]); i++)
-	{
-		PlayerTextDrawHide(playerid, tdAndroidText[playerid][e_CONTROL_BUTTON:i]);
-	}
+    for (new i = 0; i < sizeof(tdAndroidButtons[]); i++)
+        PlayerTextDrawHide(playerid, tdAndroidButtons[playerid][e_CONTROL_BUTTON:i]);
 
-	for (new i = 0; i < sizeof(tdMenuItemText[]); i++)
-	{
-		PlayerTextDrawHide(playerid, tdMenuItemBox[playerid][e_MENU_ITEM:i]);
-		PlayerTextDrawHide(playerid, tdMenuItemText[playerid][e_MENU_ITEM:i]);
-		PlayerTextDrawHide(playerid, tdMenuItemScroll[playerid][e_MENU_ITEM:i]);
-	}
-	for (new i = 0; i < sizeof(tdInteractionMenu[]); i++)
-	{
-		PlayerTextDrawHide(playerid, tdInteractionMenu[playerid][e_MENU_TD:i]);
-	}
-	for (new i = 0; i < sizeof(tdMenuItemText[]); i++)
-	{
-		HideToggleItem(playerid, e_MENU_ITEM:i);
-	}
+    for (new i = 0; i < sizeof(tdAndroidButtons[]); i++)
+        PlayerTextDrawHide(playerid, tdAndroidText[playerid][e_CONTROL_BUTTON:i]);
 
-	for (new i = 0; i < MAX_MENU_ITEMS; i++)
-	{
-		if (bIsItemLocked[playerid][i]) bIsItemLocked[playerid][i] = false; 
-		
-		if (bIsItemEx[playerid][i])
-		{
-			bIsItemEx[playerid][i] = false;
-			boxExColor[playerid][i] = COLOR_MENU_ITEM_BOX;
-			boxExHighlight[playerid][i] = COLOR_MENU_ITEM_BOX_HIGHLIGHT;
-		}
+    for (new i = 0; i < sizeof(tdMenuItemText[]); i++)
+    {
+        PlayerTextDrawHide(playerid, tdMenuItemBox[playerid][e_MENU_ITEM:i]);
+        PlayerTextDrawHide(playerid, tdMenuItemText[playerid][e_MENU_ITEM:i]);
+        PlayerTextDrawHide(playerid, tdMenuItemScroll[playerid][e_MENU_ITEM:i]);
+        HideToggleItem(playerid, e_MENU_ITEM:i);
+    }
 
-		if (bIsItemScrollable[playerid][i])
-		{
-			bIsItemScrollable[playerid][i] = false;
-			interactionMenuScrollCount[playerid][i] = 0;
-			interactionMenuScrollIndex[playerid][i] = 0;
-		}
-		if (bIsItemToggle[playerid][i])
-		{
-			bIsItemToggle[playerid][i] = false;
-			bIsItemToggled[playerid][i] = false;
-		}
-	}
-	
+    for (new i = 0; i < sizeof(tdInteractionMenu[]); i++)
+        PlayerTextDrawHide(playerid, tdInteractionMenu[playerid][e_MENU_TD:i]);
 
-	if (forced) IM_TogglePlayerControllable(playerid, true);
+    for (new i = 0; i < MAX_MENU_ITEMS; i++)
+        ClearMenuItem(playerid, i);
 
-	return 1;
+    if (forced) IM_TogglePlayerControllable(playerid, true);
+
+    return 1;
 }
 
 forward OnInteractionMenuResponse(playerid, menuid, bool:response, menuitem);
@@ -1763,7 +1781,7 @@ public DelayFromLastMenu(playerid)
  * <param name="tdMenuItems">The string for the menu items, separated by \n.</param>
  * <param name="title">The menu title to display.</param>
  * <param name="description">The description string for the menu items, separated by \n.</param>
- * <param name="color">The primary color used for the menuâ€™s title and header.</param>
+ * <param name="color">The primary color used for the menu’s title and header.</param>
  */
 
 forward DelayShowPlayerInteractionMenu(playerid, menuid, const tdMenuItems[], const title[], const description[], color);

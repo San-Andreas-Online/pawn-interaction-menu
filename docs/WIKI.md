@@ -7,7 +7,7 @@
   - [Installation](#installation)
   - [Defines](#defines)
   - [Function Reference](#function-reference)
-    - [âš™ï¸� Functions](#ï¸�-functions)
+    - [⚙️ Functions](#️-functions)
       - [`ShowPlayerInteractionMenu`](#showplayerinteractionmenu)
         - [Example usage of ShowPlayerInteractionMenu](#example-usage-of-showplayerinteractionmenu)
       - [`AddInteractionMenuItem`](#addinteractionmenuitem)
@@ -20,7 +20,7 @@
         - [Example usage of GetMenuItemString](#example-usage-of-getmenuitemstring)
       - [`GetMenuScrollItemString`](#getmenuscrollitemstring)
         - [Example usage of GetMenuScrollItemString](#example-usage-of-getmenuscrollitemstring)
-    - [ðŸ”„ CallBacks](#-callbacks)
+    - [🔄 CallBacks](#-callbacks)
       - [`OnInteractionMenuResponse`](#oninteractionmenuresponse)
         - [Example usage of OnInteractionMenuResponse](#example-usage-of-oninteractionmenuresponse)
       - [`OnScrollItemChange`](#onscrollitemchange)
@@ -59,7 +59,7 @@
 
 ## Function Reference
 
-### âš™ï¸� Functions
+### ⚙️ Functions
 
 #### `ShowPlayerInteractionMenu`
 
@@ -274,7 +274,7 @@ print(string);
 > - This will format `string` with the 3rd scroll option, inside the 1st menu item.
 > - This would print the 1st scroll option inside the 3rd item in [ShowPlayerInteractionMenu](#showplayerinteractionmenu), which is "red"
 
-### ðŸ”„ CallBacks
+### 🔄 CallBacks
 
 #### `OnInteractionMenuResponse`
 

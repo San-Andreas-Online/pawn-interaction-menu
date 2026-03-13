@@ -11,7 +11,7 @@
 //  ___/ / ___ / /_/ /    / / / /___/ ___ |/ /  / /  
 // /____/_/  |_\____/    /_/ /_____/_/  |_/_/  /_/    
 
-#define FILTERSCRIPT_VERSION "1.5.2"
+#define _INTERACTION_MENU_VERSION "1.5.3"
 
 #if defined _INC_sao_interaction_menu
 	#endinput

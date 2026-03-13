@@ -7,7 +7,7 @@
   - [Installation](#installation)
   - [Defines](#defines)
   - [Function Reference](#function-reference)
-    - [⚙️ Functions](#️-functions)
+    - [âš™ï¸� Functions](#ï¸�-functions)
       - [`ShowPlayerInteractionMenu`](#showplayerinteractionmenu)
         - [Example usage of ShowPlayerInteractionMenu](#example-usage-of-showplayerinteractionmenu)
       - [`AddInteractionMenuItem`](#addinteractionmenuitem)
@@ -20,11 +20,13 @@
         - [Example usage of GetMenuItemString](#example-usage-of-getmenuitemstring)
       - [`GetMenuScrollItemString`](#getmenuscrollitemstring)
         - [Example usage of GetMenuScrollItemString](#example-usage-of-getmenuscrollitemstring)
-    - [🔄 CallBacks](#-callbacks)
+    - [ðŸ”„ CallBacks](#-callbacks)
       - [`OnInteractionMenuResponse`](#oninteractionmenuresponse)
         - [Example usage of OnInteractionMenuResponse](#example-usage-of-oninteractionmenuresponse)
       - [`OnScrollItemChange`](#onscrollitemchange)
         - [Example usage of OnScrollItemChange](#example-usage-of-onscrollitemchange)
+      - [`OnInteractionMenuToggle`](#oninteractionmenutoggle)
+        - [Example usage of OnInteractionMenuToggle](#example-usage-of-oninteractionmenutoggle)
 
 ---
 
@@ -35,19 +37,19 @@
 
 ## Defines
 
-| Description                                  | Default Value | Redefinable |
-|----------------------------------------------|---------------|-------------|
+| Description                                             | Default Value | Redefinable |
+|---------------------------------------------------------|---------------|-------------|
 | Maximum total number of menu items (`MAX_MENU_ITEMS`)   | 35            | Yes         |
-| Maximum item length (`MAX_ITEM_LEN`)         | 256           | Yes         |
-| Maximum description length (`MAX_DESCRIPTION_LEN`) | 70            | Yes         |
-| Maximum number of scrollable values (`MAX_SCROLL_ITEMS`) | 15            | Yes         |
-| Maximum scrollable value length (`MAX_SCROLL_LEN`)     | 10            | Yes         |
+| Maximum item length (`MAX_ITEM_LEN`)                    | 256           | Yes         |
+| Maximum description length (`MAX_DESCRIPTION_LEN`)      | 70            | Yes         |
+| Maximum number of scrollable values (`MAX_SCROLL_ITEMS`)| 15            | Yes         |
+| Maximum scrollable value length (`MAX_SCROLL_LEN`)      | 10            | Yes         |
 | Default box transparency color (`DEFAULT_BOX_ALPHA`)    | 0xAA          | Yes         |
 
 > [!WARNING]
 > For now, all defined values can be redefined, but the more you increase them, the more memory they will require  
 > When increasing these values (and sometimes by default), you will be required to increase the heap/stack size accordingly, after including all your libraries:
-> 
+>
 > ```pawn
 > // Fix for " Run time error 3: "Stack/heap collision (insufficient stack size)"
 > // Serves as a maximum memory size for variables and arrays (ex: new string[8192])
@@ -57,7 +59,7 @@
 
 ## Function Reference
 
-### ⚙️ Functions
+### âš™ï¸� Functions
 
 #### `ShowPlayerInteractionMenu`
 
@@ -68,7 +70,7 @@ ShowPlayerInteractionMenu(playerid, menuid, tdMenuItems, title, description, col
 > Shows the player a menu.
 >
 > - **playerid**: The player to show the menu.
-> - **menuid**:  The menu id to later use in `OnInteractionMenuResponse` or `OnScrollChange`.
+> - **menuid**:  The menu id to later use in `OnInteractionMenuResponse`, `OnScrollItemChange`, or `OnInteractionMenuToggle`.
 > - **tdMenuItems**:  The whole items string, separated by `\n`.
 > - **title**: The title of the menu. *(optional, defaults to no title)*
 > - **description**: The whole description string, separated by `\n`. *(optional, defaults to "No Description")*
@@ -78,8 +80,8 @@ ShowPlayerInteractionMenu(playerid, menuid, tdMenuItems, title, description, col
 
 ```pawn
 ShowPlayerInteractionMenu(playerid, EXAMPLE_MENU_ID, 
-     "Item 1\n#Locked item#\nScroll item[Red, Green, Blue]", "Example_Menu_Title", 
-     "1st Item description\nLocked item description\nScroll item description", 
+     "Item 1\n#Locked item#\nScroll item[Red, Green, Blue]\n|Toggle Off|\n|+Toggle On|\n#|Locked Toggle|#", "Example_Menu_Title", 
+     "1st Item description\nLocked item description\nScroll item description\nToggle off description\nToggle on description\nLocked toggle description", 
      0xFFFFFF62);
 ```
 
@@ -99,6 +101,18 @@ ShowPlayerInteractionMenu(playerid, EXAMPLE_MENU_ID,
 > - Put items inside **square brackets** to make them scroll items
 >
 > `Colors[Red, Green, Blue]`
+>
+> - Wrap items in **|** to make them toggle items (checkbox). Toggles off by default
+>
+> `|Toggle Item|`
+>
+> - Add **+** after the opening **|** to default the toggle to on
+>
+> `|+Toggle Item|`
+>
+> - Locked and toggle can be combined by wrapping in both **#** and **|**
+>
+> `#|Locked Toggle|#`
 
  ---
 > [!WARNING]
@@ -106,6 +120,8 @@ ShowPlayerInteractionMenu(playerid, EXAMPLE_MENU_ID,
 > - The title must have **_** instead of spaces.
 >
 >`Example_Menu_Title`
+>
+> - Toggle and scroll items are **cannot be combined**. If both syntaxes are used on the same item, toggle takes priority and scroll is ignored.
 >
  ---
 
@@ -132,7 +148,7 @@ AddInteractionMenuItem(playerid, "New item", "New item description!");
 > [!NOTE]
 > Remarks about AddInteractionMenuItem
 >
-> - Added items can also be locked or scroll items.
+> - Added items can also be locked, scroll, or toggle items.
 >
 > - Added items will always be at the bottom of the item list.
 
@@ -164,7 +180,7 @@ AddInteractionMenuItemEx(playerid, "New colored item", 0xFF000060, "New item des
 > [!NOTE]
 > Remarks about AddInteractionMenuItemEx
 >
-> - Added items can also be locked or scroll items.
+> - Added items can also be locked, scroll, or toggle items.
 >
 > - Added items will always be at the bottom of the item list.
 >
@@ -198,7 +214,7 @@ RemoveInteractionMenuItem(playerid, 3);
 > [!NOTE]
 > Remarks about RemoveInteractionMenuItem
 >
-> - This will remove the 2nd item in the menu.
+> - This will remove the 4th item in the menu.
 
 ---
 
@@ -258,7 +274,7 @@ print(string);
 > - This will format `string` with the 3rd scroll option, inside the 1st menu item.
 > - This would print the 1st scroll option inside the 3rd item in [ShowPlayerInteractionMenu](#showplayerinteractionmenu), which is "red"
 
-### 🔄 CallBacks
+### ðŸ”„ CallBacks
 
 #### `OnInteractionMenuResponse`
 
@@ -280,7 +296,7 @@ public OnInteractionMenuResponse(playerid, menuid, bool:response, menuitem)
 {
     if (response)
     {
-        if (menuid == EXAMPLE_MENUID)
+        if (menuid == EXAMPLE_MENU_ID)
         {
             switch (menuitem)
             {
@@ -301,8 +317,9 @@ public OnInteractionMenuResponse(playerid, menuid, bool:response, menuitem)
 > [!NOTE]
 > Remarks about `OnInteractionMenuResponse`
 >
-> - This checks if the player clicked an item inside menuid `EXAMPLE_MENUID`` and sends a message accordinly.
-> - Also sends a message if the player closes the menu
+> - This checks if the player clicked an item inside menuid `EXAMPLE_MENU_ID` and sends a message accordingly.
+> - Also sends a message if the player closes the menu.
+> - Toggle items **do not** trigger [`OnInteractionMenuResponse`](#oninteractionmenuresponse). Use [`OnInteractionMenuToggle`](#oninteractionmenutoggle) instead.
 
  ---
 
@@ -347,5 +364,43 @@ public OnScrollItemChange(playerid, menuid, menuitem, scrollitem)
 > Remarks about OnScrollItemChange
 >
 > - This checks if the player scrolled on the 3rd item of EXAMPLE_MENU_ID menu.
+
+ ---
+
+#### `OnInteractionMenuToggle`
+
+```pawn
+OnInteractionMenuToggle(playerid, menuid, itemid, bool:toggled)
+```
+
+> Called when a player toggles a toggle item inside a menu.
+>
+> - **playerid**: The player who triggered the callback.
+> - **menuid**: The id of the player's menu.
+> - **itemid**: The item index the player toggled.
+> - **toggled**: The new state of the toggle. `true` if now on, `false` if now off.
+
+##### Example usage of OnInteractionMenuToggle
+
+```pawn
+public OnInteractionMenuToggle(playerid, menuid, itemid, bool:toggled)
+{
+    if (menuid == EXAMPLE_MENU_ID)
+    {
+        if (itemid == 3)
+        {
+            if (toggled) SendClientMessage(playerid, 0x00FF00FF, "Toggle is now ON!");
+            else SendClientMessage(playerid, 0xFF0000FF, "Toggle is now OFF!");
+        }
+    }
+
+    return 1;
+}
+```
+
+> [!NOTE]
+> Remarks about `OnInteractionMenuToggle`
+>
+> - Locked toggle items **do not** fire this callback.
 
  ---

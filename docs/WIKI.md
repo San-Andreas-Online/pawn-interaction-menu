@@ -37,14 +37,19 @@
 
 ## Defines
 
-| Description                                             | Default Value | Redefinable |
-|---------------------------------------------------------|---------------|-------------|
-| Maximum total number of menu items (`MAX_MENU_ITEMS`)   | 35            | Yes         |
-| Maximum item length (`MAX_ITEM_LEN`)                    | 256           | Yes         |
-| Maximum description length (`MAX_DESCRIPTION_LEN`)      | 70            | Yes         |
-| Maximum number of scrollable values (`MAX_SCROLL_ITEMS`)| 15            | Yes         |
-| Maximum scrollable value length (`MAX_SCROLL_LEN`)      | 10            | Yes         |
-| Default box transparency color (`DEFAULT_BOX_ALPHA`)    | 0xAA          | Yes         |
+| Description                                                         | Default Value | Redefinable |
+|---------------------------------------------------------------------|---------------|-------------|
+| Maximum total number of menu items (`MAX_MENU_ITEMS`)               | 35            | Yes         |
+| Maximum item length (`MAX_ITEM_LEN`)                                | 256           | Yes         |
+| Maximum description length (`MAX_DESCRIPTION_LEN`)                  | 70            | Yes         |
+| Maximum number of scrollable values (`MAX_SCROLL_ITEMS`)            | 15            | Yes         |
+| Maximum scrollable value length (`MAX_SCROLL_LEN`)                  | 10            | Yes         |
+| Default box transparency color (`DEFAULT_BOX_ALPHA`)                | 0xAA          | Yes         |
+| Maximum number of visible menu items (`MAX_VISIBLE_ITEMS`)          | 7             | Yes         |
+| Y position of the first menu item (`MENU_ITEM_START_Y`)             | 187.0         | Yes         |
+| Vertical spacing between menu items (`MENU_ITEM_SPACING`)           | 15.0          | Yes         |
+| Y offset of item text relative to item box (`MENU_ITEM_TEXT_OFFSET`)| 1.0           | Yes         |
+
 
 > [!WARNING]
 > For now, all defined values can be redefined, but the more you increase them, the more memory they will require  

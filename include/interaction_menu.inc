@@ -11,7 +11,7 @@
 //  ___/ / ___ / /_/ /    / / / /___/ ___ |/ /  / /  
 // /____/_/  |_\____/    /_/ /_____/_/  |_/_/  /_/    
 
-#define _INTERACTION_MENU_VERSION "1.7.1"
+#define _INTERACTION_MENU_VERSION "1.7.2"
 
 #if defined _INC_sao_interaction_menu
 	#endinput
@@ -638,6 +638,19 @@ static UpdateMenuHighlight(playerid, itemcount)
 			HideMenuItem(playerid, i);
 		}
 	}
+
+	if (itemcount > MAX_VISIBLE_ITEMS)
+	{
+		PlayerTextDrawLetterSize(playerid, tdInteractionMenu[playerid][MENU_FOOTER_BOX], 0.479, 0.398);
+		PlayerTextDrawShow(playerid, tdInteractionMenu[playerid][MENU_ITEM_FOOTER_ARROW]);
+	}
+	else
+	{
+		PlayerTextDrawLetterSize(playerid, tdInteractionMenu[playerid][MENU_FOOTER_BOX], 0.479, 0.050);
+		PlayerTextDrawHide(playerid, tdInteractionMenu[playerid][MENU_ITEM_FOOTER_ARROW]);
+	}
+	
+	PlayerTextDrawShow(playerid, tdInteractionMenu[playerid][MENU_FOOTER_BOX]);
 }
 
 /**

@@ -36,20 +36,33 @@
    ```#include <interaction_menu>```
 
 ## Defines
+>[!IMPORTANT]
+>| Description                                                          | Default Value | Redefinable |
+>|----------------------------------------------------------------------|---------------|-------------|
+>| Maximum total number of menu items (`MAX_MENU_ITEMS`)                | 35            | Yes         |
+>| Maximum item length (`MAX_ITEM_LEN`)                                 | 256           | Yes         |
+>| Maximum description length (`MAX_DESCRIPTION_LEN`)                   | 70            | Yes         |
+>| Maximum number of scrollable values (`MAX_SCROLL_ITEMS`)             | 15            | Yes         |
+>| Maximum scrollable value length (`MAX_SCROLL_LEN`)                   | 10            | Yes         |
+>| Default box transparency color (`DEFAULT_BOX_ALPHA`)                 | 0xAA          | Yes         |
+>| Maximum number of visible menu items (`MAX_VISIBLE_ITEMS`)           | 7             | Yes         |
+>| Y position of the first menu item (`MENU_ITEM_START_Y`)              | 187.0         | Yes         |
+>| Vertical spacing between menu items (`MENU_ITEM_SPACING`)            | 15.0          | Yes         |
+>| Y offset of item text relative to item box (`MENU_ITEM_TEXT_OFFSET`) | 1.0           | Yes         |
+>| Resize menu to fit item count (`MENU_DYNAMIC_SIZE`)                  | true          | Yes         |
 
-| Description                                                         | Default Value | Redefinable |
-|---------------------------------------------------------------------|---------------|-------------|
-| Maximum total number of menu items (`MAX_MENU_ITEMS`)               | 35            | Yes         |
-| Maximum item length (`MAX_ITEM_LEN`)                                | 256           | Yes         |
-| Maximum description length (`MAX_DESCRIPTION_LEN`)                  | 70            | Yes         |
-| Maximum number of scrollable values (`MAX_SCROLL_ITEMS`)            | 15            | Yes         |
-| Maximum scrollable value length (`MAX_SCROLL_LEN`)                  | 10            | Yes         |
-| Default box transparency color (`DEFAULT_BOX_ALPHA`)                | 0xAA          | Yes         |
-| Maximum number of visible menu items (`MAX_VISIBLE_ITEMS`)          | 7             | Yes         |
-| Y position of the first menu item (`MENU_ITEM_START_Y`)             | 187.0         | Yes         |
-| Vertical spacing between menu items (`MENU_ITEM_SPACING`)           | 15.0          | Yes         |
-| Y offset of item text relative to item box (`MENU_ITEM_TEXT_OFFSET`)| 1.0           | Yes         |
+> [!NOTE]
+>When `MENU_DYNAMIC_SIZE` is set to `true`, the menu will automatically resize itself to fit the number of items instead of always using `MAX_VISIBLE_ITEMS` as the menu height.
+>When enabled:
+>- The menu height adjusts every time items are added, removed or the menu is opened.
+>- The footer separator, arrow and description text are repositioned to sit right below the last item.
+>- The menu will never grow beyond `MAX_VISIBLE_ITEMS`, items beyond that require scrolling as usual.
 
+ ---
+> [!CAUTION]
+> `MENU_DYNAMIC_SIZE` requires `PlayerTextDrawSetPos`, which is only available on **open.mp**. It will not work on standard SA-MP.
+
+---
 
 > [!WARNING]
 > For now, all defined values can be redefined, but the more you increase them, the more memory they will require  

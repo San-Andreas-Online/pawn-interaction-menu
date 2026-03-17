@@ -11,7 +11,7 @@
 //  ___/ / ___ / /_/ /    / / / /___/ ___ |/ /  / /  
 // /____/_/  |_\____/    /_/ /_____/_/  |_/_/  /_/    
 
-#define _INTERACTION_MENU_VERSION "1.7.0"
+#define _INTERACTION_MENU_VERSION "1.7.1"
 
 #if defined _INC_sao_interaction_menu
 	#endinput
@@ -19,6 +19,8 @@
 #define _INC_sao_interaction_menu
 
 #define MAX_VISIBLE_ITEMS 7
+
+#define MENU_DYNAMIC_SIZE true
 
 #define MENU_ITEM_START_Y 187.0
 #define MENU_ITEM_SPACING 15.0
@@ -665,8 +667,14 @@ static UpdateFooterDescription(playerid)
 {
     new idx = iMenuScrollOffset[playerid] + iSelectedMenuItemId[playerid];
 
+    #if MENU_DYNAMIC_SIZE
+        new count = min(interactionMenuItemCount[playerid], MAX_VISIBLE_ITEMS);
+    #else
+        new count = MAX_VISIBLE_ITEMS;
+    #endif
+
     new lines = 1 + (strlen(interactionMenuDesc[playerid][idx]) / 25);
-    PlayerTextDrawLetterSize(playerid, tdInteractionMenu[playerid][MENU_BACKGROUND_BOX], 0.380, (MAX_VISIBLE_ITEMS * MENU_ITEM_SPACING + 23.5 + (lines - 1) * 3.6) / 9.0);
+    PlayerTextDrawLetterSize(playerid, tdInteractionMenu[playerid][MENU_BACKGROUND_BOX], 0.380, (count * MENU_ITEM_SPACING + 23.5 + (lines - 1) * 3.6) / 9.0);
     PlayerTextDrawShow(playerid, tdInteractionMenu[playerid][MENU_BACKGROUND_BOX]);
 
     PlayerTextDrawSetString(playerid, tdInteractionMenu[playerid][MENU_FOOTER_TEXT], interactionMenuDesc[playerid][idx]);
@@ -1291,6 +1299,10 @@ stock RemoveInteractionMenuItem(playerid, itemid)
     if (iSelectedMenuItemId[playerid] >= interactionMenuItemCount[playerid])
         iSelectedMenuItemId[playerid] = interactionMenuItemCount[playerid] - 1;
 
+	#if MENU_DYNAMIC_SIZE
+    	UpdateMenuSize(playerid);
+	#endif
+
     UpdateMenuHighlight(playerid, interactionMenuItemCount[playerid]);
     return 1;
 }
@@ -1311,6 +1323,10 @@ stock AddInteractionMenuItem(playerid, const item[MAX_ITEM_LEN], const desc[MAX_
 	interactionMenuDesc[playerid][interactionMenuItemCount[playerid]] = desc;
 	interactionMenuItemCount[playerid] ++;
 	
+	#if MENU_DYNAMIC_SIZE
+    	UpdateMenuSize(playerid);
+	#endif
+
 	UpdateMenuHighlight(playerid, interactionMenuItemCount[playerid]);
 
 	return 1;
@@ -1337,6 +1353,10 @@ stock AddInteractionMenuItemEx(playerid, const item[MAX_ITEM_LEN], const boxcolo
 
 	bIsItemEx[playerid][interactionMenuItemCount[playerid]] = true;
 	interactionMenuItemCount[playerid]++;
+
+	#if MENU_DYNAMIC_SIZE
+    	UpdateMenuSize(playerid);
+	#endif
 
 	UpdateMenuHighlight(playerid, interactionMenuItemCount[playerid]);
 
@@ -1515,6 +1535,34 @@ static IM_HideInteractionMenu(playerid, bool:forced)
     return 1;
 }
 
+/**
+ * <summary>Updates the menu size based on the number of items</summary>
+ * <remarks>
+ * Only available when MENU_DYNAMIC_SIZE is set to true.
+ * Repositions the footer textdraws to sit right below the last item
+ * </remarks>
+ * <param name="playerid">The player who's menu we're updating.</param>
+ */
+#if MENU_DYNAMIC_SIZE
+static UpdateMenuSize(playerid)
+{
+    new count = min(interactionMenuItemCount[playerid], MAX_VISIBLE_ITEMS);
+    new Float:itemHeight = MENU_ITEM_START_Y + count * MENU_ITEM_SPACING;
+
+    PlayerTextDrawLetterSize(playerid, tdInteractionMenu[playerid][MENU_BACKGROUND_BOX], 0.380, (count * MENU_ITEM_SPACING + 23.5) / 9.0);
+    PlayerTextDrawTextSize(playerid, tdInteractionMenu[playerid][MENU_ITEM_FOOTER_ARROW], itemHeight, -2.0);
+    PlayerTextDrawTextSize(playerid, tdInteractionMenu[playerid][MENU_FOOTER_BOX], 130.0, -2.0);
+
+    PlayerTextDrawSetPos(playerid, tdInteractionMenu[playerid][MENU_ITEM_FOOTER_ARROW], 68.0, itemHeight);
+    PlayerTextDrawSetPos(playerid, tdInteractionMenu[playerid][MENU_FOOTER_BOX], 20.0, itemHeight + 1.0);
+    PlayerTextDrawSetPos(playerid, tdInteractionMenu[playerid][MENU_FOOTER_TEXT], 20.0, itemHeight + 10.0);
+
+	PlayerTextDrawShow(playerid, tdInteractionMenu[playerid][MENU_ITEM_FOOTER_ARROW]);
+	PlayerTextDrawShow(playerid, tdInteractionMenu[playerid][MENU_FOOTER_BOX]);
+	PlayerTextDrawShow(playerid, tdInteractionMenu[playerid][MENU_FOOTER_TEXT]);
+}
+#endif
+
 forward OnInteractionMenuResponse(playerid, menuid, bool:response, menuitem);
 forward OnScrollItemChange(playerid, menuid, menuitem, scrollitem);
 forward OnInteractionMenuToggle(playerid, menuid, menuitem, bool:toggled);
@@ -1575,6 +1623,11 @@ public DelayShowPlayerInteractionMenu(playerid, menuid, const tdMenuItems[], con
 	UpdateMenuTextdraws(playerid);
 
 	FormatMenuItems(playerid, tdMenuItems);
+
+	#if MENU_DYNAMIC_SIZE
+   		UpdateMenuSize(playerid);
+	#endif
+	
 	FormatMenuDescriptions(playerid, description);
 	
 	if (interactionMenuItemCount[playerid] > MAX_MENU_ITEMS) interactionMenuItemCount[playerid] = MAX_MENU_ITEMS;

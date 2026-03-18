@@ -11,7 +11,7 @@
 //  ___/ / ___ / /_/ /    / / / /___/ ___ |/ /  / /  
 // /____/_/  |_\____/    /_/ /_____/_/  |_/_/  /_/    
 
-#define _INTERACTION_MENU_VERSION "1.7.2"
+#define _INTERACTION_MENU_VERSION "1.7.3"
 
 #if defined _INC_sao_interaction_menu
 	#endinput
@@ -1277,7 +1277,7 @@ static ClearMenuItem(playerid, index)
  * <param name="playerid">The player who's item we're shifting.</param>
  * <param name="index">The item index to shift down.</param>
  */
-static ShiftMenuItemDown(playerid, index)
+static stock ShiftMenuItemDown(playerid, index)
 {
     interactionMenuItems[playerid][index] = interactionMenuItems[playerid][index + 1];
     interactionMenuDesc[playerid][index] = interactionMenuDesc[playerid][index + 1];
@@ -1882,7 +1882,7 @@ forward IM_OnPlayerClickPlayerTextDraw(playerid, PlayerText:playertextid);
  * Hook of TogglePlayerControllable to store when the player was frozen or unfrozen.
 */
 
-hook_TogglePlayerControllable(playerid, toggle)
+stock hook_TogglePlayerControllable(playerid, toggle)
 {
 	if (toggle == 0) bWasFrozen[playerid] = true;
 	else bWasFrozen[playerid] = false;	

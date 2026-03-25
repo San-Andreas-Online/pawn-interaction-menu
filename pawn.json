@@ -1,6 +1,7 @@
 {
 	"user": "San-Andreas-Online",
 	"repo": "pawn-interaction-menu",
+	"include_path": "include",
 	"dependencies": [
 		"sampctl/samp-stdlib"
 	]

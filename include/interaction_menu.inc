@@ -11,7 +11,7 @@
 //  ___/ / ___ / /_/ /    / / / /___/ ___ |/ /  / /  
 // /____/_/  |_\____/    /_/ /_____/_/  |_/_/  /_/    
 
-#define _INTERACTION_MENU_VERSION "1.7.6"
+#define _INTERACTION_MENU_VERSION "1.7.7"
 
 #if defined _INC_interaction_menu
 	#endinput
@@ -1915,14 +1915,14 @@ public OnPlayerClickPlayerTextDraw(playerid, PlayerText:playertextid)
 /*
  * Hook of TogglePlayerControllable to store when the player was frozen or unfrozen.
 */
-stock hook_TogglePlayerControllable(playerid, toggle)
+stock hook_TogglePlayerControllable(playerid, bool:toggle)
 {
-	if (toggle == 0) bWasFrozen[playerid] = true;
+	if (!toggle) bWasFrozen[playerid] = true;
 	else bWasFrozen[playerid] = false;	
 
-	if (IsPlayerInMenu(playerid)) return 0;
+	if (IsPlayerInMenu(playerid)) return false;
 
-	return TogglePlayerControllable(playerid, bool:toggle);
+	return TogglePlayerControllable(playerid, toggle);
 }
 #if defined _ALS_TogglePlayerControllable
 	#undef TogglePlayerControllable

@@ -11,7 +11,7 @@
 //  ___/ / ___ / /_/ /    / / / /___/ ___ |/ /  / /  
 // /____/_/  |_\____/    /_/ /_____/_/  |_/_/  /_/    
 
-#define _INTERACTION_MENU_VERSION "1.7.5"
+#define _INTERACTION_MENU_VERSION "1.7.6"
 
 #if defined _INC_interaction_menu
 	#endinput
@@ -892,7 +892,7 @@ static InitMenuState(playerid, menuid)
 			IM_TogglePlayerControllable(playerid, false);
 			bHasLastMenu[playerid] = true;
 		}
-		else HideInteractionMenu(playerid);
+		else IM_HideInteractionMenu(playerid, true);
 		bIsInMenu[playerid] = true;
 
 	#endif
@@ -989,15 +989,15 @@ static FormatMenuDescriptions(playerid, const menu_desc[])
  * <param name="toggle"> Boolean to freeze or not the player.</param>
  * <
 */
-static IM_TogglePlayerControllable(playerid, toggle)
+static IM_TogglePlayerControllable(playerid, bool:toggle)
 {
-	if (bWasFrozen[playerid] && toggle == 1) 
+	if (bWasFrozen[playerid] && toggle) 
 	{
 		bWasFrozen[playerid] = false;
 		return TogglePlayerControllable(playerid, false);
 	}
 
-	return TogglePlayerControllable(playerid, bool:toggle);
+	return TogglePlayerControllable(playerid, toggle);
 }
 
 /**
@@ -1655,15 +1655,21 @@ public OnPlayerConnect(playerid)
 {
 	CreateIMenu(playerid);
 
-	return CallLocalFunction("IM_OnPlayerConnect", "i", playerid);
+	#if defined IM_OnPlayerConnect
+		return IM_OnPlayerConnect(playerid);
+	#else
+		return 1;
+	#endif
 }
-forward IM_OnPlayerConnect(playerid);
 #if defined _ALS_OnPlayerConnect
 	#undef OnPlayerConnect
 #else
 	#define _ALS_OnPlayerConnect
 #endif
 #define OnPlayerConnect IM_OnPlayerConnect
+#if defined IM_OnPlayerConnect
+	forward IM_OnPlayerConnect(playerid);
+#endif
 
 public OnPlayerDisconnect(playerid, reason)
 {
@@ -1685,15 +1691,21 @@ public OnPlayerDisconnect(playerid, reason)
 
 	unfreezeTimer[playerid] = INVALID_TIMER;
 
-	return CallLocalFunction("IM_OnPlayerDisconnect", "ii", playerid, reason);
+	#if defined IM_OnPlayerDisconnect
+		return IM_OnPlayerDisconnect(playerid, reason);
+	#else
+		return 1;
+	#endif
 }
-forward IM_OnPlayerDisconnect(playerid, reason);
 #if defined _ALS_OnPlayerDisconnect
 	#undef OnPlayerDisconnect
 #else
 	#define _ALS_OnPlayerDisconnect
 #endif
 #define OnPlayerDisconnect IM_OnPlayerDisconnect
+#if defined IM_OnPlayerDisconnect
+	forward IM_OnPlayerDisconnect(playerid, reason);
+#endif
 
 /**
  * <summary>
@@ -1715,18 +1727,33 @@ forward IM_OnPlayerDisconnect(playerid, reason);
  * </remarks>
  *
  * <param name="playerid">The ID of the player being updated.</param>
- * <returns>Always returns Y_HOOKS_CONTINUE_RETURN_1.</returns>
+ * <returns>Always returns 1.</returns>
  */
 public OnPlayerUpdate(playerid)
 {   
-	if (!IsPlayerInMenu(playerid)) return CallLocalFunction("IM_OnPlayerUpdate", "i", playerid);
+	if (!IsPlayerInMenu(playerid))
+	#if defined IM_OnPlayerUpdate
+		return IM_OnPlayerUpdate(playerid);
+	#else
+		return 1;
+	#endif
 
 	new KEY:keys, updown, leftright;
 	GetPlayerKeys(playerid, keys, updown, leftright);
 
-	if (!CanProcessMenuInput(playerid)) return CallLocalFunction("IM_OnPlayerUpdate", "i", playerid);
+	if (!CanProcessMenuInput(playerid))
+	#if defined IM_OnPlayerUpdate
+		return IM_OnPlayerUpdate(playerid);
+	#else
+		return 1;
+	#endif
 
-	if (actionCount[playerid] >= 2) return CallLocalFunction("IM_OnPlayerUpdate", "i", playerid);
+	if (actionCount[playerid] >= 2) 
+	#if defined IM_OnPlayerUpdate
+		return IM_OnPlayerUpdate(playerid);
+	#else
+		return 1;
+	#endif
 
 	new index = iMenuScrollOffset[playerid] + iSelectedMenuItemId[playerid];
 
@@ -1734,16 +1761,21 @@ public OnPlayerUpdate(playerid)
 	HandleMenuSelection(playerid, keys, index);
 	HandleMenuScrolling(playerid, leftright, index);
 
-	return CallLocalFunction("IM_OnPlayerUpdate", "i", playerid);
+	#if defined IM_OnPlayerUpdate
+		return IM_OnPlayerUpdate(playerid);
+	#else
+		return 1;
+	#endif
 }
-
-forward IM_OnPlayerUpdate(playerid);
 #if defined _ALS_OnPlayerUpdate
 	#undef OnPlayerUpdate
 #else
 	#define _ALS_OnPlayerUpdate
 #endif
 #define OnPlayerUpdate IM_OnPlayerUpdate
+#if defined IM_OnPlayerUpdate
+	forward IM_OnPlayerUpdate(playerid);
+#endif
 
 /*
  * Hides the interaction menu when a player dies.
@@ -1752,16 +1784,21 @@ public OnPlayerDeath(playerid, killerid, WEAPON:reason)
 {
 	IM_HideInteractionMenu(playerid, false);
 
-	return CallLocalFunction("IM_OnPlayerDeath", "iii", playerid, killerid, _:reason);
+	#if defined IM_OnPlayerDeath
+		return IM_OnPlayerDeath(playerid, killerid, reason);
+	#else
+		return 1;
+	#endif
 }
-
-forward IM_OnPlayerDeath(playerid, killerid, WEAPON:reason);
 #if defined _ALS_OnPlayerDeath
 	#undef OnPlayerDeath
 #else
 	#define _ALS_OnPlayerDeath
 #endif
 #define OnPlayerDeath IM_OnPlayerDeath
+#if defined IM_OnPlayerDeath
+	forward IM_OnPlayerDeath(playerid, killerid, WEAPON:reason);
+#endif
 
 /*
  * Handles android button controls
@@ -1859,17 +1896,21 @@ public OnPlayerClickPlayerTextDraw(playerid, PlayerText:playertextid)
 		actionCount[playerid]++;
 	}
 	
-	return CallLocalFunction("IM_OnPlayerClickPlayerTextDraw", "ii", playerid, playertextid);
-
+	#if defined IM_OnPlayerClickPlayerTextDraw
+		return IM_OnPlayerClickPlayerTextDraw(playerid, playertextid);
+	#else
+		return 1;
+	#endif
 }
-
-forward IM_OnPlayerClickPlayerTextDraw(playerid, PlayerText:playertextid);
 #if defined _ALS_OnPlayerClickPlayerTextDraw
 	#undef OnPlayerClickPlayerTextDraw
 #else
 	#define _ALS_OnPlayerClickPlayerTextDraw
 #endif
 #define OnPlayerClickPlayerTextDraw IM_OnPlayerClickPlayerTextDraw
+#if defined IM_OnPlayerClickPlayerTextDraw
+	forward IM_OnPlayerClickPlayerTextDraw(playerid, PlayerText:playertextid);
+#endif
 
 /*
  * Hook of TogglePlayerControllable to store when the player was frozen or unfrozen.

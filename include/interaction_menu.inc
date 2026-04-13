@@ -11,12 +11,12 @@
 //  ___/ / ___ / /_/ /    / / / /___/ ___ |/ /  / /  
 // /____/_/  |_\____/    /_/ /_____/_/  |_/_/  /_/    
 
-#define _INTERACTION_MENU_VERSION "1.7.3"
+#define _INTERACTION_MENU_VERSION "1.7.4"
 
-#if defined _INC_sao_interaction_menu
+#if defined _INC_interaction_menu
 	#endinput
 #endif
-#define _INC_sao_interaction_menu
+#define _INC_interaction_menu
 
 #define MAX_VISIBLE_ITEMS 7
 
@@ -557,7 +557,7 @@ static DestroyIMenu(playerid)
  * This one has to be called first, to convert string and to be able to open another
  * menu, otherwise the new menu won't open.
  * </remarks>
- * <param name="playerid">Who we’re showing the menu to.</param>
+ * <param name="playerid">Who weâ€™re showing the menu to.</param>
  * <param name="menuid">The menuid to be shown for the player</param>
  * <param name="tdMenuItems">The items string for the menu</param>
  * <param name="title">The menu title to be shown.</param>
@@ -588,7 +588,7 @@ stock ShowPlayerInteractionMenu(playerid, menuid, const tdMenuItems[], const tit
  * </remarks>
  * <param name="output">The string to format</param>
  * <param name="playerid">The player with the open menu</param>
- * <param name="imenuitem">Which menu item we’re checking.</param>
+ * <param name="imenuitem">Which menu item weâ€™re checking.</param>
  * <param name="scrollitem">Which scroll option inside that item.</param>
  */
 stock GetMenuScrollItemString(output[MAX_ITEM_LEN], playerid, imenuitem, scrollitem)
@@ -603,7 +603,7 @@ stock GetMenuScrollItemString(output[MAX_ITEM_LEN], playerid, imenuitem, scrolli
  * </remarks>
  * <param name="output">The string to format</param>
  * <param name="playerid">The player with the open menu</param>
- * <param name="imenuitem">Which menu item we’re checking.</param>
+ * <param name="imenuitem">Which menu item weâ€™re checking.</param>
  */
 stock GetMenuItemString(output[MAX_ITEM_LEN], playerid, imenuitem)
 {
@@ -1623,7 +1623,7 @@ public DelayFromLastMenu(playerid)
  * <param name="tdMenuItems">The string for the menu items, separated by \n.</param>
  * <param name="title">The menu title to display.</param>
  * <param name="description">The description string for the menu items, separated by \n.</param>
- * <param name="color">The primary color used for the menu’s title and header.</param>
+ * <param name="color">The primary color used for the menuâ€™s title and header.</param>
  */
 
 forward DelayShowPlayerInteractionMenu(playerid, menuid, const tdMenuItems[], const title[], const description[], color);

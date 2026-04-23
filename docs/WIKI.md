@@ -36,24 +36,50 @@
    ```#include <interaction_menu>```
 
 ## Defines
->[!IMPORTANT]
->| Description                                                          | Default Value | Redefinable |
->|----------------------------------------------------------------------|---------------|-------------|
->| Maximum total number of menu items (`MAX_MENU_ITEMS`)                | 35            | Yes         |
->| Maximum item length (`MAX_ITEM_LEN`)                                 | 256           | Yes         |
->| Maximum description length (`MAX_DESCRIPTION_LEN`)                   | 70            | Yes         |
->| Maximum number of scrollable values (`MAX_SCROLL_ITEMS`)             | 15            | Yes         |
->| Maximum scrollable value length (`MAX_SCROLL_LEN`)                   | 10            | Yes         |
->| Default box transparency color (`DEFAULT_BOX_ALPHA`)                 | 0xAA          | Yes         |
->| Maximum number of visible menu items (`MAX_VISIBLE_ITEMS`)           | 7             | Yes         |
->| Y position of the first menu item (`MENU_ITEM_START_Y`)              | 187.0         | Yes         |
->| Vertical spacing between menu items (`MENU_ITEM_SPACING`)            | 15.0          | Yes         |
->| Y offset of item text relative to item box (`MENU_ITEM_TEXT_OFFSET`) | 1.0           | Yes         |
->| Resize menu to fit item count (`MENU_DYNAMIC_SIZE`)                  | true          | Yes         |
 
+>[!IMPORTANT]
+>
+> Position & size:
+>
+>| Name                    | Description                                | Default Value | Redefinable |
+>|-------------------------|--------------------------------------------|---------------|-------------|
+>| `MENU_DYNAMIC_SIZE`     | Resize menu to fit item count              | true          | Yes         |
+>| `MENU_ITEM_START_Y`     | Y position of the first menu item          | 187.0         | Yes         |
+>| `MENU_ITEM_SPACING`     | Vertical spacing between menu items        | 15.0          | Yes         |
+>| `MENU_ITEM_TEXT_OFFSET` | Y offset of item text relative to item box | 1.0           | Yes         |
+>
+> Limits:
+>
+>| Name                     | Description                          | Default Value | Redefinable |
+>|--------------------------|--------------------------------------|---------------|-------------|
+>| `MAX_VISIBLE_ITEMS`      | Maximum number of visible menu items | 7             | Yes         |
+>| `MAX_ITEM_LEN`           | Maximum item length                  | 256           | Yes         |
+>| `MAX_DESCRIPTION_LEN`    | Maximum description length           | 70            | Yes         |
+>| `MAX_SCROLL_LEN`         | Maximum scrollable value length      | 10            | Yes         |
+>| `MAX_MENU_ITEMS`         | Maximum total number of menu items   | 35            | Yes         |
+>| `MAX_SCROLL_ITEMS`       | Maximum number of scrollable values  | 15            | Yes         |
+>
+>
+>| Name                                 | Description                    | Default Value | Redefinable |
+>|--------------------------------------|--------------------------------|---------------|-------------|
+>| `DEFAULT_BOX_ALPHA`                  | Default box transparency color | 0xAA          | Yes         |
+>| `COLOR_MENU_TITLE_BOX`               | Title box color                | 0xB03060DC    | Yes         |
+>| `COLOR_MENU_TITLE_TEXT`              | Title text color               | 0xFFFFFFFF    | Yes         |
+>| `COLOR_MENU_SEPARATOR_BOX`           | Separator box color            | 0x000000FF    | Yes         |
+>| `COLOR_MENU_HEADER_TEXT`             | Header text color              | 0xB03060DC    | Yes         |
+>| `COLOR_MENU_BACKGROUND_BOX`          | Background box color           | 0x000000CF    | Yes         |
+>| `COLOR_MENU_ITEM_DESCRIPTION`        | Item description color         | 0xFFFFFFFF    | Yes         |
+>| `COLOR_MENU_FOOTER_ARROW`            | Footer arrow color             | 0xFFFFFFFF    | Yes         |
+>| `COLOR_MENU_ITEM_BOX_HIGHLIGHT`      | Item box highlight color       | 0xFFFFFFFF    | Yes         |
+>| `COLOR_MENU_ITEM_TEXT_HIGHLIGHT`     | Item text highlight color      | 0x000000FF    | Yes         |
+>| `COLOR_MENU_ITEM_BOX`                | Item box color                 | 0xFFFFFF00    | Yes         |
+>| `COLOR_MENU_ITEM_TEXT`               | Item text color                | 0xFFFFFFFF    | Yes         |
+>| `COLOR_MENU_LOCKED_ITEM`             | Locked item color              | 0x6B6B6BA2    | Yes         |
+<!--  -->
 > [!NOTE]
->When `MENU_DYNAMIC_SIZE` is set to `true`, the menu will automatically resize itself to fit the number of items instead of always using `MAX_VISIBLE_ITEMS` as the menu height.
->When enabled:
+> When `MENU_DYNAMIC_SIZE` is set to `true`, the menu will automatically resize itself to fit the number of items instead of always using `MAX_VISIBLE_ITEMS` as the menu height.
+> When enabled:
+>
 >- The menu height adjusts every time items are added, removed or the menu is opened.
 >- The footer separator, arrow and description text are repositioned to sit right below the last item.
 >- The menu will never grow beyond `MAX_VISIBLE_ITEMS`, items beyond that require scrolling as usual.

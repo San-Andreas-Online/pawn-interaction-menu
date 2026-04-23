@@ -11,7 +11,7 @@
 //  ___/ / ___ / /_/ /    / / / /___/ ___ |/ /  / /  
 // /____/_/  |_\____/    /_/ /_____/_/  |_/_/  /_/    
 
-#define _INTERACTION_MENU_VERSION "1.8.0"
+#define _INTERACTION_MENU_VERSION "1.8.1"
 
 #if defined _INC_interaction_menu
 	#endinput
@@ -1177,26 +1177,39 @@ HandleMenuScrolling(playerid, leftright, index)
 	if (bIsItemLocked[playerid][index]) return;
 	if (interactionMenuScrollCount[playerid][index] <= 0) return;
 
+	new tempindex;
+
 	if (leftright == KEY_RIGHT)
 	{
-		interactionMenuScrollIndex[playerid][index]++;
-		if (interactionMenuScrollIndex[playerid][index] >= interactionMenuScrollCount[playerid][index]) 
-			interactionMenuScrollIndex[playerid][index] = 0;
+		tempindex = interactionMenuScrollIndex[playerid][index] + 1;
 
-		HandleScrollItem(playerid, iMenuId[playerid], index, interactionMenuScrollIndex[playerid][index]);
-		UpdateMenuHighlight(playerid, interactionMenuItemCount[playerid]);
-		actionCount[playerid]++;
+		if (tempindex >= interactionMenuScrollCount[playerid][index]) 
+			tempindex = 0;
+
+		if (HandleScrollItem(playerid, iMenuId[playerid], index, tempindex) != 0)
+		{
+			interactionMenuScrollIndex[playerid][index] = tempindex;
+
+			UpdateMenuHighlight(playerid, interactionMenuItemCount[playerid]);
+			actionCount[playerid]++;
+		}
 	}
 	else if (leftright == KEY_LEFT)
 	{
-		if (interactionMenuScrollIndex[playerid][index] == 0) 
-			interactionMenuScrollIndex[playerid][index] = interactionMenuScrollCount[playerid][index] - 1;
-		else 
-			interactionMenuScrollIndex[playerid][index]--;
+		tempindex = interactionMenuScrollIndex[playerid][index];
 
-		HandleScrollItem(playerid, iMenuId[playerid], index, interactionMenuScrollIndex[playerid][index]);
-		UpdateMenuHighlight(playerid, interactionMenuItemCount[playerid]);
-		actionCount[playerid]++;
+		if (tempindex == 0) 
+			tempindex = interactionMenuScrollCount[playerid][index] - 1;
+		else 
+			tempindex--;
+
+		if (HandleScrollItem(playerid, iMenuId[playerid], index, tempindex) != 0)
+		{
+			interactionMenuScrollIndex[playerid][index] = tempindex;
+
+			UpdateMenuHighlight(playerid, interactionMenuItemCount[playerid]);
+			actionCount[playerid]++;
+		}
 	}
 }
 

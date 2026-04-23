@@ -11,7 +11,7 @@
 //  ___/ / ___ / /_/ /    / / / /___/ ___ |/ /  / /  
 // /____/_/  |_\____/    /_/ /_____/_/  |_/_/  /_/    
 
-#define _INTERACTION_MENU_VERSION "1.7.8"
+#define _INTERACTION_MENU_VERSION "1.8.0"
 
 #if defined _INC_interaction_menu
 	#endinput
@@ -1259,7 +1259,7 @@ static stock IM_ConvertEncoding(string[])
  */
 static HandleScrollItem(playerid, menuid, menuitem, scrollitem)
 {
-	CallRemoteFunction("OnScrollItemChange", "iiii", playerid, menuid, menuitem, scrollitem);
+	return OnScrollItemChange(playerid, menuid, menuitem, scrollitem);
 }
 
 /**
@@ -1274,22 +1274,25 @@ static HandleScrollItem(playerid, menuid, menuitem, scrollitem)
  */
 static HandleTDMenuItem(playerid, selected, menuid, bool:response)
 {
-	#if defined _FOREACH_LOCAL_VERSION
-		if (Iter_Contains(itHasLastMenu, playerid))
-		{
-			if (unfreezeTimer[playerid]) KillTimer(unfreezeTimer[playerid]);
-			unfreezeTimer[playerid] = SetTimerEx("DelayFromLastMenu", 300, false, "i", playerid);
-		}
-	#else
-		if (bHasLastMenu[playerid])
-		{
-			if (unfreezeTimer[playerid]) KillTimer(unfreezeTimer[playerid]);
-			unfreezeTimer[playerid] = SetTimerEx("DelayFromLastMenu", 300, false, "i", playerid);
-		}
-	#endif
-
-	new index = iMenuScrollOffset[playerid] + selected;	
-	CallRemoteFunction("OnInteractionMenuResponse", "iibi", playerid, menuid, response, response ? index : -1);
+	new index = iMenuScrollOffset[playerid] + selected;
+	new result = OnInteractionMenuResponse(playerid, menuid, response, response ? index : -1);
+	if (result)
+	{
+		#if defined _FOREACH_LOCAL_VERSION
+			if (Iter_Contains(itHasLastMenu, playerid))
+			{
+				if (unfreezeTimer[playerid]) KillTimer(unfreezeTimer[playerid]);
+				unfreezeTimer[playerid] = SetTimerEx("DelayFromLastMenu", 300, false, "i", playerid);
+			}
+		#else
+			if (bHasLastMenu[playerid])
+			{
+				if (unfreezeTimer[playerid]) KillTimer(unfreezeTimer[playerid]);
+				unfreezeTimer[playerid] = SetTimerEx("DelayFromLastMenu", 300, false, "i", playerid);
+			}
+		#endif
+	}
+	return result;
 }
 
 /**

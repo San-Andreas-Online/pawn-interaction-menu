@@ -11,43 +11,91 @@
 //  ___/ / ___ / /_/ /    / / / /___/ ___ |/ /  / /  
 // /____/_/  |_\____/    /_/ /_____/_/  |_/_/  /_/    
 
-#define _INTERACTION_MENU_VERSION "1.7.7"
+#define _INTERACTION_MENU_VERSION "1.7.8"
 
 #if defined _INC_interaction_menu
 	#endinput
 #endif
 #define _INC_interaction_menu
 
-#define MAX_VISIBLE_ITEMS 7
+// Position and size
+#if !defined MENU_DYNAMIC_SIZE
+	#if defined SAMP_COMPAT
+		#warning "MENU_DYNAMIC_SIZE requires PlayerTextDrawSetPos, which is only available on open.mp. It will not work on standard SA-MP."
+	#else
+		#define MENU_DYNAMIC_SIZE true
+	#endif
+#endif
+#if !defined MENU_ITEM_START_Y
+	#define MENU_ITEM_START_Y 187.0
+#endif
+#if !defined MENU_ITEM_SPACING
+	#define MENU_ITEM_SPACING 15.0
+#endif
+#if !defined MENU_ITEM_TEXT_OFFSET
+	#define MENU_ITEM_TEXT_OFFSET 1.0
+#endif
 
-#define MENU_DYNAMIC_SIZE true
-
-#define MENU_ITEM_START_Y 187.0
-#define MENU_ITEM_SPACING 15.0
-#define MENU_ITEM_TEXT_OFFSET 1.0
-
-#define MAX_ITEM_LEN 256
-#define MAX_DESCRIPTION_LEN 70
-#define MAX_SCROLL_LEN 10
-#define MAX_MENU_ITEMS 35
-#define MAX_SCROLL_ITEMS 15
-#define DEFAULT_BOX_ALPHA 0xAA
+// Limits
+#if !defined MAX_VISIBLE_ITEMS
+	#define MAX_VISIBLE_ITEMS 7
+#endif
+#if !defined MAX_ITEM_LEN
+	#define MAX_ITEM_LEN 256
+#endif
+#if !defined MAX_DESCRIPTION_LEN
+	#define MAX_DESCRIPTION_LEN 70
+#endif
+#if !defined MAX_SCROLL_LEN
+	#define MAX_SCROLL_LEN 10
+#endif
+#if !defined MAX_MENU_ITEMS
+	#define MAX_MENU_ITEMS 35
+#endif
+#if !defined MAX_SCROLL_ITEMS
+	#define MAX_SCROLL_ITEMS 15
+#endif
 
 // TextDraw Menu Colors
-#define COLOR_MENU_TITLE_BOX 0xB03060DC
-#define COLOR_MENU_TITLE_TEXT 0xFFFFFFFF
-
-#define COLOR_MENU_SEPARATOR_BOX 0x000000FF
-#define COLOR_MENU_HEADER_TEXT 0xB03060DC
-#define COLOR_MENU_BACKGROUND_BOX 0x000000CF
-#define COLOR_MENU_ITEM_DESCRIPTION 0xFFFFFFFF
-#define COLOR_MENU_FOOTER_ARROW 0xFFFFFFFF
-
-#define COLOR_MENU_ITEM_BOX_HIGHLIGHT 0xFFFFFFFF
-#define COLOR_MENU_ITEM_TEXT_HIGHLIGHT 0x000000FF
-#define COLOR_MENU_ITEM_BOX 0xFFFFFF00
-#define COLOR_MENU_ITEM_TEXT 0xFFFFFFFF
-#define COLOR_MENU_LOCKED_ITEM 0x6B6B6BA2
+#if !defined DEFAULT_BOX_ALPHA
+	#define DEFAULT_BOX_ALPHA 0xAA
+#endif
+#if !defined COLOR_MENU_TITLE_BOX
+	#define COLOR_MENU_TITLE_BOX 0xB03060DC
+#endif
+#if !defined COLOR_MENU_TITLE_TEXT
+	#define COLOR_MENU_TITLE_TEXT 0xFFFFFFFF
+#endif
+#if !defined COLOR_MENU_SEPARATOR_BOX
+	#define COLOR_MENU_SEPARATOR_BOX 0x000000FF
+#endif
+#if !defined COLOR_MENU_HEADER_TEXT
+	#define COLOR_MENU_HEADER_TEXT 0xB03060DC
+#endif
+#if !defined COLOR_MENU_BACKGROUND_BOX
+	#define COLOR_MENU_BACKGROUND_BOX 0x000000CF
+#endif
+#if !defined COLOR_MENU_ITEM_DESCRIPTION
+	#define COLOR_MENU_ITEM_DESCRIPTION 0xFFFFFFFF
+#endif
+#if !defined COLOR_MENU_FOOTER_ARROW
+	#define COLOR_MENU_FOOTER_ARROW 0xFFFFFFFF
+#endif
+#if !defined COLOR_MENU_ITEM_BOX_HIGHLIGHT
+	#define COLOR_MENU_ITEM_BOX_HIGHLIGHT 0xFFFFFFFF
+#endif
+#if !defined COLOR_MENU_ITEM_TEXT_HIGHLIGHT
+	#define COLOR_MENU_ITEM_TEXT_HIGHLIGHT 0x000000FF
+#endif
+#if !defined COLOR_MENU_ITEM_BOX
+	#define COLOR_MENU_ITEM_BOX 0xFFFFFF00
+#endif
+#if !defined COLOR_MENU_ITEM_TEXT
+	#define COLOR_MENU_ITEM_TEXT 0xFFFFFFFF
+#endif
+#if !defined COLOR_MENU_LOCKED_ITEM
+	#define COLOR_MENU_LOCKED_ITEM 0x6B6B6BA2
+#endif
 
 static enum e_MENU_TD
 {

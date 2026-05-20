@@ -50,6 +50,7 @@
 >| Vertical spacing between menu items (`MENU_ITEM_SPACING`)            | 15.0          | Yes         |
 >| Y offset of item text relative to item box (`MENU_ITEM_TEXT_OFFSET`) | 1.0           | Yes         |
 >| Resize menu to fit item count (`MENU_DYNAMIC_SIZE`)                  | true          | Yes         |
+>| Delay between each key press being handled (`MENU_INPUT_COOLDOWN`)   | 50            | Yes         |
 
 > [!NOTE]
 >When `MENU_DYNAMIC_SIZE` is set to `true`, the menu will automatically resize itself to fit the number of items instead of always using `MAX_VISIBLE_ITEMS` as the menu height.

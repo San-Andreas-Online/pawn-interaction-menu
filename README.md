@@ -2,9 +2,20 @@
 
 *A customizable GTA Online–style interaction menu system for SA-MP.*
 
-Inspired by GTA Online’s interaction menu, it allows developers to add UI functionality to their SA-MP gamemodes.  
+Inspired by GTA Online's interaction menu, it allows developers to add UI functionality to their SA-MP gamemodes.  
+
+<div align="center">
+
+If you like this project, consider supporting us!
+
+[![PayPal](https://img.shields.io/badge/paypal-One%20Time%20Donation-003087?style=flat&logo=paypal)](https://paypal.me/MichaelAceAnderson)
+[![Patreon](https://img.shields.io/badge/patreon-Subscription-FF424D?style=flat&logo=patreon)](https://www.patreon.com/posts/san-andreas-open-153811828)
 
 ![Example image of menu](./docs/resources/menu_1.png "Example image of menu")
+
+</div>
+
+
 
 - [SA-MP Interaction Menu](#sa-mp-interaction-menu)
   - [✨ Features](#-features)

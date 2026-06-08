@@ -11,47 +11,95 @@
 //  ___/ / ___ / /_/ /    / / / /___/ ___ |/ /  / /  
 // /____/_/  |_\____/    /_/ /_____/_/  |_/_/  /_/    
 
-#define _INTERACTION_MENU_VERSION "1.7.4"
+#define _INTERACTION_MENU_VERSION "1.7.8"
 
-#if defined _INC_sao_interaction_menu
+#if defined _INC_interaction_menu
 	#endinput
 #endif
-#define _INC_sao_interaction_menu
+#define _INC_interaction_menu
 
-#define MAX_VISIBLE_ITEMS 7
+// Position and size
+#if !defined MENU_DYNAMIC_SIZE
+	#if defined SAMP_COMPAT
+		#warning "MENU_DYNAMIC_SIZE requires PlayerTextDrawSetPos, which is only available on open.mp. It will not work on standard SA-MP."
+	#else
+		#define MENU_DYNAMIC_SIZE true
+	#endif
+#endif
+#if !defined MENU_ITEM_START_Y
+	#define MENU_ITEM_START_Y 187.0
+#endif
+#if !defined MENU_ITEM_SPACING
+	#define MENU_ITEM_SPACING 15.0
+#endif
+#if !defined MENU_ITEM_TEXT_OFFSET
+	#define MENU_ITEM_TEXT_OFFSET 1.0
+#endif
 
-#define MENU_DYNAMIC_SIZE true
-
-#define MENU_ITEM_START_Y 187.0
-#define MENU_ITEM_SPACING 15.0
-#define MENU_ITEM_TEXT_OFFSET 1.0
-
-#define MAX_ITEM_LEN 256
-#define MAX_DESCRIPTION_LEN 70
-#define MAX_SCROLL_LEN 10
-#define MAX_MENU_ITEMS 35
-#define MAX_SCROLL_ITEMS 15
-#define DEFAULT_BOX_ALPHA 0xAA
+// Limits
+#if !defined MAX_VISIBLE_ITEMS
+	#define MAX_VISIBLE_ITEMS 7
+#endif
+#if !defined MAX_ITEM_LEN
+	#define MAX_ITEM_LEN 256
+#endif
+#if !defined MAX_DESCRIPTION_LEN
+	#define MAX_DESCRIPTION_LEN 70
+#endif
+#if !defined MAX_SCROLL_LEN
+	#define MAX_SCROLL_LEN 10
+#endif
+#if !defined MAX_MENU_ITEMS
+	#define MAX_MENU_ITEMS 35
+#endif
+#if !defined MAX_SCROLL_ITEMS
+	#define MAX_SCROLL_ITEMS 15
+#endif
 
 #if !defined MENU_INPUT_COOLDOWN
 	#define MENU_INPUT_COOLDOWN 50
 #endif
 
 // TextDraw Menu Colors
-#define COLOR_MENU_TITLE_BOX 0xB03060DC
-#define COLOR_MENU_TITLE_TEXT 0xFFFFFFFF
-
-#define COLOR_MENU_SEPARATOR_BOX 0x000000FF
-#define COLOR_MENU_HEADER_TEXT 0xB03060DC
-#define COLOR_MENU_BACKGROUND_BOX 0x000000CF
-#define COLOR_MENU_ITEM_DESCRIPTION 0xFFFFFFFF
-#define COLOR_MENU_FOOTER_ARROW 0xFFFFFFFF
-
-#define COLOR_MENU_ITEM_BOX_HIGHLIGHT 0xFFFFFFFF
-#define COLOR_MENU_ITEM_TEXT_HIGHLIGHT 0x000000FF
-#define COLOR_MENU_ITEM_BOX 0xFFFFFF00
-#define COLOR_MENU_ITEM_TEXT 0xFFFFFFFF
-#define COLOR_MENU_LOCKED_ITEM 0x6B6B6BA2
+#if !defined DEFAULT_BOX_ALPHA
+	#define DEFAULT_BOX_ALPHA 0xAA
+#endif
+#if !defined COLOR_MENU_TITLE_BOX
+	#define COLOR_MENU_TITLE_BOX 0xB03060DC
+#endif
+#if !defined COLOR_MENU_TITLE_TEXT
+	#define COLOR_MENU_TITLE_TEXT 0xFFFFFFFF
+#endif
+#if !defined COLOR_MENU_SEPARATOR_BOX
+	#define COLOR_MENU_SEPARATOR_BOX 0x000000FF
+#endif
+#if !defined COLOR_MENU_HEADER_TEXT
+	#define COLOR_MENU_HEADER_TEXT 0xB03060DC
+#endif
+#if !defined COLOR_MENU_BACKGROUND_BOX
+	#define COLOR_MENU_BACKGROUND_BOX 0x000000CF
+#endif
+#if !defined COLOR_MENU_ITEM_DESCRIPTION
+	#define COLOR_MENU_ITEM_DESCRIPTION 0xFFFFFFFF
+#endif
+#if !defined COLOR_MENU_FOOTER_ARROW
+	#define COLOR_MENU_FOOTER_ARROW 0xFFFFFFFF
+#endif
+#if !defined COLOR_MENU_ITEM_BOX_HIGHLIGHT
+	#define COLOR_MENU_ITEM_BOX_HIGHLIGHT 0xFFFFFFFF
+#endif
+#if !defined COLOR_MENU_ITEM_TEXT_HIGHLIGHT
+	#define COLOR_MENU_ITEM_TEXT_HIGHLIGHT 0x000000FF
+#endif
+#if !defined COLOR_MENU_ITEM_BOX
+	#define COLOR_MENU_ITEM_BOX 0xFFFFFF00
+#endif
+#if !defined COLOR_MENU_ITEM_TEXT
+	#define COLOR_MENU_ITEM_TEXT 0xFFFFFFFF
+#endif
+#if !defined COLOR_MENU_LOCKED_ITEM
+	#define COLOR_MENU_LOCKED_ITEM 0x6B6B6BA2
+#endif
 
 static enum e_MENU_TD
 {
@@ -78,22 +126,22 @@ enum e_CONTROL_BUTTON
 
 static enum e_MENU_ITEM_TOGGLE
 {
-    PlayerText:MENU_ITEM_TOGGLE_FILL,
-    PlayerText:MENU_ITEM_TOGGLE_BORDER_BOTTOM,
-    PlayerText:MENU_ITEM_TOGGLE_BORDER_TOP,
-    PlayerText:MENU_ITEM_TOGGLE_BORDER_LEFT,
-    PlayerText:MENU_ITEM_TOGGLE_BORDER_RIGHT,
-    PlayerText:MENU_ITEM_TOGGLE_X
+	PlayerText:MENU_ITEM_TOGGLE_FILL,
+	PlayerText:MENU_ITEM_TOGGLE_BORDER_BOTTOM,
+	PlayerText:MENU_ITEM_TOGGLE_BORDER_TOP,
+	PlayerText:MENU_ITEM_TOGGLE_BORDER_LEFT,
+	PlayerText:MENU_ITEM_TOGGLE_BORDER_RIGHT,
+	PlayerText:MENU_ITEM_TOGGLE_X
 }
 
 static
-    PlayerText:tdMenuItemBox[MAX_PLAYERS][MAX_VISIBLE_ITEMS],
-    PlayerText:tdMenuItemText[MAX_PLAYERS][MAX_VISIBLE_ITEMS],
-    PlayerText:tdMenuItemScroll[MAX_PLAYERS][MAX_VISIBLE_ITEMS],
-    PlayerText:tdInteractionMenu[MAX_PLAYERS][e_MENU_TD],
-    PlayerText:tdAndroidButtons[MAX_PLAYERS][e_CONTROL_BUTTON],
-    PlayerText:tdAndroidText[MAX_PLAYERS][e_CONTROL_BUTTON],
-    PlayerText:tdMenuItemToggle[MAX_PLAYERS][MAX_VISIBLE_ITEMS][e_MENU_ITEM_TOGGLE]
+	PlayerText:tdMenuItemBox[MAX_PLAYERS][MAX_VISIBLE_ITEMS],
+	PlayerText:tdMenuItemText[MAX_PLAYERS][MAX_VISIBLE_ITEMS],
+	PlayerText:tdMenuItemScroll[MAX_PLAYERS][MAX_VISIBLE_ITEMS],
+	PlayerText:tdInteractionMenu[MAX_PLAYERS][e_MENU_TD],
+	PlayerText:tdAndroidButtons[MAX_PLAYERS][e_CONTROL_BUTTON],
+	PlayerText:tdAndroidText[MAX_PLAYERS][e_CONTROL_BUTTON],
+	PlayerText:tdMenuItemToggle[MAX_PLAYERS][MAX_VISIBLE_ITEMS][e_MENU_ITEM_TOGGLE]
 ;
 /**
  * Store menu state differently depending if foreach is included or not.
@@ -154,369 +202,369 @@ static KEY:lastKeys[MAX_PLAYERS],
  */
 static CreateIMenu(playerid)
 {
-    // == ANDROID BUTTONS ==
-    tdAndroidButtons[playerid][CONTROL_BUTTON_UP] = CreatePlayerTextDraw(playerid, 142.000, 188.000, "_");
-    PlayerTextDrawLetterSize(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_UP], 0.349, 2.198);
-    PlayerTextDrawTextSize(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_UP], 180.000, 16.000);
-    PlayerTextDrawAlignment(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_UP], TEXT_DRAW_ALIGN_LEFT);
-    PlayerTextDrawColour(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_UP], -1);
-    PlayerTextDrawUseBox(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_UP], true);
-    PlayerTextDrawBoxColour(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_UP], 150);
-    PlayerTextDrawSetShadow(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_UP], 1);
-    PlayerTextDrawSetOutline(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_UP], 1);
-    PlayerTextDrawBackgroundColour(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_UP], 150);
-    PlayerTextDrawFont(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_UP], TEXT_DRAW_FONT_1);
-    PlayerTextDrawSetProportional(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_UP], true);
+	// == ANDROID BUTTONS ==
+	tdAndroidButtons[playerid][CONTROL_BUTTON_UP] = CreatePlayerTextDraw(playerid, 142.000, 188.000, "_");
+	PlayerTextDrawLetterSize(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_UP], 0.349, 2.198);
+	PlayerTextDrawTextSize(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_UP], 180.000, 16.000);
+	PlayerTextDrawAlignment(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_UP], TEXT_DRAW_ALIGN_LEFT);
+	PlayerTextDrawColour(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_UP], -1);
+	PlayerTextDrawUseBox(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_UP], true);
+	PlayerTextDrawBoxColour(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_UP], 150);
+	PlayerTextDrawSetShadow(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_UP], 1);
+	PlayerTextDrawSetOutline(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_UP], 1);
+	PlayerTextDrawBackgroundColour(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_UP], 150);
+	PlayerTextDrawFont(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_UP], TEXT_DRAW_FONT_1);
+	PlayerTextDrawSetProportional(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_UP], true);
 
-    tdAndroidText[playerid][CONTROL_BUTTON_UP] = CreatePlayerTextDraw(playerid, 148.000, 189.000, "_up_");
-    PlayerTextDrawLetterSize(playerid, tdAndroidText[playerid][CONTROL_BUTTON_UP], 0.270, 1.699);
-    PlayerTextDrawTextSize(playerid, tdAndroidText[playerid][CONTROL_BUTTON_UP], 180.000, 17.000);
-    PlayerTextDrawAlignment(playerid, tdAndroidText[playerid][CONTROL_BUTTON_UP], TEXT_DRAW_ALIGN_LEFT);
-    PlayerTextDrawColour(playerid, tdAndroidText[playerid][CONTROL_BUTTON_UP], -1);
-    PlayerTextDrawSetShadow(playerid, tdAndroidText[playerid][CONTROL_BUTTON_UP], 0);
-    PlayerTextDrawSetOutline(playerid, tdAndroidText[playerid][CONTROL_BUTTON_UP], 0);
-    PlayerTextDrawBackgroundColour(playerid, tdAndroidText[playerid][CONTROL_BUTTON_UP], 150);
-    PlayerTextDrawFont(playerid, tdAndroidText[playerid][CONTROL_BUTTON_UP], TEXT_DRAW_FONT_2);
-    PlayerTextDrawSetProportional(playerid, tdAndroidText[playerid][CONTROL_BUTTON_UP], true);
-    PlayerTextDrawSetSelectable(playerid, tdAndroidText[playerid][CONTROL_BUTTON_UP], true);
+	tdAndroidText[playerid][CONTROL_BUTTON_UP] = CreatePlayerTextDraw(playerid, 148.000, 189.000, "_up_");
+	PlayerTextDrawLetterSize(playerid, tdAndroidText[playerid][CONTROL_BUTTON_UP], 0.270, 1.699);
+	PlayerTextDrawTextSize(playerid, tdAndroidText[playerid][CONTROL_BUTTON_UP], 180.000, 17.000);
+	PlayerTextDrawAlignment(playerid, tdAndroidText[playerid][CONTROL_BUTTON_UP], TEXT_DRAW_ALIGN_LEFT);
+	PlayerTextDrawColour(playerid, tdAndroidText[playerid][CONTROL_BUTTON_UP], -1);
+	PlayerTextDrawSetShadow(playerid, tdAndroidText[playerid][CONTROL_BUTTON_UP], 0);
+	PlayerTextDrawSetOutline(playerid, tdAndroidText[playerid][CONTROL_BUTTON_UP], 0);
+	PlayerTextDrawBackgroundColour(playerid, tdAndroidText[playerid][CONTROL_BUTTON_UP], 150);
+	PlayerTextDrawFont(playerid, tdAndroidText[playerid][CONTROL_BUTTON_UP], TEXT_DRAW_FONT_2);
+	PlayerTextDrawSetProportional(playerid, tdAndroidText[playerid][CONTROL_BUTTON_UP], true);
+	PlayerTextDrawSetSelectable(playerid, tdAndroidText[playerid][CONTROL_BUTTON_UP], true);
 
-    tdAndroidButtons[playerid][CONTROL_BUTTON_DOWN] = CreatePlayerTextDraw(playerid, 142.000, 242.000, "_");
-    PlayerTextDrawLetterSize(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_DOWN], 0.349, 2.198);
-    PlayerTextDrawTextSize(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_DOWN], 180.000, 16.000);
-    PlayerTextDrawAlignment(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_DOWN], TEXT_DRAW_ALIGN_LEFT);
-    PlayerTextDrawColour(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_DOWN], -1);
-    PlayerTextDrawUseBox(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_DOWN], true);
-    PlayerTextDrawBoxColour(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_DOWN], 150);
-    PlayerTextDrawSetShadow(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_DOWN], 1);
-    PlayerTextDrawSetOutline(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_DOWN], 1);
-    PlayerTextDrawBackgroundColour(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_DOWN], 150);
-    PlayerTextDrawFont(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_DOWN], TEXT_DRAW_FONT_1);
-    PlayerTextDrawSetProportional(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_DOWN], true);
+	tdAndroidButtons[playerid][CONTROL_BUTTON_DOWN] = CreatePlayerTextDraw(playerid, 142.000, 242.000, "_");
+	PlayerTextDrawLetterSize(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_DOWN], 0.349, 2.198);
+	PlayerTextDrawTextSize(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_DOWN], 180.000, 16.000);
+	PlayerTextDrawAlignment(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_DOWN], TEXT_DRAW_ALIGN_LEFT);
+	PlayerTextDrawColour(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_DOWN], -1);
+	PlayerTextDrawUseBox(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_DOWN], true);
+	PlayerTextDrawBoxColour(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_DOWN], 150);
+	PlayerTextDrawSetShadow(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_DOWN], 1);
+	PlayerTextDrawSetOutline(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_DOWN], 1);
+	PlayerTextDrawBackgroundColour(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_DOWN], 150);
+	PlayerTextDrawFont(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_DOWN], TEXT_DRAW_FONT_1);
+	PlayerTextDrawSetProportional(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_DOWN], true);
 
-    tdAndroidText[playerid][CONTROL_BUTTON_DOWN] = CreatePlayerTextDraw(playerid, 145.000, 243.000, "_down");
-    PlayerTextDrawLetterSize(playerid, tdAndroidText[playerid][CONTROL_BUTTON_DOWN], 0.270, 1.699);
-    PlayerTextDrawTextSize(playerid, tdAndroidText[playerid][CONTROL_BUTTON_DOWN], 180.000, 17.000);
-    PlayerTextDrawAlignment(playerid, tdAndroidText[playerid][CONTROL_BUTTON_DOWN], TEXT_DRAW_ALIGN_LEFT);
-    PlayerTextDrawColour(playerid, tdAndroidText[playerid][CONTROL_BUTTON_DOWN], -1);
-    PlayerTextDrawSetShadow(playerid, tdAndroidText[playerid][CONTROL_BUTTON_DOWN], 0);
-    PlayerTextDrawSetOutline(playerid, tdAndroidText[playerid][CONTROL_BUTTON_DOWN], 0);
-    PlayerTextDrawBackgroundColour(playerid, tdAndroidText[playerid][CONTROL_BUTTON_DOWN], 150);
-    PlayerTextDrawFont(playerid, tdAndroidText[playerid][CONTROL_BUTTON_DOWN], TEXT_DRAW_FONT_2);
-    PlayerTextDrawSetProportional(playerid, tdAndroidText[playerid][CONTROL_BUTTON_DOWN], true);
-    PlayerTextDrawSetSelectable(playerid, tdAndroidText[playerid][CONTROL_BUTTON_DOWN], true);
+	tdAndroidText[playerid][CONTROL_BUTTON_DOWN] = CreatePlayerTextDraw(playerid, 145.000, 243.000, "_down");
+	PlayerTextDrawLetterSize(playerid, tdAndroidText[playerid][CONTROL_BUTTON_DOWN], 0.270, 1.699);
+	PlayerTextDrawTextSize(playerid, tdAndroidText[playerid][CONTROL_BUTTON_DOWN], 180.000, 17.000);
+	PlayerTextDrawAlignment(playerid, tdAndroidText[playerid][CONTROL_BUTTON_DOWN], TEXT_DRAW_ALIGN_LEFT);
+	PlayerTextDrawColour(playerid, tdAndroidText[playerid][CONTROL_BUTTON_DOWN], -1);
+	PlayerTextDrawSetShadow(playerid, tdAndroidText[playerid][CONTROL_BUTTON_DOWN], 0);
+	PlayerTextDrawSetOutline(playerid, tdAndroidText[playerid][CONTROL_BUTTON_DOWN], 0);
+	PlayerTextDrawBackgroundColour(playerid, tdAndroidText[playerid][CONTROL_BUTTON_DOWN], 150);
+	PlayerTextDrawFont(playerid, tdAndroidText[playerid][CONTROL_BUTTON_DOWN], TEXT_DRAW_FONT_2);
+	PlayerTextDrawSetProportional(playerid, tdAndroidText[playerid][CONTROL_BUTTON_DOWN], true);
+	PlayerTextDrawSetSelectable(playerid, tdAndroidText[playerid][CONTROL_BUTTON_DOWN], true);
 
-    tdAndroidButtons[playerid][CONTROL_BUTTON_LEFT] = CreatePlayerTextDraw(playerid, 210.000, 242.000, "_");
-    PlayerTextDrawLetterSize(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_LEFT], 0.418, 2.198);
-    PlayerTextDrawTextSize(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_LEFT], 182.000, 16.000);
-    PlayerTextDrawAlignment(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_LEFT], TEXT_DRAW_ALIGN_LEFT);
-    PlayerTextDrawColour(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_LEFT], -1);
-    PlayerTextDrawUseBox(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_LEFT], true);
-    PlayerTextDrawBoxColour(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_LEFT], 150);
-    PlayerTextDrawSetShadow(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_LEFT], 1);
-    PlayerTextDrawSetOutline(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_LEFT], 1);
-    PlayerTextDrawBackgroundColour(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_LEFT], 150);
-    PlayerTextDrawFont(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_LEFT], TEXT_DRAW_FONT_1);
-    PlayerTextDrawSetProportional(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_LEFT], true);
+	tdAndroidButtons[playerid][CONTROL_BUTTON_LEFT] = CreatePlayerTextDraw(playerid, 210.000, 242.000, "_");
+	PlayerTextDrawLetterSize(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_LEFT], 0.418, 2.198);
+	PlayerTextDrawTextSize(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_LEFT], 182.000, 16.000);
+	PlayerTextDrawAlignment(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_LEFT], TEXT_DRAW_ALIGN_LEFT);
+	PlayerTextDrawColour(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_LEFT], -1);
+	PlayerTextDrawUseBox(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_LEFT], true);
+	PlayerTextDrawBoxColour(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_LEFT], 150);
+	PlayerTextDrawSetShadow(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_LEFT], 1);
+	PlayerTextDrawSetOutline(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_LEFT], 1);
+	PlayerTextDrawBackgroundColour(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_LEFT], 150);
+	PlayerTextDrawFont(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_LEFT], TEXT_DRAW_FONT_1);
+	PlayerTextDrawSetProportional(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_LEFT], true);
 
-    tdAndroidText[playerid][CONTROL_BUTTON_LEFT] = CreatePlayerTextDraw(playerid, 191.000, 241.000, "<");
-    PlayerTextDrawLetterSize(playerid, tdAndroidText[playerid][CONTROL_BUTTON_LEFT], 0.338, 2.299);
-    PlayerTextDrawTextSize(playerid, tdAndroidText[playerid][CONTROL_BUTTON_LEFT], 205.000, 17.000);
-    PlayerTextDrawAlignment(playerid, tdAndroidText[playerid][CONTROL_BUTTON_LEFT], TEXT_DRAW_ALIGN_LEFT);
-    PlayerTextDrawColour(playerid, tdAndroidText[playerid][CONTROL_BUTTON_LEFT], -1);
-    PlayerTextDrawSetShadow(playerid, tdAndroidText[playerid][CONTROL_BUTTON_LEFT], 0);
-    PlayerTextDrawSetOutline(playerid, tdAndroidText[playerid][CONTROL_BUTTON_LEFT], 0);
-    PlayerTextDrawBackgroundColour(playerid, tdAndroidText[playerid][CONTROL_BUTTON_LEFT], 150);
-    PlayerTextDrawFont(playerid, tdAndroidText[playerid][CONTROL_BUTTON_LEFT], TEXT_DRAW_FONT_2);
-    PlayerTextDrawSetProportional(playerid, tdAndroidText[playerid][CONTROL_BUTTON_LEFT], true);
-    PlayerTextDrawSetSelectable(playerid, tdAndroidText[playerid][CONTROL_BUTTON_LEFT], true);
+	tdAndroidText[playerid][CONTROL_BUTTON_LEFT] = CreatePlayerTextDraw(playerid, 191.000, 241.000, "<");
+	PlayerTextDrawLetterSize(playerid, tdAndroidText[playerid][CONTROL_BUTTON_LEFT], 0.338, 2.299);
+	PlayerTextDrawTextSize(playerid, tdAndroidText[playerid][CONTROL_BUTTON_LEFT], 205.000, 17.000);
+	PlayerTextDrawAlignment(playerid, tdAndroidText[playerid][CONTROL_BUTTON_LEFT], TEXT_DRAW_ALIGN_LEFT);
+	PlayerTextDrawColour(playerid, tdAndroidText[playerid][CONTROL_BUTTON_LEFT], -1);
+	PlayerTextDrawSetShadow(playerid, tdAndroidText[playerid][CONTROL_BUTTON_LEFT], 0);
+	PlayerTextDrawSetOutline(playerid, tdAndroidText[playerid][CONTROL_BUTTON_LEFT], 0);
+	PlayerTextDrawBackgroundColour(playerid, tdAndroidText[playerid][CONTROL_BUTTON_LEFT], 150);
+	PlayerTextDrawFont(playerid, tdAndroidText[playerid][CONTROL_BUTTON_LEFT], TEXT_DRAW_FONT_2);
+	PlayerTextDrawSetProportional(playerid, tdAndroidText[playerid][CONTROL_BUTTON_LEFT], true);
+	PlayerTextDrawSetSelectable(playerid, tdAndroidText[playerid][CONTROL_BUTTON_LEFT], true);
 
-    tdAndroidButtons[playerid][CONTROL_BUTTON_RIGHT] = CreatePlayerTextDraw(playerid, 210.000, 188.000, "_");
-    PlayerTextDrawLetterSize(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_RIGHT], 0.418, 2.198);
-    PlayerTextDrawTextSize(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_RIGHT], 182.000, 16.000);
-    PlayerTextDrawAlignment(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_RIGHT], TEXT_DRAW_ALIGN_LEFT);
-    PlayerTextDrawColour(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_RIGHT], -1);
-    PlayerTextDrawUseBox(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_RIGHT], true);
-    PlayerTextDrawBoxColour(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_RIGHT], 150);
-    PlayerTextDrawSetShadow(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_RIGHT], 1);
-    PlayerTextDrawSetOutline(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_RIGHT], 1);
-    PlayerTextDrawBackgroundColour(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_RIGHT], 150);
-    PlayerTextDrawFont(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_RIGHT], TEXT_DRAW_FONT_1);
-    PlayerTextDrawSetProportional(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_RIGHT], true);
+	tdAndroidButtons[playerid][CONTROL_BUTTON_RIGHT] = CreatePlayerTextDraw(playerid, 210.000, 188.000, "_");
+	PlayerTextDrawLetterSize(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_RIGHT], 0.418, 2.198);
+	PlayerTextDrawTextSize(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_RIGHT], 182.000, 16.000);
+	PlayerTextDrawAlignment(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_RIGHT], TEXT_DRAW_ALIGN_LEFT);
+	PlayerTextDrawColour(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_RIGHT], -1);
+	PlayerTextDrawUseBox(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_RIGHT], true);
+	PlayerTextDrawBoxColour(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_RIGHT], 150);
+	PlayerTextDrawSetShadow(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_RIGHT], 1);
+	PlayerTextDrawSetOutline(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_RIGHT], 1);
+	PlayerTextDrawBackgroundColour(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_RIGHT], 150);
+	PlayerTextDrawFont(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_RIGHT], TEXT_DRAW_FONT_1);
+	PlayerTextDrawSetProportional(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_RIGHT], true);
 
-    tdAndroidText[playerid][CONTROL_BUTTON_RIGHT] = CreatePlayerTextDraw(playerid, 191.000, 187.000, ">");
-    PlayerTextDrawLetterSize(playerid, tdAndroidText[playerid][CONTROL_BUTTON_RIGHT], 0.338, 2.299);
-    PlayerTextDrawTextSize(playerid, tdAndroidText[playerid][CONTROL_BUTTON_RIGHT], 205.000, 15.000);
-    PlayerTextDrawAlignment(playerid, tdAndroidText[playerid][CONTROL_BUTTON_RIGHT], TEXT_DRAW_ALIGN_LEFT);
-    PlayerTextDrawColour(playerid, tdAndroidText[playerid][CONTROL_BUTTON_RIGHT], -1);
-    PlayerTextDrawSetShadow(playerid, tdAndroidText[playerid][CONTROL_BUTTON_RIGHT], 0);
-    PlayerTextDrawSetOutline(playerid, tdAndroidText[playerid][CONTROL_BUTTON_RIGHT], 0);
-    PlayerTextDrawBackgroundColour(playerid, tdAndroidText[playerid][CONTROL_BUTTON_RIGHT], 150);
-    PlayerTextDrawFont(playerid, tdAndroidText[playerid][CONTROL_BUTTON_RIGHT], TEXT_DRAW_FONT_2);
-    PlayerTextDrawSetProportional(playerid, tdAndroidText[playerid][CONTROL_BUTTON_RIGHT], true);
-    PlayerTextDrawSetSelectable(playerid, tdAndroidText[playerid][CONTROL_BUTTON_RIGHT], true);
+	tdAndroidText[playerid][CONTROL_BUTTON_RIGHT] = CreatePlayerTextDraw(playerid, 191.000, 187.000, ">");
+	PlayerTextDrawLetterSize(playerid, tdAndroidText[playerid][CONTROL_BUTTON_RIGHT], 0.338, 2.299);
+	PlayerTextDrawTextSize(playerid, tdAndroidText[playerid][CONTROL_BUTTON_RIGHT], 205.000, 15.000);
+	PlayerTextDrawAlignment(playerid, tdAndroidText[playerid][CONTROL_BUTTON_RIGHT], TEXT_DRAW_ALIGN_LEFT);
+	PlayerTextDrawColour(playerid, tdAndroidText[playerid][CONTROL_BUTTON_RIGHT], -1);
+	PlayerTextDrawSetShadow(playerid, tdAndroidText[playerid][CONTROL_BUTTON_RIGHT], 0);
+	PlayerTextDrawSetOutline(playerid, tdAndroidText[playerid][CONTROL_BUTTON_RIGHT], 0);
+	PlayerTextDrawBackgroundColour(playerid, tdAndroidText[playerid][CONTROL_BUTTON_RIGHT], 150);
+	PlayerTextDrawFont(playerid, tdAndroidText[playerid][CONTROL_BUTTON_RIGHT], TEXT_DRAW_FONT_2);
+	PlayerTextDrawSetProportional(playerid, tdAndroidText[playerid][CONTROL_BUTTON_RIGHT], true);
+	PlayerTextDrawSetSelectable(playerid, tdAndroidText[playerid][CONTROL_BUTTON_RIGHT], true);
 
-    tdAndroidButtons[playerid][CONTROL_BUTTON_SELECT] = CreatePlayerTextDraw(playerid, 142.000, 215.000, "_");
-    PlayerTextDrawLetterSize(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_SELECT], 0.349, 2.198);
-    PlayerTextDrawTextSize(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_SELECT], 180.000, 16.000);
-    PlayerTextDrawAlignment(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_SELECT], TEXT_DRAW_ALIGN_LEFT);
-    PlayerTextDrawColour(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_SELECT], -1);
-    PlayerTextDrawUseBox(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_SELECT], true);
-    PlayerTextDrawBoxColour(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_SELECT], 150);
-    PlayerTextDrawSetShadow(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_SELECT], 1);
-    PlayerTextDrawSetOutline(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_SELECT], 1);
-    PlayerTextDrawBackgroundColour(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_SELECT], 150);
-    PlayerTextDrawFont(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_SELECT], TEXT_DRAW_FONT_1);
-    PlayerTextDrawSetProportional(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_SELECT], true);
-    PlayerTextDrawSetSelectable(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_SELECT], false);
+	tdAndroidButtons[playerid][CONTROL_BUTTON_SELECT] = CreatePlayerTextDraw(playerid, 142.000, 215.000, "_");
+	PlayerTextDrawLetterSize(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_SELECT], 0.349, 2.198);
+	PlayerTextDrawTextSize(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_SELECT], 180.000, 16.000);
+	PlayerTextDrawAlignment(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_SELECT], TEXT_DRAW_ALIGN_LEFT);
+	PlayerTextDrawColour(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_SELECT], -1);
+	PlayerTextDrawUseBox(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_SELECT], true);
+	PlayerTextDrawBoxColour(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_SELECT], 150);
+	PlayerTextDrawSetShadow(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_SELECT], 1);
+	PlayerTextDrawSetOutline(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_SELECT], 1);
+	PlayerTextDrawBackgroundColour(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_SELECT], 150);
+	PlayerTextDrawFont(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_SELECT], TEXT_DRAW_FONT_1);
+	PlayerTextDrawSetProportional(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_SELECT], true);
+	PlayerTextDrawSetSelectable(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_SELECT], false);
 
-    tdAndroidText[playerid][CONTROL_BUTTON_SELECT] = CreatePlayerTextDraw(playerid, 142.000, 216.000, "__select_");
-    PlayerTextDrawLetterSize(playerid, tdAndroidText[playerid][CONTROL_BUTTON_SELECT], 0.168, 1.699);
-    PlayerTextDrawTextSize(playerid, tdAndroidText[playerid][CONTROL_BUTTON_SELECT], 170.000, 15.000);
-    PlayerTextDrawAlignment(playerid, tdAndroidText[playerid][CONTROL_BUTTON_SELECT], TEXT_DRAW_ALIGN_LEFT);
-    PlayerTextDrawColour(playerid, tdAndroidText[playerid][CONTROL_BUTTON_SELECT], -1);
-    PlayerTextDrawSetShadow(playerid, tdAndroidText[playerid][CONTROL_BUTTON_SELECT], 0);
-    PlayerTextDrawSetOutline(playerid, tdAndroidText[playerid][CONTROL_BUTTON_SELECT], 0);
-    PlayerTextDrawBackgroundColour(playerid, tdAndroidText[playerid][CONTROL_BUTTON_SELECT], 150);
-    PlayerTextDrawFont(playerid, tdAndroidText[playerid][CONTROL_BUTTON_SELECT], TEXT_DRAW_FONT_2);
-    PlayerTextDrawSetProportional(playerid, tdAndroidText[playerid][CONTROL_BUTTON_SELECT], true);
-    PlayerTextDrawSetSelectable(playerid, tdAndroidText[playerid][CONTROL_BUTTON_SELECT], true);
+	tdAndroidText[playerid][CONTROL_BUTTON_SELECT] = CreatePlayerTextDraw(playerid, 142.000, 216.000, "__select_");
+	PlayerTextDrawLetterSize(playerid, tdAndroidText[playerid][CONTROL_BUTTON_SELECT], 0.168, 1.699);
+	PlayerTextDrawTextSize(playerid, tdAndroidText[playerid][CONTROL_BUTTON_SELECT], 170.000, 15.000);
+	PlayerTextDrawAlignment(playerid, tdAndroidText[playerid][CONTROL_BUTTON_SELECT], TEXT_DRAW_ALIGN_LEFT);
+	PlayerTextDrawColour(playerid, tdAndroidText[playerid][CONTROL_BUTTON_SELECT], -1);
+	PlayerTextDrawSetShadow(playerid, tdAndroidText[playerid][CONTROL_BUTTON_SELECT], 0);
+	PlayerTextDrawSetOutline(playerid, tdAndroidText[playerid][CONTROL_BUTTON_SELECT], 0);
+	PlayerTextDrawBackgroundColour(playerid, tdAndroidText[playerid][CONTROL_BUTTON_SELECT], 150);
+	PlayerTextDrawFont(playerid, tdAndroidText[playerid][CONTROL_BUTTON_SELECT], TEXT_DRAW_FONT_2);
+	PlayerTextDrawSetProportional(playerid, tdAndroidText[playerid][CONTROL_BUTTON_SELECT], true);
+	PlayerTextDrawSetSelectable(playerid, tdAndroidText[playerid][CONTROL_BUTTON_SELECT], true);
 
-    tdAndroidButtons[playerid][CONTROL_BUTTON_CLOSE] = CreatePlayerTextDraw(playerid, 210.000, 215.000, "_");
-    PlayerTextDrawLetterSize(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_CLOSE], 0.418, 2.198);
-    PlayerTextDrawTextSize(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_CLOSE], 182.000, 16.000);
-    PlayerTextDrawAlignment(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_CLOSE], TEXT_DRAW_ALIGN_LEFT);
-    PlayerTextDrawColour(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_CLOSE], -1);
-    PlayerTextDrawUseBox(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_CLOSE], true);
-    PlayerTextDrawBoxColour(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_CLOSE], 150);
-    PlayerTextDrawSetShadow(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_CLOSE], 1);
-    PlayerTextDrawSetOutline(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_CLOSE], 1);
-    PlayerTextDrawBackgroundColour(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_CLOSE], 150);
-    PlayerTextDrawFont(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_CLOSE], TEXT_DRAW_FONT_1);
-    PlayerTextDrawSetProportional(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_CLOSE], true);
-    PlayerTextDrawSetSelectable(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_CLOSE], false);
+	tdAndroidButtons[playerid][CONTROL_BUTTON_CLOSE] = CreatePlayerTextDraw(playerid, 210.000, 215.000, "_");
+	PlayerTextDrawLetterSize(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_CLOSE], 0.418, 2.198);
+	PlayerTextDrawTextSize(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_CLOSE], 182.000, 16.000);
+	PlayerTextDrawAlignment(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_CLOSE], TEXT_DRAW_ALIGN_LEFT);
+	PlayerTextDrawColour(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_CLOSE], -1);
+	PlayerTextDrawUseBox(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_CLOSE], true);
+	PlayerTextDrawBoxColour(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_CLOSE], 150);
+	PlayerTextDrawSetShadow(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_CLOSE], 1);
+	PlayerTextDrawSetOutline(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_CLOSE], 1);
+	PlayerTextDrawBackgroundColour(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_CLOSE], 150);
+	PlayerTextDrawFont(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_CLOSE], TEXT_DRAW_FONT_1);
+	PlayerTextDrawSetProportional(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_CLOSE], true);
+	PlayerTextDrawSetSelectable(playerid, tdAndroidButtons[playerid][CONTROL_BUTTON_CLOSE], false);
 
-    tdAndroidText[playerid][CONTROL_BUTTON_CLOSE] = CreatePlayerTextDraw(playerid, 191.000, 214.000, "X");
-    PlayerTextDrawLetterSize(playerid, tdAndroidText[playerid][CONTROL_BUTTON_CLOSE], 0.338, 2.299);
-    PlayerTextDrawTextSize(playerid, tdAndroidText[playerid][CONTROL_BUTTON_CLOSE], 205.000, 15.000);
-    PlayerTextDrawAlignment(playerid, tdAndroidText[playerid][CONTROL_BUTTON_CLOSE], TEXT_DRAW_ALIGN_LEFT);
-    PlayerTextDrawColour(playerid, tdAndroidText[playerid][CONTROL_BUTTON_CLOSE], -1);
-    PlayerTextDrawSetShadow(playerid, tdAndroidText[playerid][CONTROL_BUTTON_CLOSE], 0);
-    PlayerTextDrawSetOutline(playerid, tdAndroidText[playerid][CONTROL_BUTTON_CLOSE], 0);
-    PlayerTextDrawBackgroundColour(playerid, tdAndroidText[playerid][CONTROL_BUTTON_CLOSE], 150);
-    PlayerTextDrawFont(playerid, tdAndroidText[playerid][CONTROL_BUTTON_CLOSE], TEXT_DRAW_FONT_2);
-    PlayerTextDrawSetProportional(playerid, tdAndroidText[playerid][CONTROL_BUTTON_CLOSE], true);
-    PlayerTextDrawSetSelectable(playerid, tdAndroidText[playerid][CONTROL_BUTTON_CLOSE], true);
+	tdAndroidText[playerid][CONTROL_BUTTON_CLOSE] = CreatePlayerTextDraw(playerid, 191.000, 214.000, "X");
+	PlayerTextDrawLetterSize(playerid, tdAndroidText[playerid][CONTROL_BUTTON_CLOSE], 0.338, 2.299);
+	PlayerTextDrawTextSize(playerid, tdAndroidText[playerid][CONTROL_BUTTON_CLOSE], 205.000, 15.000);
+	PlayerTextDrawAlignment(playerid, tdAndroidText[playerid][CONTROL_BUTTON_CLOSE], TEXT_DRAW_ALIGN_LEFT);
+	PlayerTextDrawColour(playerid, tdAndroidText[playerid][CONTROL_BUTTON_CLOSE], -1);
+	PlayerTextDrawSetShadow(playerid, tdAndroidText[playerid][CONTROL_BUTTON_CLOSE], 0);
+	PlayerTextDrawSetOutline(playerid, tdAndroidText[playerid][CONTROL_BUTTON_CLOSE], 0);
+	PlayerTextDrawBackgroundColour(playerid, tdAndroidText[playerid][CONTROL_BUTTON_CLOSE], 150);
+	PlayerTextDrawFont(playerid, tdAndroidText[playerid][CONTROL_BUTTON_CLOSE], TEXT_DRAW_FONT_2);
+	PlayerTextDrawSetProportional(playerid, tdAndroidText[playerid][CONTROL_BUTTON_CLOSE], true);
+	PlayerTextDrawSetSelectable(playerid, tdAndroidText[playerid][CONTROL_BUTTON_CLOSE], true);
 
-    // == MENU CONTAINER ==
-    tdInteractionMenu[playerid][MENU_TITLE_BOX] = CreatePlayerTextDraw(playerid, 20.000, 146.000, "_");
-    PlayerTextDrawLetterSize(playerid, tdInteractionMenu[playerid][MENU_TITLE_BOX], 0.310, 2.799);
-    PlayerTextDrawTextSize(playerid, tdInteractionMenu[playerid][MENU_TITLE_BOX], 130.000, -12.000);
-    PlayerTextDrawAlignment(playerid, tdInteractionMenu[playerid][MENU_TITLE_BOX], TEXT_DRAW_ALIGN_LEFT);
-    PlayerTextDrawColour(playerid, tdInteractionMenu[playerid][MENU_TITLE_BOX], -1);
-    PlayerTextDrawUseBox(playerid, tdInteractionMenu[playerid][MENU_TITLE_BOX], true);
-    PlayerTextDrawBoxColour(playerid, tdInteractionMenu[playerid][MENU_TITLE_BOX], COLOR_MENU_TITLE_BOX);
-    PlayerTextDrawSetShadow(playerid, tdInteractionMenu[playerid][MENU_TITLE_BOX], 1);
-    PlayerTextDrawSetOutline(playerid, tdInteractionMenu[playerid][MENU_TITLE_BOX], 1);
-    PlayerTextDrawBackgroundColour(playerid, tdInteractionMenu[playerid][MENU_TITLE_BOX], 150);
-    PlayerTextDrawFont(playerid, tdInteractionMenu[playerid][MENU_TITLE_BOX], TEXT_DRAW_FONT_1);
-    PlayerTextDrawSetProportional(playerid, tdInteractionMenu[playerid][MENU_TITLE_BOX], true);
+	// == MENU CONTAINER ==
+	tdInteractionMenu[playerid][MENU_TITLE_BOX] = CreatePlayerTextDraw(playerid, 20.000, 146.000, "_");
+	PlayerTextDrawLetterSize(playerid, tdInteractionMenu[playerid][MENU_TITLE_BOX], 0.310, 2.799);
+	PlayerTextDrawTextSize(playerid, tdInteractionMenu[playerid][MENU_TITLE_BOX], 130.000, -12.000);
+	PlayerTextDrawAlignment(playerid, tdInteractionMenu[playerid][MENU_TITLE_BOX], TEXT_DRAW_ALIGN_LEFT);
+	PlayerTextDrawColour(playerid, tdInteractionMenu[playerid][MENU_TITLE_BOX], -1);
+	PlayerTextDrawUseBox(playerid, tdInteractionMenu[playerid][MENU_TITLE_BOX], true);
+	PlayerTextDrawBoxColour(playerid, tdInteractionMenu[playerid][MENU_TITLE_BOX], COLOR_MENU_TITLE_BOX);
+	PlayerTextDrawSetShadow(playerid, tdInteractionMenu[playerid][MENU_TITLE_BOX], 1);
+	PlayerTextDrawSetOutline(playerid, tdInteractionMenu[playerid][MENU_TITLE_BOX], 1);
+	PlayerTextDrawBackgroundColour(playerid, tdInteractionMenu[playerid][MENU_TITLE_BOX], 150);
+	PlayerTextDrawFont(playerid, tdInteractionMenu[playerid][MENU_TITLE_BOX], TEXT_DRAW_FONT_1);
+	PlayerTextDrawSetProportional(playerid, tdInteractionMenu[playerid][MENU_TITLE_BOX], true);
 
-    tdInteractionMenu[playerid][MENU_TITLE] = CreatePlayerTextDraw(playerid, 21.000, 152.000, "MENU_TITLE");
-    PlayerTextDrawLetterSize(playerid, tdInteractionMenu[playerid][MENU_TITLE], 0.190, 1.499);
-    PlayerTextDrawTextSize(playerid, tdInteractionMenu[playerid][MENU_TITLE], 4.000, 1.000);
-    PlayerTextDrawAlignment(playerid, tdInteractionMenu[playerid][MENU_TITLE], TEXT_DRAW_ALIGN_LEFT);
-    PlayerTextDrawColour(playerid, tdInteractionMenu[playerid][MENU_TITLE], COLOR_MENU_TITLE_TEXT);
-    PlayerTextDrawSetShadow(playerid, tdInteractionMenu[playerid][MENU_TITLE], 0);
-    PlayerTextDrawSetOutline(playerid, tdInteractionMenu[playerid][MENU_TITLE], 0);
-    PlayerTextDrawBackgroundColour(playerid, tdInteractionMenu[playerid][MENU_TITLE], 150);
-    PlayerTextDrawFont(playerid, tdInteractionMenu[playerid][MENU_TITLE], TEXT_DRAW_FONT_2);
-    PlayerTextDrawSetProportional(playerid, tdInteractionMenu[playerid][MENU_TITLE], true);
+	tdInteractionMenu[playerid][MENU_TITLE] = CreatePlayerTextDraw(playerid, 21.000, 152.000, "MENU_TITLE");
+	PlayerTextDrawLetterSize(playerid, tdInteractionMenu[playerid][MENU_TITLE], 0.190, 1.499);
+	PlayerTextDrawTextSize(playerid, tdInteractionMenu[playerid][MENU_TITLE], 4.000, 1.000);
+	PlayerTextDrawAlignment(playerid, tdInteractionMenu[playerid][MENU_TITLE], TEXT_DRAW_ALIGN_LEFT);
+	PlayerTextDrawColour(playerid, tdInteractionMenu[playerid][MENU_TITLE], COLOR_MENU_TITLE_TEXT);
+	PlayerTextDrawSetShadow(playerid, tdInteractionMenu[playerid][MENU_TITLE], 0);
+	PlayerTextDrawSetOutline(playerid, tdInteractionMenu[playerid][MENU_TITLE], 0);
+	PlayerTextDrawBackgroundColour(playerid, tdInteractionMenu[playerid][MENU_TITLE], 150);
+	PlayerTextDrawFont(playerid, tdInteractionMenu[playerid][MENU_TITLE], TEXT_DRAW_FONT_2);
+	PlayerTextDrawSetProportional(playerid, tdInteractionMenu[playerid][MENU_TITLE], true);
 
-    tdInteractionMenu[playerid][MENU_TITLE_BOX_SEPARATOR] = CreatePlayerTextDraw(playerid, 20.000, 175.000, "_");
-    PlayerTextDrawLetterSize(playerid, tdInteractionMenu[playerid][MENU_TITLE_BOX_SEPARATOR], 0.479, 0.899);
-    PlayerTextDrawTextSize(playerid, tdInteractionMenu[playerid][MENU_TITLE_BOX_SEPARATOR], 130.000, -2.000);
-    PlayerTextDrawAlignment(playerid, tdInteractionMenu[playerid][MENU_TITLE_BOX_SEPARATOR], TEXT_DRAW_ALIGN_LEFT);
-    PlayerTextDrawColour(playerid, tdInteractionMenu[playerid][MENU_TITLE_BOX_SEPARATOR], 255);
-    PlayerTextDrawUseBox(playerid, tdInteractionMenu[playerid][MENU_TITLE_BOX_SEPARATOR], true);
-    PlayerTextDrawBoxColour(playerid, tdInteractionMenu[playerid][MENU_TITLE_BOX_SEPARATOR], COLOR_MENU_SEPARATOR_BOX);
-    PlayerTextDrawSetShadow(playerid, tdInteractionMenu[playerid][MENU_TITLE_BOX_SEPARATOR], 1);
-    PlayerTextDrawSetOutline(playerid, tdInteractionMenu[playerid][MENU_TITLE_BOX_SEPARATOR], 1);
-    PlayerTextDrawBackgroundColour(playerid, tdInteractionMenu[playerid][MENU_TITLE_BOX_SEPARATOR], 150);
-    PlayerTextDrawFont(playerid, tdInteractionMenu[playerid][MENU_TITLE_BOX_SEPARATOR], TEXT_DRAW_FONT_1);
-    PlayerTextDrawSetProportional(playerid, tdInteractionMenu[playerid][MENU_TITLE_BOX_SEPARATOR], true);
+	tdInteractionMenu[playerid][MENU_TITLE_BOX_SEPARATOR] = CreatePlayerTextDraw(playerid, 20.000, 175.000, "_");
+	PlayerTextDrawLetterSize(playerid, tdInteractionMenu[playerid][MENU_TITLE_BOX_SEPARATOR], 0.479, 0.899);
+	PlayerTextDrawTextSize(playerid, tdInteractionMenu[playerid][MENU_TITLE_BOX_SEPARATOR], 130.000, -2.000);
+	PlayerTextDrawAlignment(playerid, tdInteractionMenu[playerid][MENU_TITLE_BOX_SEPARATOR], TEXT_DRAW_ALIGN_LEFT);
+	PlayerTextDrawColour(playerid, tdInteractionMenu[playerid][MENU_TITLE_BOX_SEPARATOR], 255);
+	PlayerTextDrawUseBox(playerid, tdInteractionMenu[playerid][MENU_TITLE_BOX_SEPARATOR], true);
+	PlayerTextDrawBoxColour(playerid, tdInteractionMenu[playerid][MENU_TITLE_BOX_SEPARATOR], COLOR_MENU_SEPARATOR_BOX);
+	PlayerTextDrawSetShadow(playerid, tdInteractionMenu[playerid][MENU_TITLE_BOX_SEPARATOR], 1);
+	PlayerTextDrawSetOutline(playerid, tdInteractionMenu[playerid][MENU_TITLE_BOX_SEPARATOR], 1);
+	PlayerTextDrawBackgroundColour(playerid, tdInteractionMenu[playerid][MENU_TITLE_BOX_SEPARATOR], 150);
+	PlayerTextDrawFont(playerid, tdInteractionMenu[playerid][MENU_TITLE_BOX_SEPARATOR], TEXT_DRAW_FONT_1);
+	PlayerTextDrawSetProportional(playerid, tdInteractionMenu[playerid][MENU_TITLE_BOX_SEPARATOR], true);
 
-    tdInteractionMenu[playerid][MENU_HEADER_TEXT] = CreatePlayerTextDraw(playerid, 20.000, 174.000, "INTERACTION_MENU");
-    PlayerTextDrawLetterSize(playerid, tdInteractionMenu[playerid][MENU_HEADER_TEXT], 0.130, 0.899);
-    PlayerTextDrawTextSize(playerid, tdInteractionMenu[playerid][MENU_HEADER_TEXT], 148.000, -2.000);
-    PlayerTextDrawAlignment(playerid, tdInteractionMenu[playerid][MENU_HEADER_TEXT], TEXT_DRAW_ALIGN_LEFT);
-    PlayerTextDrawColour(playerid, tdInteractionMenu[playerid][MENU_HEADER_TEXT], COLOR_MENU_HEADER_TEXT);
-    PlayerTextDrawSetShadow(playerid, tdInteractionMenu[playerid][MENU_HEADER_TEXT], 1);
-    PlayerTextDrawSetOutline(playerid, tdInteractionMenu[playerid][MENU_HEADER_TEXT], 1);
-    PlayerTextDrawBackgroundColour(playerid, tdInteractionMenu[playerid][MENU_HEADER_TEXT], 150);
-    PlayerTextDrawFont(playerid, tdInteractionMenu[playerid][MENU_HEADER_TEXT], TEXT_DRAW_FONT_2);
-    PlayerTextDrawSetProportional(playerid, tdInteractionMenu[playerid][MENU_HEADER_TEXT], true);
+	tdInteractionMenu[playerid][MENU_HEADER_TEXT] = CreatePlayerTextDraw(playerid, 20.000, 174.000, "INTERACTION_MENU");
+	PlayerTextDrawLetterSize(playerid, tdInteractionMenu[playerid][MENU_HEADER_TEXT], 0.130, 0.899);
+	PlayerTextDrawTextSize(playerid, tdInteractionMenu[playerid][MENU_HEADER_TEXT], 148.000, -2.000);
+	PlayerTextDrawAlignment(playerid, tdInteractionMenu[playerid][MENU_HEADER_TEXT], TEXT_DRAW_ALIGN_LEFT);
+	PlayerTextDrawColour(playerid, tdInteractionMenu[playerid][MENU_HEADER_TEXT], COLOR_MENU_HEADER_TEXT);
+	PlayerTextDrawSetShadow(playerid, tdInteractionMenu[playerid][MENU_HEADER_TEXT], 1);
+	PlayerTextDrawSetOutline(playerid, tdInteractionMenu[playerid][MENU_HEADER_TEXT], 1);
+	PlayerTextDrawBackgroundColour(playerid, tdInteractionMenu[playerid][MENU_HEADER_TEXT], 150);
+	PlayerTextDrawFont(playerid, tdInteractionMenu[playerid][MENU_HEADER_TEXT], TEXT_DRAW_FONT_2);
+	PlayerTextDrawSetProportional(playerid, tdInteractionMenu[playerid][MENU_HEADER_TEXT], true);
 
-    tdInteractionMenu[playerid][MENU_HEADER_ITEM_COUNT] = CreatePlayerTextDraw(playerid, 123.000, 174.000, "1/10");
-    PlayerTextDrawLetterSize(playerid, tdInteractionMenu[playerid][MENU_HEADER_ITEM_COUNT], 0.130, 0.899);
-    PlayerTextDrawTextSize(playerid, tdInteractionMenu[playerid][MENU_HEADER_ITEM_COUNT], 148.000, -2.000);
-    PlayerTextDrawAlignment(playerid, tdInteractionMenu[playerid][MENU_HEADER_ITEM_COUNT], TEXT_DRAW_ALIGN_CENTER);
-    PlayerTextDrawColour(playerid, tdInteractionMenu[playerid][MENU_HEADER_ITEM_COUNT], COLOR_MENU_HEADER_TEXT);
-    PlayerTextDrawSetShadow(playerid, tdInteractionMenu[playerid][MENU_HEADER_ITEM_COUNT], 1);
-    PlayerTextDrawSetOutline(playerid, tdInteractionMenu[playerid][MENU_HEADER_ITEM_COUNT], 1);
-    PlayerTextDrawBackgroundColour(playerid, tdInteractionMenu[playerid][MENU_HEADER_ITEM_COUNT], 150);
-    PlayerTextDrawFont(playerid, tdInteractionMenu[playerid][MENU_HEADER_ITEM_COUNT], TEXT_DRAW_FONT_2);
-    PlayerTextDrawSetProportional(playerid, tdInteractionMenu[playerid][MENU_HEADER_ITEM_COUNT], true);
+	tdInteractionMenu[playerid][MENU_HEADER_ITEM_COUNT] = CreatePlayerTextDraw(playerid, 123.000, 174.000, "1/10");
+	PlayerTextDrawLetterSize(playerid, tdInteractionMenu[playerid][MENU_HEADER_ITEM_COUNT], 0.130, 0.899);
+	PlayerTextDrawTextSize(playerid, tdInteractionMenu[playerid][MENU_HEADER_ITEM_COUNT], 148.000, -2.000);
+	PlayerTextDrawAlignment(playerid, tdInteractionMenu[playerid][MENU_HEADER_ITEM_COUNT], TEXT_DRAW_ALIGN_CENTER);
+	PlayerTextDrawColour(playerid, tdInteractionMenu[playerid][MENU_HEADER_ITEM_COUNT], COLOR_MENU_HEADER_TEXT);
+	PlayerTextDrawSetShadow(playerid, tdInteractionMenu[playerid][MENU_HEADER_ITEM_COUNT], 1);
+	PlayerTextDrawSetOutline(playerid, tdInteractionMenu[playerid][MENU_HEADER_ITEM_COUNT], 1);
+	PlayerTextDrawBackgroundColour(playerid, tdInteractionMenu[playerid][MENU_HEADER_ITEM_COUNT], 150);
+	PlayerTextDrawFont(playerid, tdInteractionMenu[playerid][MENU_HEADER_ITEM_COUNT], TEXT_DRAW_FONT_2);
+	PlayerTextDrawSetProportional(playerid, tdInteractionMenu[playerid][MENU_HEADER_ITEM_COUNT], true);
 
-    new Float:itemHeight = MENU_ITEM_START_Y + MAX_VISIBLE_ITEMS * MENU_ITEM_SPACING;
+	new Float:itemHeight = MENU_ITEM_START_Y + MAX_VISIBLE_ITEMS * MENU_ITEM_SPACING;
 
-    tdInteractionMenu[playerid][MENU_BACKGROUND_BOX] = CreatePlayerTextDraw(playerid, 20.000, 186.000, "_");
-    PlayerTextDrawLetterSize(playerid, tdInteractionMenu[playerid][MENU_BACKGROUND_BOX], 0.380, (MAX_VISIBLE_ITEMS * MENU_ITEM_SPACING + 23.5) / 9.0);
-    PlayerTextDrawTextSize(playerid, tdInteractionMenu[playerid][MENU_BACKGROUND_BOX], 130.000, 8.000);
-    PlayerTextDrawAlignment(playerid, tdInteractionMenu[playerid][MENU_BACKGROUND_BOX], TEXT_DRAW_ALIGN_LEFT);
-    PlayerTextDrawColour(playerid, tdInteractionMenu[playerid][MENU_BACKGROUND_BOX], -1);
-    PlayerTextDrawUseBox(playerid, tdInteractionMenu[playerid][MENU_BACKGROUND_BOX], true);
-    PlayerTextDrawBoxColour(playerid, tdInteractionMenu[playerid][MENU_BACKGROUND_BOX], COLOR_MENU_BACKGROUND_BOX);
-    PlayerTextDrawSetShadow(playerid, tdInteractionMenu[playerid][MENU_BACKGROUND_BOX], 1);
-    PlayerTextDrawSetOutline(playerid, tdInteractionMenu[playerid][MENU_BACKGROUND_BOX], 1);
-    PlayerTextDrawBackgroundColour(playerid, tdInteractionMenu[playerid][MENU_BACKGROUND_BOX], 150);
-    PlayerTextDrawFont(playerid, tdInteractionMenu[playerid][MENU_BACKGROUND_BOX], TEXT_DRAW_FONT_1);
-    PlayerTextDrawSetProportional(playerid, tdInteractionMenu[playerid][MENU_BACKGROUND_BOX], true);
+	tdInteractionMenu[playerid][MENU_BACKGROUND_BOX] = CreatePlayerTextDraw(playerid, 20.000, 186.000, "_");
+	PlayerTextDrawLetterSize(playerid, tdInteractionMenu[playerid][MENU_BACKGROUND_BOX], 0.380, (MAX_VISIBLE_ITEMS * MENU_ITEM_SPACING + 23.5) / 9.0);
+	PlayerTextDrawTextSize(playerid, tdInteractionMenu[playerid][MENU_BACKGROUND_BOX], 130.000, 8.000);
+	PlayerTextDrawAlignment(playerid, tdInteractionMenu[playerid][MENU_BACKGROUND_BOX], TEXT_DRAW_ALIGN_LEFT);
+	PlayerTextDrawColour(playerid, tdInteractionMenu[playerid][MENU_BACKGROUND_BOX], -1);
+	PlayerTextDrawUseBox(playerid, tdInteractionMenu[playerid][MENU_BACKGROUND_BOX], true);
+	PlayerTextDrawBoxColour(playerid, tdInteractionMenu[playerid][MENU_BACKGROUND_BOX], COLOR_MENU_BACKGROUND_BOX);
+	PlayerTextDrawSetShadow(playerid, tdInteractionMenu[playerid][MENU_BACKGROUND_BOX], 1);
+	PlayerTextDrawSetOutline(playerid, tdInteractionMenu[playerid][MENU_BACKGROUND_BOX], 1);
+	PlayerTextDrawBackgroundColour(playerid, tdInteractionMenu[playerid][MENU_BACKGROUND_BOX], 150);
+	PlayerTextDrawFont(playerid, tdInteractionMenu[playerid][MENU_BACKGROUND_BOX], TEXT_DRAW_FONT_1);
+	PlayerTextDrawSetProportional(playerid, tdInteractionMenu[playerid][MENU_BACKGROUND_BOX], true);
 
-    tdInteractionMenu[playerid][MENU_ITEM_FOOTER_ARROW] = CreatePlayerTextDraw(playerid, 68.000, itemHeight, "V");
-    PlayerTextDrawLetterSize(playerid, tdInteractionMenu[playerid][MENU_ITEM_FOOTER_ARROW], 0.290, 0.599);
-    PlayerTextDrawTextSize(playerid, tdInteractionMenu[playerid][MENU_ITEM_FOOTER_ARROW], 126.000, -2.000);
-    PlayerTextDrawAlignment(playerid, tdInteractionMenu[playerid][MENU_ITEM_FOOTER_ARROW], TEXT_DRAW_ALIGN_LEFT);
-    PlayerTextDrawColour(playerid, tdInteractionMenu[playerid][MENU_ITEM_FOOTER_ARROW], COLOR_MENU_FOOTER_ARROW);
-    PlayerTextDrawSetShadow(playerid, tdInteractionMenu[playerid][MENU_ITEM_FOOTER_ARROW], 0);
-    PlayerTextDrawSetOutline(playerid, tdInteractionMenu[playerid][MENU_ITEM_FOOTER_ARROW], -1);
-    PlayerTextDrawBackgroundColour(playerid, tdInteractionMenu[playerid][MENU_ITEM_FOOTER_ARROW], 150);
-    PlayerTextDrawFont(playerid, tdInteractionMenu[playerid][MENU_ITEM_FOOTER_ARROW], TEXT_DRAW_FONT_1);
-    PlayerTextDrawSetProportional(playerid, tdInteractionMenu[playerid][MENU_ITEM_FOOTER_ARROW], true);
+	tdInteractionMenu[playerid][MENU_ITEM_FOOTER_ARROW] = CreatePlayerTextDraw(playerid, 68.000, itemHeight, "V");
+	PlayerTextDrawLetterSize(playerid, tdInteractionMenu[playerid][MENU_ITEM_FOOTER_ARROW], 0.290, 0.599);
+	PlayerTextDrawTextSize(playerid, tdInteractionMenu[playerid][MENU_ITEM_FOOTER_ARROW], 126.000, -2.000);
+	PlayerTextDrawAlignment(playerid, tdInteractionMenu[playerid][MENU_ITEM_FOOTER_ARROW], TEXT_DRAW_ALIGN_LEFT);
+	PlayerTextDrawColour(playerid, tdInteractionMenu[playerid][MENU_ITEM_FOOTER_ARROW], COLOR_MENU_FOOTER_ARROW);
+	PlayerTextDrawSetShadow(playerid, tdInteractionMenu[playerid][MENU_ITEM_FOOTER_ARROW], 0);
+	PlayerTextDrawSetOutline(playerid, tdInteractionMenu[playerid][MENU_ITEM_FOOTER_ARROW], -1);
+	PlayerTextDrawBackgroundColour(playerid, tdInteractionMenu[playerid][MENU_ITEM_FOOTER_ARROW], 150);
+	PlayerTextDrawFont(playerid, tdInteractionMenu[playerid][MENU_ITEM_FOOTER_ARROW], TEXT_DRAW_FONT_1);
+	PlayerTextDrawSetProportional(playerid, tdInteractionMenu[playerid][MENU_ITEM_FOOTER_ARROW], true);
 
-    tdInteractionMenu[playerid][MENU_FOOTER_BOX] = CreatePlayerTextDraw(playerid, 20.000, itemHeight + 1.0, "_");
-    PlayerTextDrawLetterSize(playerid, tdInteractionMenu[playerid][MENU_FOOTER_BOX], 0.479, 0.398);
-    PlayerTextDrawTextSize(playerid, tdInteractionMenu[playerid][MENU_FOOTER_BOX], 130.000, -2.000);
-    PlayerTextDrawAlignment(playerid, tdInteractionMenu[playerid][MENU_FOOTER_BOX], TEXT_DRAW_ALIGN_LEFT);
-    PlayerTextDrawColour(playerid, tdInteractionMenu[playerid][MENU_FOOTER_BOX], -256);
-    PlayerTextDrawUseBox(playerid, tdInteractionMenu[playerid][MENU_FOOTER_BOX], true);
-    PlayerTextDrawBoxColour(playerid, tdInteractionMenu[playerid][MENU_FOOTER_BOX], COLOR_MENU_SEPARATOR_BOX);
-    PlayerTextDrawSetShadow(playerid, tdInteractionMenu[playerid][MENU_FOOTER_BOX], 1);
-    PlayerTextDrawSetOutline(playerid, tdInteractionMenu[playerid][MENU_FOOTER_BOX], 1);
-    PlayerTextDrawBackgroundColour(playerid, tdInteractionMenu[playerid][MENU_FOOTER_BOX], 150);
-    PlayerTextDrawFont(playerid, tdInteractionMenu[playerid][MENU_FOOTER_BOX], TEXT_DRAW_FONT_1);
-    PlayerTextDrawSetProportional(playerid, tdInteractionMenu[playerid][MENU_FOOTER_BOX], true);
+	tdInteractionMenu[playerid][MENU_FOOTER_BOX] = CreatePlayerTextDraw(playerid, 20.000, itemHeight + 1.0, "_");
+	PlayerTextDrawLetterSize(playerid, tdInteractionMenu[playerid][MENU_FOOTER_BOX], 0.479, 0.398);
+	PlayerTextDrawTextSize(playerid, tdInteractionMenu[playerid][MENU_FOOTER_BOX], 130.000, -2.000);
+	PlayerTextDrawAlignment(playerid, tdInteractionMenu[playerid][MENU_FOOTER_BOX], TEXT_DRAW_ALIGN_LEFT);
+	PlayerTextDrawColour(playerid, tdInteractionMenu[playerid][MENU_FOOTER_BOX], -256);
+	PlayerTextDrawUseBox(playerid, tdInteractionMenu[playerid][MENU_FOOTER_BOX], true);
+	PlayerTextDrawBoxColour(playerid, tdInteractionMenu[playerid][MENU_FOOTER_BOX], COLOR_MENU_SEPARATOR_BOX);
+	PlayerTextDrawSetShadow(playerid, tdInteractionMenu[playerid][MENU_FOOTER_BOX], 1);
+	PlayerTextDrawSetOutline(playerid, tdInteractionMenu[playerid][MENU_FOOTER_BOX], 1);
+	PlayerTextDrawBackgroundColour(playerid, tdInteractionMenu[playerid][MENU_FOOTER_BOX], 150);
+	PlayerTextDrawFont(playerid, tdInteractionMenu[playerid][MENU_FOOTER_BOX], TEXT_DRAW_FONT_1);
+	PlayerTextDrawSetProportional(playerid, tdInteractionMenu[playerid][MENU_FOOTER_BOX], true);
 
-    tdInteractionMenu[playerid][MENU_FOOTER_TEXT] = CreatePlayerTextDraw(playerid, 20.000, itemHeight + 10.0, "ITEM_DESCRIPTION");
-    PlayerTextDrawLetterSize(playerid, tdInteractionMenu[playerid][MENU_FOOTER_TEXT], 0.180, 0.899);
-    PlayerTextDrawTextSize(playerid, tdInteractionMenu[playerid][MENU_FOOTER_TEXT], 122.000, -2.000);
-    PlayerTextDrawAlignment(playerid, tdInteractionMenu[playerid][MENU_FOOTER_TEXT], TEXT_DRAW_ALIGN_LEFT);
-    PlayerTextDrawColour(playerid, tdInteractionMenu[playerid][MENU_FOOTER_TEXT], COLOR_MENU_ITEM_DESCRIPTION);
-    PlayerTextDrawSetShadow(playerid, tdInteractionMenu[playerid][MENU_FOOTER_TEXT], 0);
-    PlayerTextDrawSetOutline(playerid, tdInteractionMenu[playerid][MENU_FOOTER_TEXT], 0);
-    PlayerTextDrawBackgroundColour(playerid, tdInteractionMenu[playerid][MENU_FOOTER_TEXT], 150);
-    PlayerTextDrawFont(playerid, tdInteractionMenu[playerid][MENU_FOOTER_TEXT], TEXT_DRAW_FONT_1);
-    PlayerTextDrawSetProportional(playerid, tdInteractionMenu[playerid][MENU_FOOTER_TEXT], true);
+	tdInteractionMenu[playerid][MENU_FOOTER_TEXT] = CreatePlayerTextDraw(playerid, 20.000, itemHeight + 10.0, "ITEM_DESCRIPTION");
+	PlayerTextDrawLetterSize(playerid, tdInteractionMenu[playerid][MENU_FOOTER_TEXT], 0.180, 0.899);
+	PlayerTextDrawTextSize(playerid, tdInteractionMenu[playerid][MENU_FOOTER_TEXT], 122.000, -2.000);
+	PlayerTextDrawAlignment(playerid, tdInteractionMenu[playerid][MENU_FOOTER_TEXT], TEXT_DRAW_ALIGN_LEFT);
+	PlayerTextDrawColour(playerid, tdInteractionMenu[playerid][MENU_FOOTER_TEXT], COLOR_MENU_ITEM_DESCRIPTION);
+	PlayerTextDrawSetShadow(playerid, tdInteractionMenu[playerid][MENU_FOOTER_TEXT], 0);
+	PlayerTextDrawSetOutline(playerid, tdInteractionMenu[playerid][MENU_FOOTER_TEXT], 0);
+	PlayerTextDrawBackgroundColour(playerid, tdInteractionMenu[playerid][MENU_FOOTER_TEXT], 150);
+	PlayerTextDrawFont(playerid, tdInteractionMenu[playerid][MENU_FOOTER_TEXT], TEXT_DRAW_FONT_1);
+	PlayerTextDrawSetProportional(playerid, tdInteractionMenu[playerid][MENU_FOOTER_TEXT], true);
 
-    for (new i = 0; i < MAX_VISIBLE_ITEMS; i++)
-    {
-        new Float:boxY = MENU_ITEM_START_Y + i * MENU_ITEM_SPACING;
-        new Float:textY = boxY + MENU_ITEM_TEXT_OFFSET;
+	for (new i = 0; i < MAX_VISIBLE_ITEMS; i++)
+	{
+		new Float:boxY = MENU_ITEM_START_Y + i * MENU_ITEM_SPACING;
+		new Float:textY = boxY + MENU_ITEM_TEXT_OFFSET;
 
-        tdMenuItemBox[playerid][i] = CreatePlayerTextDraw(playerid, 20.000, boxY, "_");
-        PlayerTextDrawLetterSize(playerid, tdMenuItemBox[playerid][i], 0.479, 1.199);
-        PlayerTextDrawTextSize(playerid, tdMenuItemBox[playerid][i], 130.000, -2.000);
-        PlayerTextDrawAlignment(playerid, tdMenuItemBox[playerid][i], TEXT_DRAW_ALIGN_LEFT);
-        PlayerTextDrawColour(playerid, tdMenuItemBox[playerid][i], COLOR_MENU_ITEM_BOX);
-        PlayerTextDrawUseBox(playerid, tdMenuItemBox[playerid][i], true);
-        PlayerTextDrawBoxColour(playerid, tdMenuItemBox[playerid][i], COLOR_MENU_ITEM_BOX);
-        PlayerTextDrawSetShadow(playerid, tdMenuItemBox[playerid][i], 1);
-        PlayerTextDrawSetOutline(playerid, tdMenuItemBox[playerid][i], 1);
-        PlayerTextDrawBackgroundColour(playerid, tdMenuItemBox[playerid][i], 150);
-        PlayerTextDrawFont(playerid, tdMenuItemBox[playerid][i], TEXT_DRAW_FONT_1);
-        PlayerTextDrawSetProportional(playerid, tdMenuItemBox[playerid][i], true);
+		tdMenuItemBox[playerid][i] = CreatePlayerTextDraw(playerid, 20.000, boxY, "_");
+		PlayerTextDrawLetterSize(playerid, tdMenuItemBox[playerid][i], 0.479, 1.199);
+		PlayerTextDrawTextSize(playerid, tdMenuItemBox[playerid][i], 130.000, -2.000);
+		PlayerTextDrawAlignment(playerid, tdMenuItemBox[playerid][i], TEXT_DRAW_ALIGN_LEFT);
+		PlayerTextDrawColour(playerid, tdMenuItemBox[playerid][i], COLOR_MENU_ITEM_BOX);
+		PlayerTextDrawUseBox(playerid, tdMenuItemBox[playerid][i], true);
+		PlayerTextDrawBoxColour(playerid, tdMenuItemBox[playerid][i], COLOR_MENU_ITEM_BOX);
+		PlayerTextDrawSetShadow(playerid, tdMenuItemBox[playerid][i], 1);
+		PlayerTextDrawSetOutline(playerid, tdMenuItemBox[playerid][i], 1);
+		PlayerTextDrawBackgroundColour(playerid, tdMenuItemBox[playerid][i], 150);
+		PlayerTextDrawFont(playerid, tdMenuItemBox[playerid][i], TEXT_DRAW_FONT_1);
+		PlayerTextDrawSetProportional(playerid, tdMenuItemBox[playerid][i], true);
 
-        tdMenuItemText[playerid][i] = CreatePlayerTextDraw(playerid, 20.000, textY, "...");
-        PlayerTextDrawLetterSize(playerid, tdMenuItemText[playerid][i], 0.180, 0.899);
-        PlayerTextDrawTextSize(playerid, tdMenuItemText[playerid][i], 122.000, -2.000);
-        PlayerTextDrawAlignment(playerid, tdMenuItemText[playerid][i], TEXT_DRAW_ALIGN_LEFT);
-        PlayerTextDrawColour(playerid, tdMenuItemText[playerid][i], COLOR_MENU_ITEM_TEXT);
-        PlayerTextDrawSetShadow(playerid, tdMenuItemText[playerid][i], 0);
-        PlayerTextDrawSetOutline(playerid, tdMenuItemText[playerid][i], 0);
-        PlayerTextDrawBackgroundColour(playerid, tdMenuItemText[playerid][i], 150);
-        PlayerTextDrawFont(playerid, tdMenuItemText[playerid][i], TEXT_DRAW_FONT_1);
-        PlayerTextDrawSetProportional(playerid, tdMenuItemText[playerid][i], true);
+		tdMenuItemText[playerid][i] = CreatePlayerTextDraw(playerid, 20.000, textY, "...");
+		PlayerTextDrawLetterSize(playerid, tdMenuItemText[playerid][i], 0.180, 0.899);
+		PlayerTextDrawTextSize(playerid, tdMenuItemText[playerid][i], 122.000, -2.000);
+		PlayerTextDrawAlignment(playerid, tdMenuItemText[playerid][i], TEXT_DRAW_ALIGN_LEFT);
+		PlayerTextDrawColour(playerid, tdMenuItemText[playerid][i], COLOR_MENU_ITEM_TEXT);
+		PlayerTextDrawSetShadow(playerid, tdMenuItemText[playerid][i], 0);
+		PlayerTextDrawSetOutline(playerid, tdMenuItemText[playerid][i], 0);
+		PlayerTextDrawBackgroundColour(playerid, tdMenuItemText[playerid][i], 150);
+		PlayerTextDrawFont(playerid, tdMenuItemText[playerid][i], TEXT_DRAW_FONT_1);
+		PlayerTextDrawSetProportional(playerid, tdMenuItemText[playerid][i], true);
 
-        tdMenuItemScroll[playerid][i] = CreatePlayerTextDraw(playerid, 128.000, textY, "");
-        PlayerTextDrawLetterSize(playerid, tdMenuItemScroll[playerid][i], 0.180, 0.898);
-        PlayerTextDrawTextSize(playerid, tdMenuItemScroll[playerid][i], 122.000, -2.000);
-        PlayerTextDrawAlignment(playerid, tdMenuItemScroll[playerid][i], TEXT_DRAW_ALIGN_RIGHT);
-        PlayerTextDrawColour(playerid, tdMenuItemScroll[playerid][i], -1);
-        PlayerTextDrawSetShadow(playerid, tdMenuItemScroll[playerid][i], 0);
-        PlayerTextDrawSetOutline(playerid, tdMenuItemScroll[playerid][i], 0);
-        PlayerTextDrawBackgroundColour(playerid, tdMenuItemScroll[playerid][i], 150);
-        PlayerTextDrawFont(playerid, tdMenuItemScroll[playerid][i], TEXT_DRAW_FONT_1);
-        PlayerTextDrawSetProportional(playerid, tdMenuItemScroll[playerid][i], true);
+		tdMenuItemScroll[playerid][i] = CreatePlayerTextDraw(playerid, 128.000, textY, "");
+		PlayerTextDrawLetterSize(playerid, tdMenuItemScroll[playerid][i], 0.180, 0.898);
+		PlayerTextDrawTextSize(playerid, tdMenuItemScroll[playerid][i], 122.000, -2.000);
+		PlayerTextDrawAlignment(playerid, tdMenuItemScroll[playerid][i], TEXT_DRAW_ALIGN_RIGHT);
+		PlayerTextDrawColour(playerid, tdMenuItemScroll[playerid][i], -1);
+		PlayerTextDrawSetShadow(playerid, tdMenuItemScroll[playerid][i], 0);
+		PlayerTextDrawSetOutline(playerid, tdMenuItemScroll[playerid][i], 0);
+		PlayerTextDrawBackgroundColour(playerid, tdMenuItemScroll[playerid][i], 150);
+		PlayerTextDrawFont(playerid, tdMenuItemScroll[playerid][i], TEXT_DRAW_FONT_1);
+		PlayerTextDrawSetProportional(playerid, tdMenuItemScroll[playerid][i], true);
 
-        tdMenuItemToggle[playerid][i][MENU_ITEM_TOGGLE_FILL] = CreatePlayerTextDraw(playerid, 120.000, boxY + 2.0, "LD_SPAC:white");
-        PlayerTextDrawTextSize(playerid, tdMenuItemToggle[playerid][i][MENU_ITEM_TOGGLE_FILL], 6.000, 7.000);
-        PlayerTextDrawAlignment(playerid, tdMenuItemToggle[playerid][i][MENU_ITEM_TOGGLE_FILL], TEXT_DRAW_ALIGN_LEFT);
-        PlayerTextDrawColour(playerid, tdMenuItemToggle[playerid][i][MENU_ITEM_TOGGLE_FILL], 255);
-        PlayerTextDrawSetShadow(playerid, tdMenuItemToggle[playerid][i][MENU_ITEM_TOGGLE_FILL], 0);
-        PlayerTextDrawSetOutline(playerid, tdMenuItemToggle[playerid][i][MENU_ITEM_TOGGLE_FILL], 0);
-        PlayerTextDrawBackgroundColour(playerid, tdMenuItemToggle[playerid][i][MENU_ITEM_TOGGLE_FILL], 255);
-        PlayerTextDrawFont(playerid, tdMenuItemToggle[playerid][i][MENU_ITEM_TOGGLE_FILL], TEXT_DRAW_FONT_SPRITE_DRAW);
-        PlayerTextDrawSetProportional(playerid, tdMenuItemToggle[playerid][i][MENU_ITEM_TOGGLE_FILL], true);
+		tdMenuItemToggle[playerid][i][MENU_ITEM_TOGGLE_FILL] = CreatePlayerTextDraw(playerid, 120.000, boxY + 2.0, "LD_SPAC:white");
+		PlayerTextDrawTextSize(playerid, tdMenuItemToggle[playerid][i][MENU_ITEM_TOGGLE_FILL], 6.000, 7.000);
+		PlayerTextDrawAlignment(playerid, tdMenuItemToggle[playerid][i][MENU_ITEM_TOGGLE_FILL], TEXT_DRAW_ALIGN_LEFT);
+		PlayerTextDrawColour(playerid, tdMenuItemToggle[playerid][i][MENU_ITEM_TOGGLE_FILL], 255);
+		PlayerTextDrawSetShadow(playerid, tdMenuItemToggle[playerid][i][MENU_ITEM_TOGGLE_FILL], 0);
+		PlayerTextDrawSetOutline(playerid, tdMenuItemToggle[playerid][i][MENU_ITEM_TOGGLE_FILL], 0);
+		PlayerTextDrawBackgroundColour(playerid, tdMenuItemToggle[playerid][i][MENU_ITEM_TOGGLE_FILL], 255);
+		PlayerTextDrawFont(playerid, tdMenuItemToggle[playerid][i][MENU_ITEM_TOGGLE_FILL], TEXT_DRAW_FONT_SPRITE_DRAW);
+		PlayerTextDrawSetProportional(playerid, tdMenuItemToggle[playerid][i][MENU_ITEM_TOGGLE_FILL], true);
 
-        tdMenuItemToggle[playerid][i][MENU_ITEM_TOGGLE_BORDER_LEFT] = CreatePlayerTextDraw(playerid, 119.000, boxY + 2.0, "LD_SPAC:white");
-        PlayerTextDrawTextSize(playerid, tdMenuItemToggle[playerid][i][MENU_ITEM_TOGGLE_BORDER_LEFT], 1.000, 7.000);
-        PlayerTextDrawAlignment(playerid, tdMenuItemToggle[playerid][i][MENU_ITEM_TOGGLE_BORDER_LEFT], TEXT_DRAW_ALIGN_LEFT);
-        PlayerTextDrawColour(playerid, tdMenuItemToggle[playerid][i][MENU_ITEM_TOGGLE_BORDER_LEFT], -1);
-        PlayerTextDrawSetShadow(playerid, tdMenuItemToggle[playerid][i][MENU_ITEM_TOGGLE_BORDER_LEFT], 0);
-        PlayerTextDrawSetOutline(playerid, tdMenuItemToggle[playerid][i][MENU_ITEM_TOGGLE_BORDER_LEFT], 0);
-        PlayerTextDrawBackgroundColour(playerid, tdMenuItemToggle[playerid][i][MENU_ITEM_TOGGLE_BORDER_LEFT], 255);
-        PlayerTextDrawFont(playerid, tdMenuItemToggle[playerid][i][MENU_ITEM_TOGGLE_BORDER_LEFT], TEXT_DRAW_FONT_SPRITE_DRAW);
-        PlayerTextDrawSetProportional(playerid, tdMenuItemToggle[playerid][i][MENU_ITEM_TOGGLE_BORDER_LEFT], true);
+		tdMenuItemToggle[playerid][i][MENU_ITEM_TOGGLE_BORDER_LEFT] = CreatePlayerTextDraw(playerid, 119.000, boxY + 2.0, "LD_SPAC:white");
+		PlayerTextDrawTextSize(playerid, tdMenuItemToggle[playerid][i][MENU_ITEM_TOGGLE_BORDER_LEFT], 1.000, 7.000);
+		PlayerTextDrawAlignment(playerid, tdMenuItemToggle[playerid][i][MENU_ITEM_TOGGLE_BORDER_LEFT], TEXT_DRAW_ALIGN_LEFT);
+		PlayerTextDrawColour(playerid, tdMenuItemToggle[playerid][i][MENU_ITEM_TOGGLE_BORDER_LEFT], -1);
+		PlayerTextDrawSetShadow(playerid, tdMenuItemToggle[playerid][i][MENU_ITEM_TOGGLE_BORDER_LEFT], 0);
+		PlayerTextDrawSetOutline(playerid, tdMenuItemToggle[playerid][i][MENU_ITEM_TOGGLE_BORDER_LEFT], 0);
+		PlayerTextDrawBackgroundColour(playerid, tdMenuItemToggle[playerid][i][MENU_ITEM_TOGGLE_BORDER_LEFT], 255);
+		PlayerTextDrawFont(playerid, tdMenuItemToggle[playerid][i][MENU_ITEM_TOGGLE_BORDER_LEFT], TEXT_DRAW_FONT_SPRITE_DRAW);
+		PlayerTextDrawSetProportional(playerid, tdMenuItemToggle[playerid][i][MENU_ITEM_TOGGLE_BORDER_LEFT], true);
 
-        tdMenuItemToggle[playerid][i][MENU_ITEM_TOGGLE_BORDER_RIGHT] = CreatePlayerTextDraw(playerid, 126.000, boxY + 2.0, "LD_SPAC:white");
-        PlayerTextDrawTextSize(playerid, tdMenuItemToggle[playerid][i][MENU_ITEM_TOGGLE_BORDER_RIGHT], 1.000, 7.000);
-        PlayerTextDrawAlignment(playerid, tdMenuItemToggle[playerid][i][MENU_ITEM_TOGGLE_BORDER_RIGHT], TEXT_DRAW_ALIGN_LEFT);
-        PlayerTextDrawColour(playerid, tdMenuItemToggle[playerid][i][MENU_ITEM_TOGGLE_BORDER_RIGHT], -1);
-        PlayerTextDrawSetShadow(playerid, tdMenuItemToggle[playerid][i][MENU_ITEM_TOGGLE_BORDER_RIGHT], 0);
-        PlayerTextDrawSetOutline(playerid, tdMenuItemToggle[playerid][i][MENU_ITEM_TOGGLE_BORDER_RIGHT], 0);
-        PlayerTextDrawBackgroundColour(playerid, tdMenuItemToggle[playerid][i][MENU_ITEM_TOGGLE_BORDER_RIGHT], 255);
-        PlayerTextDrawFont(playerid, tdMenuItemToggle[playerid][i][MENU_ITEM_TOGGLE_BORDER_RIGHT], TEXT_DRAW_FONT_SPRITE_DRAW);
-        PlayerTextDrawSetProportional(playerid, tdMenuItemToggle[playerid][i][MENU_ITEM_TOGGLE_BORDER_RIGHT], true);
+		tdMenuItemToggle[playerid][i][MENU_ITEM_TOGGLE_BORDER_RIGHT] = CreatePlayerTextDraw(playerid, 126.000, boxY + 2.0, "LD_SPAC:white");
+		PlayerTextDrawTextSize(playerid, tdMenuItemToggle[playerid][i][MENU_ITEM_TOGGLE_BORDER_RIGHT], 1.000, 7.000);
+		PlayerTextDrawAlignment(playerid, tdMenuItemToggle[playerid][i][MENU_ITEM_TOGGLE_BORDER_RIGHT], TEXT_DRAW_ALIGN_LEFT);
+		PlayerTextDrawColour(playerid, tdMenuItemToggle[playerid][i][MENU_ITEM_TOGGLE_BORDER_RIGHT], -1);
+		PlayerTextDrawSetShadow(playerid, tdMenuItemToggle[playerid][i][MENU_ITEM_TOGGLE_BORDER_RIGHT], 0);
+		PlayerTextDrawSetOutline(playerid, tdMenuItemToggle[playerid][i][MENU_ITEM_TOGGLE_BORDER_RIGHT], 0);
+		PlayerTextDrawBackgroundColour(playerid, tdMenuItemToggle[playerid][i][MENU_ITEM_TOGGLE_BORDER_RIGHT], 255);
+		PlayerTextDrawFont(playerid, tdMenuItemToggle[playerid][i][MENU_ITEM_TOGGLE_BORDER_RIGHT], TEXT_DRAW_FONT_SPRITE_DRAW);
+		PlayerTextDrawSetProportional(playerid, tdMenuItemToggle[playerid][i][MENU_ITEM_TOGGLE_BORDER_RIGHT], true);
 
-        tdMenuItemToggle[playerid][i][MENU_ITEM_TOGGLE_BORDER_BOTTOM] = CreatePlayerTextDraw(playerid, 127.000, boxY + 9.0, "LD_SPAC:white");
-        PlayerTextDrawTextSize(playerid, tdMenuItemToggle[playerid][i][MENU_ITEM_TOGGLE_BORDER_BOTTOM], -8.000, 1.000);
-        PlayerTextDrawAlignment(playerid, tdMenuItemToggle[playerid][i][MENU_ITEM_TOGGLE_BORDER_BOTTOM], TEXT_DRAW_ALIGN_LEFT);
-        PlayerTextDrawColour(playerid, tdMenuItemToggle[playerid][i][MENU_ITEM_TOGGLE_BORDER_BOTTOM], -1);
-        PlayerTextDrawSetShadow(playerid, tdMenuItemToggle[playerid][i][MENU_ITEM_TOGGLE_BORDER_BOTTOM], 0);
-        PlayerTextDrawSetOutline(playerid, tdMenuItemToggle[playerid][i][MENU_ITEM_TOGGLE_BORDER_BOTTOM], 0);
-        PlayerTextDrawBackgroundColour(playerid, tdMenuItemToggle[playerid][i][MENU_ITEM_TOGGLE_BORDER_BOTTOM], 255);
-        PlayerTextDrawFont(playerid, tdMenuItemToggle[playerid][i][MENU_ITEM_TOGGLE_BORDER_BOTTOM], TEXT_DRAW_FONT_SPRITE_DRAW);
-        PlayerTextDrawSetProportional(playerid, tdMenuItemToggle[playerid][i][MENU_ITEM_TOGGLE_BORDER_BOTTOM], true);
+		tdMenuItemToggle[playerid][i][MENU_ITEM_TOGGLE_BORDER_BOTTOM] = CreatePlayerTextDraw(playerid, 127.000, boxY + 9.0, "LD_SPAC:white");
+		PlayerTextDrawTextSize(playerid, tdMenuItemToggle[playerid][i][MENU_ITEM_TOGGLE_BORDER_BOTTOM], -8.000, 1.000);
+		PlayerTextDrawAlignment(playerid, tdMenuItemToggle[playerid][i][MENU_ITEM_TOGGLE_BORDER_BOTTOM], TEXT_DRAW_ALIGN_LEFT);
+		PlayerTextDrawColour(playerid, tdMenuItemToggle[playerid][i][MENU_ITEM_TOGGLE_BORDER_BOTTOM], -1);
+		PlayerTextDrawSetShadow(playerid, tdMenuItemToggle[playerid][i][MENU_ITEM_TOGGLE_BORDER_BOTTOM], 0);
+		PlayerTextDrawSetOutline(playerid, tdMenuItemToggle[playerid][i][MENU_ITEM_TOGGLE_BORDER_BOTTOM], 0);
+		PlayerTextDrawBackgroundColour(playerid, tdMenuItemToggle[playerid][i][MENU_ITEM_TOGGLE_BORDER_BOTTOM], 255);
+		PlayerTextDrawFont(playerid, tdMenuItemToggle[playerid][i][MENU_ITEM_TOGGLE_BORDER_BOTTOM], TEXT_DRAW_FONT_SPRITE_DRAW);
+		PlayerTextDrawSetProportional(playerid, tdMenuItemToggle[playerid][i][MENU_ITEM_TOGGLE_BORDER_BOTTOM], true);
 
-        tdMenuItemToggle[playerid][i][MENU_ITEM_TOGGLE_BORDER_TOP] = CreatePlayerTextDraw(playerid, 127.000, boxY + 1.0, "LD_SPAC:white");
-        PlayerTextDrawTextSize(playerid, tdMenuItemToggle[playerid][i][MENU_ITEM_TOGGLE_BORDER_TOP], -8.000, 1.000);
-        PlayerTextDrawAlignment(playerid, tdMenuItemToggle[playerid][i][MENU_ITEM_TOGGLE_BORDER_TOP], TEXT_DRAW_ALIGN_LEFT);
-        PlayerTextDrawColour(playerid, tdMenuItemToggle[playerid][i][MENU_ITEM_TOGGLE_BORDER_TOP], -1);
-        PlayerTextDrawSetShadow(playerid, tdMenuItemToggle[playerid][i][MENU_ITEM_TOGGLE_BORDER_TOP], 0);
-        PlayerTextDrawSetOutline(playerid, tdMenuItemToggle[playerid][i][MENU_ITEM_TOGGLE_BORDER_TOP], 0);
-        PlayerTextDrawBackgroundColour(playerid, tdMenuItemToggle[playerid][i][MENU_ITEM_TOGGLE_BORDER_TOP], 255);
-        PlayerTextDrawFont(playerid, tdMenuItemToggle[playerid][i][MENU_ITEM_TOGGLE_BORDER_TOP], TEXT_DRAW_FONT_SPRITE_DRAW);
-        PlayerTextDrawSetProportional(playerid, tdMenuItemToggle[playerid][i][MENU_ITEM_TOGGLE_BORDER_TOP], true);
+		tdMenuItemToggle[playerid][i][MENU_ITEM_TOGGLE_BORDER_TOP] = CreatePlayerTextDraw(playerid, 127.000, boxY + 1.0, "LD_SPAC:white");
+		PlayerTextDrawTextSize(playerid, tdMenuItemToggle[playerid][i][MENU_ITEM_TOGGLE_BORDER_TOP], -8.000, 1.000);
+		PlayerTextDrawAlignment(playerid, tdMenuItemToggle[playerid][i][MENU_ITEM_TOGGLE_BORDER_TOP], TEXT_DRAW_ALIGN_LEFT);
+		PlayerTextDrawColour(playerid, tdMenuItemToggle[playerid][i][MENU_ITEM_TOGGLE_BORDER_TOP], -1);
+		PlayerTextDrawSetShadow(playerid, tdMenuItemToggle[playerid][i][MENU_ITEM_TOGGLE_BORDER_TOP], 0);
+		PlayerTextDrawSetOutline(playerid, tdMenuItemToggle[playerid][i][MENU_ITEM_TOGGLE_BORDER_TOP], 0);
+		PlayerTextDrawBackgroundColour(playerid, tdMenuItemToggle[playerid][i][MENU_ITEM_TOGGLE_BORDER_TOP], 255);
+		PlayerTextDrawFont(playerid, tdMenuItemToggle[playerid][i][MENU_ITEM_TOGGLE_BORDER_TOP], TEXT_DRAW_FONT_SPRITE_DRAW);
+		PlayerTextDrawSetProportional(playerid, tdMenuItemToggle[playerid][i][MENU_ITEM_TOGGLE_BORDER_TOP], true);
 
-        tdMenuItemToggle[playerid][i][MENU_ITEM_TOGGLE_X] = CreatePlayerTextDraw(playerid, 119.500, boxY - 0.5, "X");
-        PlayerTextDrawLetterSize(playerid, tdMenuItemToggle[playerid][i][MENU_ITEM_TOGGLE_X], 0.280, 1.199);
-        PlayerTextDrawAlignment(playerid, tdMenuItemToggle[playerid][i][MENU_ITEM_TOGGLE_X], TEXT_DRAW_ALIGN_LEFT);
-        PlayerTextDrawColour(playerid, tdMenuItemToggle[playerid][i][MENU_ITEM_TOGGLE_X], 255);
-        PlayerTextDrawSetShadow(playerid, tdMenuItemToggle[playerid][i][MENU_ITEM_TOGGLE_X], 0);
-        PlayerTextDrawSetOutline(playerid, tdMenuItemToggle[playerid][i][MENU_ITEM_TOGGLE_X], 0);
-        PlayerTextDrawBackgroundColour(playerid, tdMenuItemToggle[playerid][i][MENU_ITEM_TOGGLE_X], 150);
-        PlayerTextDrawFont(playerid, tdMenuItemToggle[playerid][i][MENU_ITEM_TOGGLE_X], TEXT_DRAW_FONT_2);
-        PlayerTextDrawSetProportional(playerid, tdMenuItemToggle[playerid][i][MENU_ITEM_TOGGLE_X], true);
-    }
+		tdMenuItemToggle[playerid][i][MENU_ITEM_TOGGLE_X] = CreatePlayerTextDraw(playerid, 119.500, boxY - 0.5, "X");
+		PlayerTextDrawLetterSize(playerid, tdMenuItemToggle[playerid][i][MENU_ITEM_TOGGLE_X], 0.280, 1.199);
+		PlayerTextDrawAlignment(playerid, tdMenuItemToggle[playerid][i][MENU_ITEM_TOGGLE_X], TEXT_DRAW_ALIGN_LEFT);
+		PlayerTextDrawColour(playerid, tdMenuItemToggle[playerid][i][MENU_ITEM_TOGGLE_X], 255);
+		PlayerTextDrawSetShadow(playerid, tdMenuItemToggle[playerid][i][MENU_ITEM_TOGGLE_X], 0);
+		PlayerTextDrawSetOutline(playerid, tdMenuItemToggle[playerid][i][MENU_ITEM_TOGGLE_X], 0);
+		PlayerTextDrawBackgroundColour(playerid, tdMenuItemToggle[playerid][i][MENU_ITEM_TOGGLE_X], 150);
+		PlayerTextDrawFont(playerid, tdMenuItemToggle[playerid][i][MENU_ITEM_TOGGLE_X], TEXT_DRAW_FONT_2);
+		PlayerTextDrawSetProportional(playerid, tdMenuItemToggle[playerid][i][MENU_ITEM_TOGGLE_X], true);
+	}
 }
 
 
@@ -563,7 +611,7 @@ static DestroyIMenu(playerid)
  * This one has to be called first, to convert string and to be able to open another
  * menu, otherwise the new menu won't open.
  * </remarks>
- * <param name="playerid">Who we’re showing the menu to.</param>
+ * <param name="playerid">Who weâ€™re showing the menu to.</param>
  * <param name="menuid">The menuid to be shown for the player</param>
  * <param name="tdMenuItems">The items string for the menu</param>
  * <param name="title">The menu title to be shown.</param>
@@ -594,7 +642,7 @@ stock ShowPlayerInteractionMenu(playerid, menuid, const tdMenuItems[], const tit
  * </remarks>
  * <param name="output">The string to format</param>
  * <param name="playerid">The player with the open menu</param>
- * <param name="imenuitem">Which menu item we’re checking.</param>
+ * <param name="imenuitem">Which menu item weâ€™re checking.</param>
  * <param name="scrollitem">Which scroll option inside that item.</param>
  */
 stock GetMenuScrollItemString(output[MAX_ITEM_LEN], playerid, imenuitem, scrollitem)
@@ -609,7 +657,7 @@ stock GetMenuScrollItemString(output[MAX_ITEM_LEN], playerid, imenuitem, scrolli
  * </remarks>
  * <param name="output">The string to format</param>
  * <param name="playerid">The player with the open menu</param>
- * <param name="imenuitem">Which menu item we’re checking.</param>
+ * <param name="imenuitem">Which menu item weâ€™re checking.</param>
  */
 stock GetMenuItemString(output[MAX_ITEM_LEN], playerid, imenuitem)
 {
@@ -684,19 +732,19 @@ static UpdateHeaderItemCount(playerid, itemcount)
  */
 static UpdateFooterDescription(playerid)
 {
-    new idx = iMenuScrollOffset[playerid] + iSelectedMenuItemId[playerid];
+	new idx = iMenuScrollOffset[playerid] + iSelectedMenuItemId[playerid];
 
-    #if MENU_DYNAMIC_SIZE
-        new count = min(interactionMenuItemCount[playerid], MAX_VISIBLE_ITEMS);
-    #else
-        new count = MAX_VISIBLE_ITEMS;
-    #endif
+	#if MENU_DYNAMIC_SIZE
+		new count = min(interactionMenuItemCount[playerid], MAX_VISIBLE_ITEMS);
+	#else
+		new count = MAX_VISIBLE_ITEMS;
+	#endif
 
-    new lines = 1 + (strlen(interactionMenuDesc[playerid][idx]) / 25);
-    PlayerTextDrawLetterSize(playerid, tdInteractionMenu[playerid][MENU_BACKGROUND_BOX], 0.380, (count * MENU_ITEM_SPACING + 23.5 + (lines - 1) * 3.6) / 9.0);
-    PlayerTextDrawShow(playerid, tdInteractionMenu[playerid][MENU_BACKGROUND_BOX]);
+	new lines = 1 + (strlen(interactionMenuDesc[playerid][idx]) / 25);
+	PlayerTextDrawLetterSize(playerid, tdInteractionMenu[playerid][MENU_BACKGROUND_BOX], 0.380, (count * MENU_ITEM_SPACING + 23.5 + (lines - 1) * 3.6) / 9.0);
+	PlayerTextDrawShow(playerid, tdInteractionMenu[playerid][MENU_BACKGROUND_BOX]);
 
-    PlayerTextDrawSetString(playerid, tdInteractionMenu[playerid][MENU_FOOTER_TEXT], interactionMenuDesc[playerid][idx]);
+	PlayerTextDrawSetString(playerid, tdInteractionMenu[playerid][MENU_FOOTER_TEXT], interactionMenuDesc[playerid][idx]);
 }
 /**
  * <summary>Updates a single item</summary>
@@ -707,23 +755,23 @@ static UpdateFooterDescription(playerid)
  */
 static UpdateMenuItem(playerid, slot, index)
 {
-    PlayerTextDrawSetString(playerid, tdMenuItemText[playerid][slot], interactionMenuItems[playerid][index]);
+	PlayerTextDrawSetString(playerid, tdMenuItemText[playerid][slot], interactionMenuItems[playerid][index]);
 
-    if (slot == iSelectedMenuItemId[playerid]) HighlightMenuItem(playerid, slot, index);
-    else ResetMenuItemColor(playerid, slot, index);
+	if (slot == iSelectedMenuItemId[playerid]) HighlightMenuItem(playerid, slot, index);
+	else ResetMenuItemColor(playerid, slot, index);
 
-    if (bIsItemLocked[playerid][index]) UpdateLockedItem(playerid, slot);
+	if (bIsItemLocked[playerid][index]) UpdateLockedItem(playerid, slot);
 
-    if (bIsItemScrollable[playerid][index]) UpdateScrollableItem(playerid, slot, index);
-    else PlayerTextDrawSetString(playerid, tdMenuItemScroll[playerid][slot], "");
+	if (bIsItemScrollable[playerid][index]) UpdateScrollableItem(playerid, slot, index);
+	else PlayerTextDrawSetString(playerid, tdMenuItemScroll[playerid][slot], "");
 
-    if (bIsItemToggle[playerid][index]) UpdateToggleItem(playerid, slot, index);
-    else HideToggleItem(playerid, slot);
+	if (bIsItemToggle[playerid][index]) UpdateToggleItem(playerid, slot, index);
+	else HideToggleItem(playerid, slot);
 
-    PlayerTextDrawShow(playerid, tdInteractionMenu[playerid][MENU_FOOTER_TEXT]);
-    PlayerTextDrawShow(playerid, tdMenuItemBox[playerid][slot]);
-    PlayerTextDrawShow(playerid, tdMenuItemText[playerid][slot]);
-    PlayerTextDrawShow(playerid, tdMenuItemScroll[playerid][slot]);
+	PlayerTextDrawShow(playerid, tdInteractionMenu[playerid][MENU_FOOTER_TEXT]);
+	PlayerTextDrawShow(playerid, tdMenuItemBox[playerid][slot]);
+	PlayerTextDrawShow(playerid, tdMenuItemText[playerid][slot]);
+	PlayerTextDrawShow(playerid, tdMenuItemScroll[playerid][slot]);
 }
 
 /**
@@ -806,19 +854,19 @@ static ResetMenuItemColor(playerid, slot, index)
  */
 static UpdateLockedItem(playerid, slot)
 {
-    new index = iMenuScrollOffset[playerid] + _:slot;
-    PlayerTextDrawColour(playerid, tdMenuItemText[playerid][slot], COLOR_MENU_LOCKED_ITEM);
-    PlayerTextDrawColour(playerid, tdMenuItemScroll[playerid][slot], COLOR_MENU_LOCKED_ITEM);
+	new index = iMenuScrollOffset[playerid] + _:slot;
+	PlayerTextDrawColour(playerid, tdMenuItemText[playerid][slot], COLOR_MENU_LOCKED_ITEM);
+	PlayerTextDrawColour(playerid, tdMenuItemScroll[playerid][slot], COLOR_MENU_LOCKED_ITEM);
 
-    if (bIsItemToggle[playerid][index])
-    {
-        PlayerTextDrawColour(playerid, tdMenuItemToggle[playerid][slot][MENU_ITEM_TOGGLE_BORDER_BOTTOM], COLOR_MENU_LOCKED_ITEM);
-        PlayerTextDrawColour(playerid, tdMenuItemToggle[playerid][slot][MENU_ITEM_TOGGLE_BORDER_TOP], COLOR_MENU_LOCKED_ITEM);
-        PlayerTextDrawColour(playerid, tdMenuItemToggle[playerid][slot][MENU_ITEM_TOGGLE_BORDER_LEFT], COLOR_MENU_LOCKED_ITEM);
-        PlayerTextDrawColour(playerid, tdMenuItemToggle[playerid][slot][MENU_ITEM_TOGGLE_BORDER_RIGHT], COLOR_MENU_LOCKED_ITEM);
-        PlayerTextDrawColour(playerid, tdMenuItemToggle[playerid][slot][MENU_ITEM_TOGGLE_X], COLOR_MENU_LOCKED_ITEM);
-        PlayerTextDrawColour(playerid, tdMenuItemToggle[playerid][slot][MENU_ITEM_TOGGLE_FILL], COLOR_MENU_LOCKED_ITEM);
-    }
+	if (bIsItemToggle[playerid][index])
+	{
+		PlayerTextDrawColour(playerid, tdMenuItemToggle[playerid][slot][MENU_ITEM_TOGGLE_BORDER_BOTTOM], COLOR_MENU_LOCKED_ITEM);
+		PlayerTextDrawColour(playerid, tdMenuItemToggle[playerid][slot][MENU_ITEM_TOGGLE_BORDER_TOP], COLOR_MENU_LOCKED_ITEM);
+		PlayerTextDrawColour(playerid, tdMenuItemToggle[playerid][slot][MENU_ITEM_TOGGLE_BORDER_LEFT], COLOR_MENU_LOCKED_ITEM);
+		PlayerTextDrawColour(playerid, tdMenuItemToggle[playerid][slot][MENU_ITEM_TOGGLE_BORDER_RIGHT], COLOR_MENU_LOCKED_ITEM);
+		PlayerTextDrawColour(playerid, tdMenuItemToggle[playerid][slot][MENU_ITEM_TOGGLE_X], COLOR_MENU_LOCKED_ITEM);
+		PlayerTextDrawColour(playerid, tdMenuItemToggle[playerid][slot][MENU_ITEM_TOGGLE_FILL], COLOR_MENU_LOCKED_ITEM);
+	}
 }
 
 /**
@@ -845,21 +893,21 @@ static UpdateScrollableItem(playerid, slot, index)
  */
 static UpdateToggleItem(playerid, slot, index)
 {
-    PlayerTextDrawShow(playerid, tdMenuItemToggle[playerid][slot][MENU_ITEM_TOGGLE_BORDER_BOTTOM]);
-    PlayerTextDrawShow(playerid, tdMenuItemToggle[playerid][slot][MENU_ITEM_TOGGLE_BORDER_TOP]);
-    PlayerTextDrawShow(playerid, tdMenuItemToggle[playerid][slot][MENU_ITEM_TOGGLE_BORDER_LEFT]);
-    PlayerTextDrawShow(playerid, tdMenuItemToggle[playerid][slot][MENU_ITEM_TOGGLE_BORDER_RIGHT]);
+	PlayerTextDrawShow(playerid, tdMenuItemToggle[playerid][slot][MENU_ITEM_TOGGLE_BORDER_BOTTOM]);
+	PlayerTextDrawShow(playerid, tdMenuItemToggle[playerid][slot][MENU_ITEM_TOGGLE_BORDER_TOP]);
+	PlayerTextDrawShow(playerid, tdMenuItemToggle[playerid][slot][MENU_ITEM_TOGGLE_BORDER_LEFT]);
+	PlayerTextDrawShow(playerid, tdMenuItemToggle[playerid][slot][MENU_ITEM_TOGGLE_BORDER_RIGHT]);
 
-    if (bIsItemToggled[playerid][index])
-    {
-        PlayerTextDrawShow(playerid, tdMenuItemToggle[playerid][slot][MENU_ITEM_TOGGLE_FILL]);
-        PlayerTextDrawShow(playerid, tdMenuItemToggle[playerid][slot][MENU_ITEM_TOGGLE_X]);
-    }
-    else
-    {
-        PlayerTextDrawHide(playerid, tdMenuItemToggle[playerid][slot][MENU_ITEM_TOGGLE_FILL]);
-        PlayerTextDrawHide(playerid, tdMenuItemToggle[playerid][slot][MENU_ITEM_TOGGLE_X]);
-    }
+	if (bIsItemToggled[playerid][index])
+	{
+		PlayerTextDrawShow(playerid, tdMenuItemToggle[playerid][slot][MENU_ITEM_TOGGLE_FILL]);
+		PlayerTextDrawShow(playerid, tdMenuItemToggle[playerid][slot][MENU_ITEM_TOGGLE_X]);
+	}
+	else
+	{
+		PlayerTextDrawHide(playerid, tdMenuItemToggle[playerid][slot][MENU_ITEM_TOGGLE_FILL]);
+		PlayerTextDrawHide(playerid, tdMenuItemToggle[playerid][slot][MENU_ITEM_TOGGLE_X]);
+	}
 }
 
 /**
@@ -870,9 +918,9 @@ static UpdateToggleItem(playerid, slot, index)
  */
 static HideToggleItem(playerid, slot)
 {
-    new part;
-    for (part = 0; part < sizeof(tdMenuItemToggle[][]); part++)
-        PlayerTextDrawHide(playerid, tdMenuItemToggle[playerid][slot][e_MENU_ITEM_TOGGLE:part]);
+	new part;
+	for (part = 0; part < sizeof(tdMenuItemToggle[][]); part++)
+		PlayerTextDrawHide(playerid, tdMenuItemToggle[playerid][slot][e_MENU_ITEM_TOGGLE:part]);
 }
 
 /**
@@ -898,7 +946,7 @@ static InitMenuState(playerid, menuid)
 			IM_TogglePlayerControllable(playerid, false);
 			bHasLastMenu[playerid] = true;
 		}
-		else HideInteractionMenu(playerid);
+		else IM_HideInteractionMenu(playerid, true);
 		bIsInMenu[playerid] = true;
 
 	#endif
@@ -923,11 +971,8 @@ static InitMenuState(playerid, menuid)
 static ApplyMenuStyling(playerid, const title[], color)
 {
 	PlayerTextDrawSetString(playerid, tdInteractionMenu[playerid][MENU_TITLE], title);
-
 	PlayerTextDrawBoxColour(playerid,  tdInteractionMenu[playerid][MENU_TITLE_BOX], color);
-
 	PlayerTextDrawColour(playerid, tdInteractionMenu[playerid][MENU_HEADER_TEXT], color);
-
 	PlayerTextDrawColour(playerid, tdInteractionMenu[playerid][MENU_HEADER_ITEM_COUNT], color);
 }
 
@@ -1002,16 +1047,15 @@ static FormatMenuDescriptions(playerid, const menu_desc[])
  * <param name="toggle"> Boolean to freeze or not the player.</param>
  * <
 */
-static IM_TogglePlayerControllable(playerid, toggle)
+static IM_TogglePlayerControllable(playerid, bool:toggle)
 {
-	if (bWasFrozen[playerid] && toggle == 1) 
+	if (bWasFrozen[playerid] && toggle) 
 	{
 		bWasFrozen[playerid] = false;
-		
 		return TogglePlayerControllable(playerid, false);
 	}
 
-	return TogglePlayerControllable(playerid, bool:toggle);
+	return TogglePlayerControllable(playerid, toggle);
 }
 
 /**
@@ -1131,8 +1175,6 @@ HandleMenuScrolling(playerid, leftright, index)
 {
 	if (!bIsItemScrollable[playerid][index]) return;
 	if (bIsItemLocked[playerid][index]) return;
-
-	
 	if (interactionMenuScrollCount[playerid][index] <= 0) return;
 
 	if (leftright == KEY_RIGHT)
@@ -1255,19 +1297,19 @@ static HandleTDMenuItem(playerid, selected, menuid, bool:response)
  */
 static ClearMenuItem(playerid, index)
 {
-    interactionMenuItems[playerid][index][0] = EOS;
-    interactionMenuDesc[playerid][index][0] = EOS;
-    bIsItemLocked[playerid][index] = false;
-    bIsItemScrollable[playerid][index] = false;
-    bIsItemToggle[playerid][index] = false;
-    bIsItemToggled[playerid][index] = false;
-    bIsItemEx[playerid][index] = false;
-    boxExColor[playerid][index] = COLOR_MENU_ITEM_BOX;
-    boxExHighlight[playerid][index] = COLOR_MENU_ITEM_BOX_HIGHLIGHT;
-    interactionMenuScrollCount[playerid][index] = 0;
-    interactionMenuScrollIndex[playerid][index] = 0;
-    for (new s = 0; s < MAX_SCROLL_ITEMS; s++)
-        interactionMenuScrollItems[playerid][index][s][0] = EOS;
+	interactionMenuItems[playerid][index][0] = EOS;
+	interactionMenuDesc[playerid][index][0] = EOS;
+	bIsItemLocked[playerid][index] = false;
+	bIsItemScrollable[playerid][index] = false;
+	bIsItemToggle[playerid][index] = false;
+	bIsItemToggled[playerid][index] = false;
+	bIsItemEx[playerid][index] = false;
+	boxExColor[playerid][index] = COLOR_MENU_ITEM_BOX;
+	boxExHighlight[playerid][index] = COLOR_MENU_ITEM_BOX_HIGHLIGHT;
+	interactionMenuScrollCount[playerid][index] = 0;
+	interactionMenuScrollIndex[playerid][index] = 0;
+	for (new s = 0; s < MAX_SCROLL_ITEMS; s++)
+		interactionMenuScrollItems[playerid][index][s][0] = EOS;
 }
 
 /**
@@ -1277,19 +1319,19 @@ static ClearMenuItem(playerid, index)
  */
 static stock ShiftMenuItemDown(playerid, index)
 {
-    interactionMenuItems[playerid][index] = interactionMenuItems[playerid][index + 1];
-    interactionMenuDesc[playerid][index] = interactionMenuDesc[playerid][index + 1];
-    bIsItemLocked[playerid][index] = bIsItemLocked[playerid][index + 1];
-    bIsItemScrollable[playerid][index] = bIsItemScrollable[playerid][index + 1];
-    bIsItemToggle[playerid][index] = bIsItemToggle[playerid][index + 1];
-    bIsItemToggled[playerid][index] = bIsItemToggled[playerid][index + 1];
-    bIsItemEx[playerid][index] = bIsItemEx[playerid][index + 1];
-    boxExColor[playerid][index] = boxExColor[playerid][index + 1];
-    boxExHighlight[playerid][index] = boxExHighlight[playerid][index + 1];
-    interactionMenuScrollCount[playerid][index] = interactionMenuScrollCount[playerid][index + 1];
-    interactionMenuScrollIndex[playerid][index] = interactionMenuScrollIndex[playerid][index + 1];
-    for (new s = 0; s < MAX_SCROLL_ITEMS; s++)
-        interactionMenuScrollItems[playerid][index][s] = interactionMenuScrollItems[playerid][index + 1][s];
+	interactionMenuItems[playerid][index] = interactionMenuItems[playerid][index + 1];
+	interactionMenuDesc[playerid][index] = interactionMenuDesc[playerid][index + 1];
+	bIsItemLocked[playerid][index] = bIsItemLocked[playerid][index + 1];
+	bIsItemScrollable[playerid][index] = bIsItemScrollable[playerid][index + 1];
+	bIsItemToggle[playerid][index] = bIsItemToggle[playerid][index + 1];
+	bIsItemToggled[playerid][index] = bIsItemToggled[playerid][index + 1];
+	bIsItemEx[playerid][index] = bIsItemEx[playerid][index + 1];
+	boxExColor[playerid][index] = boxExColor[playerid][index + 1];
+	boxExHighlight[playerid][index] = boxExHighlight[playerid][index + 1];
+	interactionMenuScrollCount[playerid][index] = interactionMenuScrollCount[playerid][index + 1];
+	interactionMenuScrollIndex[playerid][index] = interactionMenuScrollIndex[playerid][index + 1];
+	for (new s = 0; s < MAX_SCROLL_ITEMS; s++)
+		interactionMenuScrollItems[playerid][index][s] = interactionMenuScrollItems[playerid][index + 1][s];
 }
 
 /**
@@ -1299,23 +1341,23 @@ static stock ShiftMenuItemDown(playerid, index)
  */
 stock RemoveInteractionMenuItem(playerid, itemid)
 {
-    if (!IsPlayerInMenu(playerid)) return 0;
+	if (!IsPlayerInMenu(playerid)) return 0;
 
-    for (new i = itemid; i < interactionMenuItemCount[playerid] - 1; i++)
-        ShiftMenuItemDown(playerid, i);
+	for (new i = itemid; i < interactionMenuItemCount[playerid] - 1; i++)
+		ShiftMenuItemDown(playerid, i);
 
-    ClearMenuItem(playerid, interactionMenuItemCount[playerid] - 1);
-    interactionMenuItemCount[playerid]--;
+	ClearMenuItem(playerid, interactionMenuItemCount[playerid] - 1);
+	interactionMenuItemCount[playerid]--;
 
-    if (iSelectedMenuItemId[playerid] >= interactionMenuItemCount[playerid])
-        iSelectedMenuItemId[playerid] = interactionMenuItemCount[playerid] - 1;
+	if (iSelectedMenuItemId[playerid] >= interactionMenuItemCount[playerid])
+		iSelectedMenuItemId[playerid] = interactionMenuItemCount[playerid] - 1;
 
 	#if MENU_DYNAMIC_SIZE
-    	UpdateMenuSize(playerid);
+		UpdateMenuSize(playerid);
 	#endif
 
-    UpdateMenuHighlight(playerid, interactionMenuItemCount[playerid]);
-    return 1;
+	UpdateMenuHighlight(playerid, interactionMenuItemCount[playerid]);
+	return 1;
 }
 
 /**
@@ -1335,7 +1377,7 @@ stock AddInteractionMenuItem(playerid, const item[MAX_ITEM_LEN], const desc[MAX_
 	interactionMenuItemCount[playerid] ++;
 	
 	#if MENU_DYNAMIC_SIZE
-    	UpdateMenuSize(playerid);
+		UpdateMenuSize(playerid);
 	#endif
 
 	UpdateMenuHighlight(playerid, interactionMenuItemCount[playerid]);
@@ -1366,7 +1408,7 @@ stock AddInteractionMenuItemEx(playerid, const item[MAX_ITEM_LEN], const boxcolo
 	interactionMenuItemCount[playerid]++;
 
 	#if MENU_DYNAMIC_SIZE
-    	UpdateMenuSize(playerid);
+		UpdateMenuSize(playerid);
 	#endif
 
 	UpdateMenuHighlight(playerid, interactionMenuItemCount[playerid]);
@@ -1384,19 +1426,19 @@ stock AddInteractionMenuItemEx(playerid, const item[MAX_ITEM_LEN], const boxcolo
 */
 stock UpdateInteractionMenuItem(playerid, menuitem, const item[MAX_ITEM_LEN], const desc[MAX_DESCRIPTION_LEN] = "No Description")
 {
-    if (!IsPlayerInMenu(playerid)) return 0;
+	if (!IsPlayerInMenu(playerid)) return 0;
 
-    new count = interactionMenuItemCount[playerid];
-    ClearMenuItem(playerid, menuitem);
-    interactionMenuItemCount[playerid] = menuitem;
-    ItemPropertyCheck(playerid, item);
-    interactionMenuItemCount[playerid] = count;
+	new count = interactionMenuItemCount[playerid];
+	ClearMenuItem(playerid, menuitem);
+	interactionMenuItemCount[playerid] = menuitem;
+	ItemPropertyCheck(playerid, item);
+	interactionMenuItemCount[playerid] = count;
 
-    interactionMenuDesc[playerid][menuitem] = desc;
-    interactionMenuScrollIndex[playerid][menuitem] = 0;
-    UpdateMenuHighlight(playerid, interactionMenuItemCount[playerid]);
+	interactionMenuDesc[playerid][menuitem] = desc;
+	interactionMenuScrollIndex[playerid][menuitem] = 0;
+	UpdateMenuHighlight(playerid, interactionMenuItemCount[playerid]);
 
-    return 1;
+	return 1;
 }
 
 stock ShowAndroidButtons(playerid)
@@ -1573,37 +1615,37 @@ static bool:DispatchMenuInput(playerid, updownEdge, leftRightEdge, KEY:keysEdge,
  */
 static IM_HideInteractionMenu(playerid, bool:forced)
 {
-    #if defined _FOREACH_LOCAL_VERSION
-        Iter_Remove(itIsInMenu, playerid);
-    #else
-        bIsInMenu[playerid] = false;
-    #endif
+	#if defined _FOREACH_LOCAL_VERSION
+		Iter_Remove(itIsInMenu, playerid);
+	#else
+		bIsInMenu[playerid] = false;
+	#endif
 
-    iSelectedMenuItemId[playerid] = 0;
+	iSelectedMenuItemId[playerid] = 0;
 
-    for (new i = 0; i < sizeof(tdAndroidButtons[]); i++)
-        PlayerTextDrawHide(playerid, tdAndroidButtons[playerid][e_CONTROL_BUTTON:i]);
+	for (new i = 0; i < sizeof(tdAndroidButtons[]); i++)
+		PlayerTextDrawHide(playerid, tdAndroidButtons[playerid][e_CONTROL_BUTTON:i]);
 
-    for (new i = 0; i < sizeof(tdAndroidButtons[]); i++)
-        PlayerTextDrawHide(playerid, tdAndroidText[playerid][e_CONTROL_BUTTON:i]);
+	for (new i = 0; i < sizeof(tdAndroidButtons[]); i++)
+		PlayerTextDrawHide(playerid, tdAndroidText[playerid][e_CONTROL_BUTTON:i]);
 
-    for (new i = 0; i < sizeof(tdMenuItemText[]); i++)
-    {
-        PlayerTextDrawHide(playerid, tdMenuItemBox[playerid][i]);
-        PlayerTextDrawHide(playerid, tdMenuItemText[playerid][i]);
-        PlayerTextDrawHide(playerid, tdMenuItemScroll[playerid][i]);
-        HideToggleItem(playerid, i);
-    }
+	for (new i = 0; i < sizeof(tdMenuItemText[]); i++)
+	{
+		PlayerTextDrawHide(playerid, tdMenuItemBox[playerid][i]);
+		PlayerTextDrawHide(playerid, tdMenuItemText[playerid][i]);
+		PlayerTextDrawHide(playerid, tdMenuItemScroll[playerid][i]);
+		HideToggleItem(playerid, i);
+	}
 
-    for (new i = 0; i < sizeof(tdInteractionMenu[]); i++)
-        PlayerTextDrawHide(playerid, tdInteractionMenu[playerid][e_MENU_TD:i]);
+	for (new i = 0; i < sizeof(tdInteractionMenu[]); i++)
+		PlayerTextDrawHide(playerid, tdInteractionMenu[playerid][e_MENU_TD:i]);
 
-    for (new i = 0; i < MAX_MENU_ITEMS; i++)
-        ClearMenuItem(playerid, i);
+	for (new i = 0; i < MAX_MENU_ITEMS; i++)
+		ClearMenuItem(playerid, i);
 
-    if (forced) IM_TogglePlayerControllable(playerid, true);
+	if (forced) IM_TogglePlayerControllable(playerid, true);
 
-    return 1;
+	return 1;
 }
 
 /**
@@ -1617,16 +1659,16 @@ static IM_HideInteractionMenu(playerid, bool:forced)
 #if MENU_DYNAMIC_SIZE
 static UpdateMenuSize(playerid)
 {
-    new count = min(interactionMenuItemCount[playerid], MAX_VISIBLE_ITEMS);
-    new Float:itemHeight = MENU_ITEM_START_Y + count * MENU_ITEM_SPACING;
+	new count = min(interactionMenuItemCount[playerid], MAX_VISIBLE_ITEMS);
+	new Float:itemHeight = MENU_ITEM_START_Y + count * MENU_ITEM_SPACING;
 
-    PlayerTextDrawLetterSize(playerid, tdInteractionMenu[playerid][MENU_BACKGROUND_BOX], 0.380, (count * MENU_ITEM_SPACING + 23.5) / 9.0);
-    PlayerTextDrawTextSize(playerid, tdInteractionMenu[playerid][MENU_ITEM_FOOTER_ARROW], itemHeight, -2.0);
-    PlayerTextDrawTextSize(playerid, tdInteractionMenu[playerid][MENU_FOOTER_BOX], 130.0, -2.0);
+	PlayerTextDrawLetterSize(playerid, tdInteractionMenu[playerid][MENU_BACKGROUND_BOX], 0.380, (count * MENU_ITEM_SPACING + 23.5) / 9.0);
+	PlayerTextDrawTextSize(playerid, tdInteractionMenu[playerid][MENU_ITEM_FOOTER_ARROW], itemHeight, -2.0);
+	PlayerTextDrawTextSize(playerid, tdInteractionMenu[playerid][MENU_FOOTER_BOX], 130.0, -2.0);
 
-    PlayerTextDrawSetPos(playerid, tdInteractionMenu[playerid][MENU_ITEM_FOOTER_ARROW], 68.0, itemHeight);
-    PlayerTextDrawSetPos(playerid, tdInteractionMenu[playerid][MENU_FOOTER_BOX], 20.0, itemHeight + 1.0);
-    PlayerTextDrawSetPos(playerid, tdInteractionMenu[playerid][MENU_FOOTER_TEXT], 20.0, itemHeight + 10.0);
+	PlayerTextDrawSetPos(playerid, tdInteractionMenu[playerid][MENU_ITEM_FOOTER_ARROW], 68.0, itemHeight);
+	PlayerTextDrawSetPos(playerid, tdInteractionMenu[playerid][MENU_FOOTER_BOX], 20.0, itemHeight + 1.0);
+	PlayerTextDrawSetPos(playerid, tdInteractionMenu[playerid][MENU_FOOTER_TEXT], 20.0, itemHeight + 10.0);
 
 	PlayerTextDrawShow(playerid, tdInteractionMenu[playerid][MENU_ITEM_FOOTER_ARROW]);
 	PlayerTextDrawShow(playerid, tdInteractionMenu[playerid][MENU_FOOTER_BOX]);
@@ -1681,13 +1723,12 @@ public DelayFromLastMenu(playerid)
  * <param name="tdMenuItems">The string for the menu items, separated by \n.</param>
  * <param name="title">The menu title to display.</param>
  * <param name="description">The description string for the menu items, separated by \n.</param>
- * <param name="color">The primary color used for the menu’s title and header.</param>
+ * <param name="color">The primary color used for the menuâ€™s title and header.</param>
  */
 
 forward DelayShowPlayerInteractionMenu(playerid, menuid, const tdMenuItems[], const title[], const description[], color);
 public DelayShowPlayerInteractionMenu(playerid, menuid, const tdMenuItems[], const title[], const description[], color)
 {
-	
 	InitMenuState(playerid, menuid);
 	ApplyMenuStyling(playerid, title, color);
 
@@ -1720,15 +1761,21 @@ public OnPlayerConnect(playerid)
 {
 	CreateIMenu(playerid);
 
-	return CallLocalFunction("IM_OnPlayerConnect", "i", playerid);
+	#if defined IM_OnPlayerConnect
+		return IM_OnPlayerConnect(playerid);
+	#else
+		return 1;
+	#endif
 }
-forward IM_OnPlayerConnect(playerid);
 #if defined _ALS_OnPlayerConnect
 	#undef OnPlayerConnect
 #else
 	#define _ALS_OnPlayerConnect
 #endif
 #define OnPlayerConnect IM_OnPlayerConnect
+#if defined IM_OnPlayerConnect
+	forward IM_OnPlayerConnect(playerid);
+#endif
 
 public OnPlayerDisconnect(playerid, reason)
 {
@@ -1750,15 +1797,21 @@ public OnPlayerDisconnect(playerid, reason)
 
 	unfreezeTimer[playerid] = INVALID_TIMER;
 
-	return CallLocalFunction("IM_OnPlayerDisconnect", "ii", playerid, reason);
+	#if defined IM_OnPlayerDisconnect
+		return IM_OnPlayerDisconnect(playerid, reason);
+	#else
+		return 1;
+	#endif
 }
-forward IM_OnPlayerDisconnect(playerid, reason);
 #if defined _ALS_OnPlayerDisconnect
 	#undef OnPlayerDisconnect
 #else
 	#define _ALS_OnPlayerDisconnect
 #endif
 #define OnPlayerDisconnect IM_OnPlayerDisconnect
+#if defined IM_OnPlayerDisconnect
+	forward IM_OnPlayerDisconnect(playerid, reason);
+#endif
 
 /**
  * <summary>
@@ -1780,7 +1833,7 @@ forward IM_OnPlayerDisconnect(playerid, reason);
  * </remarks>
  *
  * <param name="playerid">The ID of the player being updated.</param>
- * <returns>Always returns Y_HOOKS_CONTINUE_RETURN_1.</returns>
+ * <returns>Always returns 1.</returns>
  */
 public OnPlayerUpdate(playerid)
 {
@@ -1805,6 +1858,9 @@ forward IM_OnPlayerUpdate(playerid);
 	#define _ALS_OnPlayerUpdate
 #endif
 #define OnPlayerUpdate IM_OnPlayerUpdate
+#if defined IM_OnPlayerUpdate
+	forward IM_OnPlayerUpdate(playerid);
+#endif
 
 /*
  * Hides the interaction menu when a player dies.
@@ -1813,16 +1869,21 @@ public OnPlayerDeath(playerid, killerid, WEAPON:reason)
 {
 	IM_HideInteractionMenu(playerid, false);
 
-	return CallLocalFunction("IM_OnPlayerDeath", "iii", playerid, killerid, _:reason);
+	#if defined IM_OnPlayerDeath
+		return IM_OnPlayerDeath(playerid, killerid, reason);
+	#else
+		return 1;
+	#endif
 }
-
-forward IM_OnPlayerDeath(playerid, killerid, WEAPON:reason);
 #if defined _ALS_OnPlayerDeath
 	#undef OnPlayerDeath
 #else
 	#define _ALS_OnPlayerDeath
 #endif
 #define OnPlayerDeath IM_OnPlayerDeath
+#if defined IM_OnPlayerDeath
+	forward IM_OnPlayerDeath(playerid, killerid, WEAPON:reason);
+#endif
 
 /*
  * Handles android button controls
@@ -1914,36 +1975,37 @@ public OnPlayerClickPlayerTextDraw(playerid, PlayerText:playertextid)
 		PlayerPlaySound(playerid, 1085);
 	}
 	
-	return CallLocalFunction("IM_OnPlayerClickPlayerTextDraw", "ii", playerid, playertextid);
-
+	#if defined IM_OnPlayerClickPlayerTextDraw
+		return IM_OnPlayerClickPlayerTextDraw(playerid, playertextid);
+	#else
+		return 1;
+	#endif
 }
-
-forward IM_OnPlayerClickPlayerTextDraw(playerid, PlayerText:playertextid);
 #if defined _ALS_OnPlayerClickPlayerTextDraw
 	#undef OnPlayerClickPlayerTextDraw
 #else
 	#define _ALS_OnPlayerClickPlayerTextDraw
 #endif
 #define OnPlayerClickPlayerTextDraw IM_OnPlayerClickPlayerTextDraw
+#if defined IM_OnPlayerClickPlayerTextDraw
+	forward IM_OnPlayerClickPlayerTextDraw(playerid, PlayerText:playertextid);
+#endif
 
 /*
  * Hook of TogglePlayerControllable to store when the player was frozen or unfrozen.
 */
-
-stock hook_TogglePlayerControllable(playerid, toggle)
+stock hook_TogglePlayerControllable(playerid, bool:toggle)
 {
-	if (toggle == 0) bWasFrozen[playerid] = true;
+	if (!toggle) bWasFrozen[playerid] = true;
 	else bWasFrozen[playerid] = false;	
 
-	if (IsPlayerInMenu(playerid)) return 0;
+	if (IsPlayerInMenu(playerid)) return false;
 
-	return TogglePlayerControllable(playerid, bool:toggle);
+	return TogglePlayerControllable(playerid, toggle);
 }
-
 #if defined _ALS_TogglePlayerControllable
 	#undef TogglePlayerControllable
 #else
 	#define _ALS_TogglePlayerControllable
 #endif
-
 #define TogglePlayerControllable hook_TogglePlayerControllable

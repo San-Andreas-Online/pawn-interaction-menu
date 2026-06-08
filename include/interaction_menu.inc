@@ -11,7 +11,7 @@
 //  ___/ / ___ / /_/ /    / / / /___/ ___ |/ /  / /  
 // /____/_/  |_\____/    /_/ /_____/_/  |_/_/  /_/    
 
-#define _INTERACTION_MENU_VERSION "1.7.8"
+#define _INTERACTION_MENU_VERSION "1.7.9"
 
 #if defined _INC_interaction_menu
 	#endinput

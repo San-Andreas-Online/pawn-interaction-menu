@@ -11,7 +11,7 @@
 //  ___/ / ___ / /_/ /    / / / /___/ ___ |/ /  / /  
 // /____/_/  |_\____/    /_/ /_____/_/  |_/_/  /_/    
 
-#define _INTERACTION_MENU_VERSION "1.7.9"
+#define _INTERACTION_MENU_VERSION "1.8.0"
 
 #if defined _INC_interaction_menu
 	#endinput
@@ -100,6 +100,25 @@
 #if !defined COLOR_MENU_LOCKED_ITEM
 	#define COLOR_MENU_LOCKED_ITEM 0x6B6B6BA2
 #endif
+
+//sounds
+#if !defined MENU_SOUND_NAVIGATE
+	#define MENU_SOUND_NAVIGATE 1084
+#endif
+#if !defined MENU_SOUND_SELECT
+	#define MENU_SOUND_SELECT 1084
+#endif
+#if !defined MENU_SOUND_TOGGLE
+	#define MENU_SOUND_TOGGLE 1084
+#endif
+#if !defined MENU_SOUND_LOCKED
+	#define MENU_SOUND_LOCKED 1085
+#endif
+#if !defined MENU_SOUND_CLOSE
+	#define MENU_SOUND_CLOSE 1085
+#endif
+
+#define INVALID_SOUND_ID -1
 
 static enum e_MENU_TD
 {
@@ -1100,12 +1119,16 @@ HandleMenuNavigation(playerid, updown, index)
 		if (iSelectedMenuItemId[playerid] > 0) 
 		{
 			iSelectedMenuItemId[playerid]--;
-			PlayerPlaySound(playerid, 1084);
+			#if MENU_SOUND_NAVIGATE != INVALID_SOUND_ID
+				PlayerPlaySound(playerid, MENU_SOUND_NAVIGATE);
+			#endif
 		}
 		else if (iMenuScrollOffset[playerid] > 0) 
 		{
 			iMenuScrollOffset[playerid]--;
-			PlayerPlaySound(playerid, 1084);
+			#if MENU_SOUND_NAVIGATE != INVALID_SOUND_ID
+				PlayerPlaySound(playerid, MENU_SOUND_NAVIGATE);
+			#endif
 		}
 
 		UpdateMenuHighlight(playerid, interactionMenuItemCount[playerid]);
@@ -1116,12 +1139,16 @@ HandleMenuNavigation(playerid, updown, index)
 		&& index < interactionMenuItemCount[playerid] - 1)
 		{
 			iSelectedMenuItemId[playerid]++;
-			PlayerPlaySound(playerid, 1084);
+			#if MENU_SOUND_NAVIGATE != INVALID_SOUND_ID
+				PlayerPlaySound(playerid, MENU_SOUND_NAVIGATE);
+			#endif
 		}
 		else if (iMenuScrollOffset[playerid] + sizeof(tdMenuItemText[]) < interactionMenuItemCount[playerid])
 		{
 			iMenuScrollOffset[playerid]++;
-			PlayerPlaySound(playerid, 1084);
+			#if MENU_SOUND_NAVIGATE != INVALID_SOUND_ID
+				PlayerPlaySound(playerid, MENU_SOUND_NAVIGATE);
+			#endif
 		}
 
 		UpdateMenuHighlight(playerid, interactionMenuItemCount[playerid]);
@@ -1145,22 +1172,38 @@ HandleMenuSelection(playerid, KEY:keys, index)
 			{
 				bIsItemToggled[playerid][index] = !bIsItemToggled[playerid][index];
 				UpdateMenuHighlight(playerid, interactionMenuItemCount[playerid]);
-				PlayerPlaySound(playerid, 1084);
 				CallLocalFunction("OnInteractionMenuToggle", "iiid", playerid, iMenuId[playerid], index, bIsItemToggled[playerid][index]);
+
+				#if MENU_SOUND_TOGGLE != INVALID_SOUND_ID
+					PlayerPlaySound(playerid, MENU_SOUND_TOGGLE);
+				#endif
+				
 			}
 			else
 			{
 				HandleTDMenuItem(playerid, iSelectedMenuItemId[playerid], iMenuId[playerid], true);
 				IM_HideInteractionMenu(playerid, false);
+
+				#if MENU_SOUND_SELECT != INVALID_SOUND_ID
+					PlayerPlaySound(playerid, MENU_SOUND_SELECT);
+				#endif
 			}
 		}
-		else PlayerPlaySound(playerid, 1085);
+		else 
+		{
+			#if MENU_SOUND_LOCKED != INVALID_SOUND_ID
+				PlayerPlaySound(playerid, MENU_SOUND_LOCKED);
+			#endif
+		}
 	}
 	else if (keys & KEY_SECONDARY_ATTACK)
 	{
 		IM_HideInteractionMenu(playerid, false);
 		HandleTDMenuItem(playerid, iSelectedMenuItemId[playerid], iMenuId[playerid], false);
-		PlayerPlaySound(playerid, 1085);
+		#if MENU_SOUND_CLOSE != INVALID_SOUND_ID
+			PlayerPlaySound(playerid, MENU_SOUND_CLOSE);
+		#endif
+		
 	}
 }
 
@@ -1897,12 +1940,17 @@ public OnPlayerClickPlayerTextDraw(playerid, PlayerText:playertextid)
 		if (iSelectedMenuItemId[playerid] > 0) 
 		{
 			iSelectedMenuItemId[playerid]--;
-			PlayerPlaySound(playerid, 1084);
+			#if MENU_SOUND_NAVIGATE != INVALID_SOUND_ID
+				PlayerPlaySound(playerid, MENU_SOUND_NAVIGATE);
+			#endif
+			
 		}
 		else if (iMenuScrollOffset[playerid] > 0) 
 		{
 			iMenuScrollOffset[playerid]--;
-			PlayerPlaySound(playerid, 1084);
+			#if MENU_SOUND_NAVIGATE != INVALID_SOUND_ID
+				PlayerPlaySound(playerid, MENU_SOUND_NAVIGATE);
+			#endif
 		}
 
 		UpdateMenuHighlight(playerid, interactionMenuItemCount[playerid]);
@@ -1914,12 +1962,16 @@ public OnPlayerClickPlayerTextDraw(playerid, PlayerText:playertextid)
 		&& index < interactionMenuItemCount[playerid] - 1)
 		{
 			iSelectedMenuItemId[playerid]++;
-			PlayerPlaySound(playerid, 1084);
+			#if MENU_SOUND_NAVIGATE != INVALID_SOUND_ID
+				PlayerPlaySound(playerid, MENU_SOUND_NAVIGATE);
+			#endif
 		}
 		else if (iMenuScrollOffset[playerid] + sizeof(tdMenuItemText[]) < interactionMenuItemCount[playerid])
 		{
 			iMenuScrollOffset[playerid]++;
-			PlayerPlaySound(playerid, 1084);
+			#if MENU_SOUND_NAVIGATE != INVALID_SOUND_ID
+				PlayerPlaySound(playerid, MENU_SOUND_NAVIGATE);
+			#endif
 		}
 
 		UpdateMenuHighlight(playerid, interactionMenuItemCount[playerid]);
@@ -1956,15 +2008,28 @@ public OnPlayerClickPlayerTextDraw(playerid, PlayerText:playertextid)
 				bIsItemToggled[playerid][index] = !bIsItemToggled[playerid][index];
 				UpdateMenuHighlight(playerid, interactionMenuItemCount[playerid]);
 				CallLocalFunction("OnInteractionMenuToggle", "iiid", playerid, iMenuId[playerid], index, bIsItemToggled[playerid][index]);
+
+				#if MENU_SOUND_SELECT != INVALID_SOUND_ID
+					PlayerPlaySound(playerid, MENU_SOUND_SELECT);
+				#endif
 			}
 			else
 			{
 				HandleTDMenuItem(playerid, iSelectedMenuItemId[playerid], iMenuId[playerid], true);
 				IM_HideInteractionMenu(playerid, false);
 				CancelSelectTextDraw(playerid);
+
+				#if MENU_SOUND_TOGGLE != INVALID_SOUND_ID
+					PlayerPlaySound(playerid, MENU_SOUND_TOGGLE);
+				#endif
 			}
 		}
-		else PlayerPlaySound(playerid, 1085);
+		else
+		{
+			#if MENU_SOUND_LOCKED != INVALID_SOUND_ID
+				PlayerPlaySound(playerid, MENU_SOUND_LOCKED);
+			#endif
+		}
 	}
 
 	if (playertextid == tdAndroidText[playerid][CONTROL_BUTTON_CLOSE])
@@ -1972,7 +2037,10 @@ public OnPlayerClickPlayerTextDraw(playerid, PlayerText:playertextid)
 		IM_HideInteractionMenu(playerid, false);
 		HandleTDMenuItem(playerid, iSelectedMenuItemId[playerid], iMenuId[playerid], false);
 		CancelSelectTextDraw(playerid);
-		PlayerPlaySound(playerid, 1085);
+
+		#if MENU_SOUND_CLOSE != INVALID_SOUND_ID
+			PlayerPlaySound(playerid, MENU_SOUND_CLOSE);
+		#endif
 	}
 	
 	#if defined IM_OnPlayerClickPlayerTextDraw

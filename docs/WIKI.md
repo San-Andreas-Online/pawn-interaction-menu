@@ -74,6 +74,7 @@
 >| `MAX_MENU_ITEMS`         | Maximum total number of menu items   | 35            | Yes         |
 >| `MAX_SCROLL_ITEMS`       | Maximum number of scrollable values  | 15            | Yes         |
 >
+> Colors:
 >
 >| Name                                 | Description                    | Default Value | Redefinable |
 >|--------------------------------------|--------------------------------|---------------|-------------|
@@ -90,6 +91,18 @@
 >| `COLOR_MENU_ITEM_BOX`                | Item box color                 | 0xFFFFFF00    | Yes         |
 >| `COLOR_MENU_ITEM_TEXT`               | Item text color                | 0xFFFFFFFF    | Yes         |
 >| `COLOR_MENU_LOCKED_ITEM`             | Locked item color              | 0x6B6B6BA2    | Yes         |
+>
+> Sounds:
+>
+>| Name                    | Description                      | Default Value | Redefinable |
+>|-------------------------|----------------------------------|---------------|-------------|
+>| `MENU_SOUND_NAVIGATE`   | Sound played when navigating     | 1084          | Yes         |
+>| `MENU_SOUND_SELECT`     | Sound played when selecting      | 1084          | Yes         |
+>| `MENU_SOUND_TOGGLE`     | Sound played when toggling       | 1084          | Yes         |
+>| `MENU_SOUND_LOCKED`     | Sound played on locked item      | 1085          | Yes         |
+>| `MENU_SOUND_CLOSE`      | Sound played when closing        | 1085          | Yes         |
+>| `INVALID_SOUND_ID`      | Reserved identifier for no sound | -1            | No          |
+
 <!--  -->
 > [!NOTE]
 > When `MENU_DYNAMIC_SIZE` is set to `true`, the menu will automatically resize itself to fit the number of items instead of always using `MAX_VISIBLE_ITEMS` as the menu height.

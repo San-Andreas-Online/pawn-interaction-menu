@@ -56,6 +56,10 @@
 	#define MAX_SCROLL_ITEMS 15
 #endif
 
+#if !defined MENU_INPUT_COOLDOWN
+	#define MENU_INPUT_COOLDOWN 50
+#endif
+
 // TextDraw Menu Colors
 #if !defined DEFAULT_BOX_ALPHA
 	#define DEFAULT_BOX_ALPHA 0xAA
@@ -185,8 +189,10 @@ static unfreezeTimer[MAX_PLAYERS] = INVALID_TIMER;
 
 static bool:bWasFrozen[MAX_PLAYERS] = false;
 
-static lastActionTick[MAX_PLAYERS],
-	actionCount[MAX_PLAYERS]
+static KEY:lastKeys[MAX_PLAYERS],
+	lastUpDown[MAX_PLAYERS],
+	lastLeftRight[MAX_PLAYERS],
+	lastActionTick[MAX_PLAYERS]
 ;
 
 /**
@@ -949,6 +955,10 @@ static InitMenuState(playerid, menuid)
 	iSelectedMenuItemId[playerid] = 0;
 	iMenuScrollOffset[playerid] = 0;
 	interactionMenuItemCount[playerid] = 0;
+	lastKeys[playerid]      = KEY:0;
+    lastUpDown[playerid]    = 0;
+    lastLeftRight[playerid] = 0;
+    lastActionTick[playerid] = 0;
 }
 
 /**
@@ -1073,13 +1083,7 @@ bool:IsPlayerInMenu(playerid)
  */
 bool:CanProcessMenuInput(playerid)
 {
-	new tick = GetTickCount();
-	if (tick - lastActionTick[playerid] >= 1000)
-	{
-		lastActionTick[playerid] = tick;
-		actionCount[playerid] = 0;
-	}
-	return true;
+    return (GetTickCount() - lastActionTick[playerid]) >= MENU_INPUT_COOLDOWN;
 }
 
 /**
@@ -1105,7 +1109,6 @@ HandleMenuNavigation(playerid, updown, index)
 		}
 
 		UpdateMenuHighlight(playerid, interactionMenuItemCount[playerid]);
-		actionCount[playerid]++;
 	}
 	else if (updown == KEY_DOWN)
 	{
@@ -1122,7 +1125,6 @@ HandleMenuNavigation(playerid, updown, index)
 		}
 
 		UpdateMenuHighlight(playerid, interactionMenuItemCount[playerid]);
-		actionCount[playerid]++;
 	}
 }
 
@@ -1153,14 +1155,12 @@ HandleMenuSelection(playerid, KEY:keys, index)
 			}
 		}
 		else PlayerPlaySound(playerid, 1085);
-		actionCount[playerid]++;
 	}
 	else if (keys & KEY_SECONDARY_ATTACK)
 	{
 		IM_HideInteractionMenu(playerid, false);
 		HandleTDMenuItem(playerid, iSelectedMenuItemId[playerid], iMenuId[playerid], false);
 		PlayerPlaySound(playerid, 1085);
-		actionCount[playerid]++;
 	}
 }
 
@@ -1185,7 +1185,6 @@ HandleMenuScrolling(playerid, leftright, index)
 
 		HandleScrollItem(playerid, iMenuId[playerid], index, interactionMenuScrollIndex[playerid][index]);
 		UpdateMenuHighlight(playerid, interactionMenuItemCount[playerid]);
-		actionCount[playerid]++;
 	}
 	else if (leftright == KEY_LEFT)
 	{
@@ -1196,7 +1195,6 @@ HandleMenuScrolling(playerid, leftright, index)
 
 		HandleScrollItem(playerid, iMenuId[playerid], index, interactionMenuScrollIndex[playerid][index]);
 		UpdateMenuHighlight(playerid, interactionMenuItemCount[playerid]);
-		actionCount[playerid]++;
 	}
 }
 
@@ -1548,6 +1546,66 @@ static ItemPropertyCheck(playerid, const item[MAX_ITEM_LEN])
 }
 
 /**
+ * <summary>Gets only the keys the player pressed this frame.</summary>
+ * <remarks>
+ * Compares the current key state against the previous frame to filter out
+ * keys that are being held down.
+ * </remarks>
+ * <param name="playerid">The player to get the input for.</param>
+ * <param name="updownEdge">The up/down key if it was just pressed, 0 otherwise.</param>
+ * <param name="leftRightEdge">The left/right key if it was just pressed, 0 otherwise.</param>
+ * <param name="keysEdge">The key bits that just turned on this frame.</param>
+ */
+static GetInputEdges(playerid, &updownEdge, &leftRightEdge, &KEY:keysEdge)
+{
+    new KEY:keys, updown, leftright;
+    GetPlayerKeys(playerid, keys, updown, leftright);
+
+    updownEdge = (updown != lastUpDown[playerid]) ? updown : 0;
+    leftRightEdge = (leftright != lastLeftRight[playerid]) ? leftright : 0;
+    keysEdge = keys & ~lastKeys[playerid];
+
+    lastKeys[playerid] = keys;
+    lastUpDown[playerid] = updown;
+    lastLeftRight[playerid] = leftright;
+}
+
+/**
+ * <summary>Sends the player's input to the right menu handler.</summary>
+ * <remarks>
+ * Routes each pressed key to its corresponding handler
+ * </remarks>
+ * <param name="playerid">The player who pressed the key.</param>
+ * <param name="updownEdge">The up/down key if it was just pressed, 0 otherwise.</param>
+ * <param name="leftRightEdge">The left/right key if it was just pressed, 0 otherwise.</param>
+ * <param name="keysEdge">The key bits that just turned on this frame.</param>
+ * <param name="index">The current selected item index.</param>
+ * <returns>True if any input was handled, false otherwise.</returns>
+ */
+static bool:DispatchMenuInput(playerid, updownEdge, leftRightEdge, KEY:keysEdge, index)
+{
+    new bool:acted = false;
+
+    if (updownEdge != 0)
+    {
+        HandleMenuNavigation(playerid, updownEdge, index);
+        acted = true;
+    }
+    if (keysEdge & KEY_SPRINT || keysEdge & KEY_SECONDARY_ATTACK)
+    {
+        HandleMenuSelection(playerid, keysEdge, index);
+        acted = true;
+    }
+    if (leftRightEdge != 0)
+    {
+        HandleMenuScrolling(playerid, leftRightEdge, index);
+        acted = true;
+    }
+
+    return acted;
+}
+
+/**
  * <summary>Used internally to clean up the menu after closing for a player.</summary>
  * <remarks>
  * Called when a player closed the menu or clicked on an item
@@ -1778,43 +1836,22 @@ public OnPlayerDisconnect(playerid, reason)
  * <returns>Always returns 1.</returns>
  */
 public OnPlayerUpdate(playerid)
-{   
-	if (!IsPlayerInMenu(playerid))
-	#if defined IM_OnPlayerUpdate
-		return IM_OnPlayerUpdate(playerid);
-	#else
-		return 1;
-	#endif
+{
+    if (!IsPlayerInMenu(playerid)) return CallLocalFunction("IM_OnPlayerUpdate", "i", playerid);
 
-	new KEY:keys, updown, leftright;
-	GetPlayerKeys(playerid, keys, updown, leftright);
+    new updownEdge, leftRightEdge, KEY:keysEdge;
+    GetInputEdges(playerid, updownEdge, leftRightEdge, keysEdge);
 
-	if (!CanProcessMenuInput(playerid))
-	#if defined IM_OnPlayerUpdate
-		return IM_OnPlayerUpdate(playerid);
-	#else
-		return 1;
-	#endif
+    if (!CanProcessMenuInput(playerid)) return CallLocalFunction("IM_OnPlayerUpdate", "i", playerid);
 
-	if (actionCount[playerid] >= 2) 
-	#if defined IM_OnPlayerUpdate
-		return IM_OnPlayerUpdate(playerid);
-	#else
-		return 1;
-	#endif
+    new index = iMenuScrollOffset[playerid] + iSelectedMenuItemId[playerid];
 
-	new index = iMenuScrollOffset[playerid] + iSelectedMenuItemId[playerid];
+    if (DispatchMenuInput(playerid, updownEdge, leftRightEdge, keysEdge, index))
+        lastActionTick[playerid] = GetTickCount();
 
-	HandleMenuNavigation(playerid, updown, index);
-	HandleMenuSelection(playerid, keys, index);
-	HandleMenuScrolling(playerid, leftright, index);
-
-	#if defined IM_OnPlayerUpdate
-		return IM_OnPlayerUpdate(playerid);
-	#else
-		return 1;
-	#endif
+    return CallLocalFunction("IM_OnPlayerUpdate", "i", playerid);
 }
+forward IM_OnPlayerUpdate(playerid);
 #if defined _ALS_OnPlayerUpdate
 	#undef OnPlayerUpdate
 #else
@@ -1869,7 +1906,6 @@ public OnPlayerClickPlayerTextDraw(playerid, PlayerText:playertextid)
 		}
 
 		UpdateMenuHighlight(playerid, interactionMenuItemCount[playerid]);
-		actionCount[playerid]++;
 	}
 
 	if (playertextid == tdAndroidText[playerid][CONTROL_BUTTON_DOWN])
@@ -1887,7 +1923,6 @@ public OnPlayerClickPlayerTextDraw(playerid, PlayerText:playertextid)
 		}
 
 		UpdateMenuHighlight(playerid, interactionMenuItemCount[playerid]);
-		actionCount[playerid]++;
 	}
 
 
@@ -1899,7 +1934,6 @@ public OnPlayerClickPlayerTextDraw(playerid, PlayerText:playertextid)
 
 		HandleScrollItem(playerid, iMenuId[playerid], index, interactionMenuScrollIndex[playerid][index]);
 		UpdateMenuHighlight(playerid, interactionMenuItemCount[playerid]);
-		actionCount[playerid]++;
 	}
 
 	if (playertextid == tdAndroidText[playerid][CONTROL_BUTTON_LEFT])
@@ -1911,7 +1945,6 @@ public OnPlayerClickPlayerTextDraw(playerid, PlayerText:playertextid)
 
 		HandleScrollItem(playerid, iMenuId[playerid], index, interactionMenuScrollIndex[playerid][index]);
 		UpdateMenuHighlight(playerid, interactionMenuItemCount[playerid]);
-		actionCount[playerid]++;
 	}
 
 	if (playertextid == tdAndroidText[playerid][CONTROL_BUTTON_SELECT])
@@ -1932,7 +1965,6 @@ public OnPlayerClickPlayerTextDraw(playerid, PlayerText:playertextid)
 			}
 		}
 		else PlayerPlaySound(playerid, 1085);
-		actionCount[playerid]++;
 	}
 
 	if (playertextid == tdAndroidText[playerid][CONTROL_BUTTON_CLOSE])
@@ -1941,7 +1973,6 @@ public OnPlayerClickPlayerTextDraw(playerid, PlayerText:playertextid)
 		HandleTDMenuItem(playerid, iSelectedMenuItemId[playerid], iMenuId[playerid], false);
 		CancelSelectTextDraw(playerid);
 		PlayerPlaySound(playerid, 1085);
-		actionCount[playerid]++;
 	}
 	
 	#if defined IM_OnPlayerClickPlayerTextDraw

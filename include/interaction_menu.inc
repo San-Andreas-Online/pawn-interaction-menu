@@ -11,7 +11,7 @@
 //  ___/ / ___ / /_/ /    / / / /___/ ___ |/ /  / /  
 // /____/_/  |_\____/    /_/ /_____/_/  |_/_/  /_/    
 
-#define _INTERACTION_MENU_VERSION "1.8.0"
+#define _INTERACTION_MENU_VERSION "1.8.1"
 
 #if defined _INC_interaction_menu
 	#endinput
@@ -206,7 +206,6 @@ static
 
 static unfreezeTimer[MAX_PLAYERS] = INVALID_TIMER;
 
-static bool:bWasFrozen[MAX_PLAYERS] = false;
 
 static KEY:lastKeys[MAX_PLAYERS],
 	lastUpDown[MAX_PLAYERS],
@@ -625,6 +624,42 @@ static DestroyIMenu(playerid)
 }
 
 /**
+ * <summary>Checks if the player is in a menu</summary>
+ * <remarks>Returns true if the player currently has a menu open</remarks>
+ * <param name="playerid">The player who's description we're formating.</param>
+ * <returns>True if the player is in a menu</returns>
+ */
+bool:IsPlayerInMenu(playerid)
+{
+	#if defined _FOREACH_LOCAL_VERSION
+		if (Iter_Contains(itIsInMenu, playerid)) return true;
+		else return false;
+	#else
+		return bIsInMenu[playerid];
+	#endif
+}
+
+/** 
+ * <summary> Checks if the player was frozen before opening the menu.</summary>
+ * <remarks> Used internally to check when the menu should unfreeze the player.</remarks>
+ * <param name="playerid"> The player to check and then freeze.</param>
+ * <param name="toggle"> Boolean to freeze or not the player.</param>
+ * <
+*/
+stock IM_TogglePlayerControllable(playerid, bool:toggle)
+{
+	if (IsPlayerInMenu(playerid)) return false;
+
+	return TogglePlayerControllable(playerid, toggle);
+}
+#if defined _ALS_TogglePlayerControllable
+	#undef TogglePlayerControllable
+#else
+	#define _ALS_TogglePlayerControllable
+#endif
+#define TogglePlayerControllable IM_TogglePlayerControllable
+
+/**
  * <summary>Shows the menu to the player</summary>
  * <remarks>
  * This one has to be called first, to convert string and to be able to open another
@@ -953,7 +988,7 @@ static InitMenuState(playerid, menuid)
 	#if defined _FOREACH_LOCAL_VERSION
 		if (!Iter_Contains(itIsInMenu, playerid))
 		{
-			IM_TogglePlayerControllable(playerid, false);
+			TogglePlayerControllable(playerid, false);
 			Iter_Add(itHasLastMenu, playerid);
 		}
 		else IM_HideInteractionMenu(playerid, false);
@@ -962,7 +997,7 @@ static InitMenuState(playerid, menuid)
 	#else 
 		if (!bIsInMenu[playerid])
 		{
-			IM_TogglePlayerControllable(playerid, false);
+			TogglePlayerControllable(playerid, false);
 			bHasLastMenu[playerid] = true;
 		}
 		else IM_HideInteractionMenu(playerid, true);
@@ -1059,39 +1094,6 @@ static FormatMenuDescriptions(playerid, const menu_desc[])
 	}
 }
 
-/** 
- * <summary> Checks if the player was frozen before opening the menu.</summary>
- * <remarks> Used internally to check when the menu should unfreeze the player.</remarks>
- * <param name="playerid"> The player to check and then freeze.</param>
- * <param name="toggle"> Boolean to freeze or not the player.</param>
- * <
-*/
-static IM_TogglePlayerControllable(playerid, bool:toggle)
-{
-	if (bWasFrozen[playerid] && toggle) 
-	{
-		bWasFrozen[playerid] = false;
-		return TogglePlayerControllable(playerid, false);
-	}
-
-	return TogglePlayerControllable(playerid, toggle);
-}
-
-/**
- * <summary>Checks if the player is in a menu</summary>
- * <remarks>Returns true if the player currently has a menu open</remarks>
- * <param name="playerid">The player who's description we're formating.</param>
- * <returns>True if the player is in a menu</returns>
- */
-bool:IsPlayerInMenu(playerid)
-{
-	#if defined _FOREACH_LOCAL_VERSION
-		if (Iter_Contains(itIsInMenu, playerid)) return true;
-		else return false;
-	#else
-		return bIsInMenu[playerid];
-	#endif
-}
 
 /**
  * <summary>Checks if we can process the player's command</summary>
@@ -1686,7 +1688,7 @@ static IM_HideInteractionMenu(playerid, bool:forced)
 	for (new i = 0; i < MAX_MENU_ITEMS; i++)
 		ClearMenuItem(playerid, i);
 
-	if (forced) IM_TogglePlayerControllable(playerid, true);
+	if (forced) TogglePlayerControllable(playerid, true);
 
 	return 1;
 }
@@ -1748,7 +1750,7 @@ public DelayFromLastMenu(playerid)
 	#endif
 	
 	unfreezeTimer[playerid] = INVALID_TIMER;
-	IM_TogglePlayerControllable(playerid, true);
+	TogglePlayerControllable(playerid, true);
 }
 
 /**
@@ -2058,22 +2060,3 @@ public OnPlayerClickPlayerTextDraw(playerid, PlayerText:playertextid)
 #if defined IM_OnPlayerClickPlayerTextDraw
 	forward IM_OnPlayerClickPlayerTextDraw(playerid, PlayerText:playertextid);
 #endif
-
-/*
- * Hook of TogglePlayerControllable to store when the player was frozen or unfrozen.
-*/
-stock hook_TogglePlayerControllable(playerid, bool:toggle)
-{
-	if (!toggle) bWasFrozen[playerid] = true;
-	else bWasFrozen[playerid] = false;	
-
-	if (IsPlayerInMenu(playerid)) return false;
-
-	return TogglePlayerControllable(playerid, toggle);
-}
-#if defined _ALS_TogglePlayerControllable
-	#undef TogglePlayerControllable
-#else
-	#define _ALS_TogglePlayerControllable
-#endif
-#define TogglePlayerControllable hook_TogglePlayerControllable
